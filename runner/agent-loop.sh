@@ -104,6 +104,7 @@ last_error() {
 }
 
 STOP_REASON=""
+VERIFY_FAILURES=""
 idle=0
 i=0
 while [ "$i" -lt "$MAX_SESSIONS" ]; do
@@ -119,12 +120,21 @@ while [ "$i" -lt "$MAX_SESSIONS" ]; do
   guard_offset=$(count_lines "$GUARD_LOG")
   t0=$(date +%s); d0=$(date -Is)
   log "== session $i $d0 main=$(main_sha)"
+  prompt="$PROMPT"
+  if [ -n "$VERIFY_FAILURES" ]; then
+    prompt="$PROMPT
+
+ATTENTION : la vérification indépendante de main par l'outillage a échoué après la dernière session qui a modifié main : $VERIFY_FAILURES. Le détail est dans docs/journal.md (dernière entrée « contrôle »). Applique AGENTS.md section 6, « Vérification indépendante » : corrige d'abord cet échec par un ticket bug."
+  fi
   # Le jeton de publication n'est pas transmis à l'agent
   env -u GIT_PUSH_TOKEN timeout "$SESSION_TIMEOUT" \
-    opencode run --auto --format json --model "$OPENCODE_MODEL" "$PROMPT" > "$json" 2> "$err"
+    opencode run --auto --format json --model "$OPENCODE_MODEL" "$prompt" > "$json" 2> "$err"
   code=$?
   dur=$(( $(date +%s) - t0 ))
-  ticket=$(git branch --show-current 2>/dev/null | sed -E 's#^[a-z]+/##; s#-[a-z].*$##')
+  # Ticket de la session : celui des commits ajoutés (sur main ou sur la branche courante), sinon la branche
+  ticket=$(git log --format=%s "${before_main:-HEAD}..HEAD" 2>/dev/null | grep -oE '(F[0-9]{2}-S[0-9]+|T-[0-9]{3}|B-[0-9]{3})#' | head -1 | tr -d '#')
+  [ -n "$ticket" ] || ticket=$(git log --format=%s "${before_main:-main}..main" 2>/dev/null | grep -oE '(F[0-9]{2}-S[0-9]+|T-[0-9]{3}|B-[0-9]{3})#' | head -1 | tr -d '#')
+  [ -n "$ticket" ] || ticket=$(git branch --show-current 2>/dev/null | sed -E 's#^[a-z]+/##; s#-[a-z].*$##')
   usage=$(usage_of "$json")
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$i" "$d0" "$dur" "$code" "${ticket:-main}" "$usage" "$(main_sha)" >> "$SESSIONS_TSV"
   IFS=$'\t' read -r t_in t_out t_re t_cr t_cw t_cost <<< "$usage"
@@ -139,6 +149,16 @@ while [ "$i" -lt "$MAX_SESSIONS" ]; do
     log "!! $STOP_REASON"
     PENDING_EVENTS="$events"
     break
+  fi
+
+  # Vérification indépendante de main (niveau 4), si main a avancé pendant la session
+  verify_out=$(node /runner/run-checks.mjs verify --before "$before_main" --session "$i" \
+    --ticket "${ticket:-RUN}" 2>>"$LOGS/verify-errors.log" || echo '{"events":[],"failures":[]}')
+  if [ "$(echo "$verify_out" | jq '.events | length' 2>/dev/null || echo 0)" -gt 0 ]; then
+    VERIFY_FAILURES=$(echo "$verify_out" | jq -r '.failures | join(" ; ")')
+    if [ -n "$VERIFY_FAILURES" ]; then log "   vérification indépendante : échec ($VERIFY_FAILURES)"
+    else log "   vérification indépendante : réussie"; fi
+    events=$(jq -s 'add' <<< "$events $(echo "$verify_out" | jq -c '.events')")
   fi
 
   journal_commit "$events"

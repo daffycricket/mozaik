@@ -2,7 +2,7 @@
 
 ## Le produit
 
-Un tableau blanc collaboratif open source, de type Miro : un espace de travail visuel infini où plusieurs personnes posent et organisent ensemble des post-its, des formes, du texte et des flèches, en voyant les modifications et les curseurs des autres en temps réel.
+**Mozaik** (identifiant technique `mozaik`, préfixe des paquets `@mozaik/`) est un tableau blanc collaboratif open source, de type Miro : un espace de travail visuel infini où plusieurs personnes posent et organisent ensemble des post-its, des formes, du texte et des flèches, en voyant les modifications et les curseurs des autres en temps réel.
 
 ## Principes
 

@@ -2,12 +2,14 @@
 //
 //   node run-checks.mjs check --before <sha> --session <n> --ticket <id> --exit <code> --guard-offset <k>
 //       -> écrit sur stdout un tableau JSON d'événements {type, ticket, summary, link, review}
+//   node run-checks.mjs verify --before <sha> --session <n> --ticket <id>
+//       -> vérification indépendante de main (worktree propre) ; écrit sur stdout {events, failures}
 //   node run-checks.mjs journal < events.json
 //       -> insère les événements en tête du tableau « Entrées » de docs/journal.md
 //
 // Aucun contrôle ne bloque : les écarts sont constatés et tracés.
 import { execFileSync, spawnSync } from "node:child_process";
-import { readFileSync, writeFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdtempSync, rmSync, readdirSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -22,6 +24,11 @@ const ASSERT_RE = /\bexpect(?:\.soft|\.poll)?\s*\(|\bassert(?:\.\w+)?\s*\(/g;
 const SPEC_PATHS = ["docs/features", "docs/design/ecrans.md"];
 const REPLAY = process.env.TNR_REPLAY !== "0";
 const REPLAY_TIMEOUT_MS = Number(process.env.REPLAY_TIMEOUT_MS || 20 * 60 * 1000);
+const VERIFY = process.env.VERIFY_INDEPENDENT !== "0";
+const VERIFY_TIMEOUT_MS = Number(process.env.VERIFY_TIMEOUT_MS || 30 * 60 * 1000);
+const COVERAGE_MIN = 80;
+const COVERAGE_TOLERANCE = 0.5;
+const LOGS = process.env.RUN_LOGS || "/run-logs";
 const DISABLED_TEST_RE = /\b(it|test|describe)\.(skip|only|fixme)\s*\(|\bx(it|describe)\s*\(|\btest\.fixme\s*\(/;
 
 function git(...args) {
@@ -210,6 +217,118 @@ function replay(before, files) {
   }
 }
 
+// Vérification indépendante : rejoue sur un worktree propre de main les commandes que l'agent déclare
+// avoir exécutées, et compare la couverture mesurée aux trailers du dernier commit d'étape.
+function verify() {
+  const before = arg("before");
+  const session = String(arg("session", "?")).padStart(3, "0");
+  const ticket = arg("ticket", "RUN") || "RUN";
+  const logFile = join(LOGS, `verify-${session}.log`);
+  const link = `logs/verify-${session}.log`;
+  const result = { events: [], failures: [] };
+  const mainNow = git("rev-parse", "main")?.trim();
+  if (!VERIFY || !mainNow || mainNow === before) return result;
+  const pkgSrc = git("show", "main:package.json");
+  if (pkgSrc === null) return result;
+  let scripts = {};
+  try { scripts = JSON.parse(pkgSrc).scripts || {}; } catch { /* package.json illisible : les scripts apparaîtront absents */ }
+  const has = (name) => typeof scripts[name] === "string";
+
+  const short = mainNow.slice(0, 7);
+  const dir = mkdtempSync(join(tmpdir(), "verify-"));
+  const logLine = (t) => { try { appendFileSync(logFile, `${t}\n`); } catch { /* journal local facultatif */ } };
+  const run = (name, args) => {
+    logLine(`\n=== ${name} : pnpm ${args.join(" ")}`);
+    const r = spawnSync("pnpm", args, {
+      cwd: dir, timeout: VERIFY_TIMEOUT_MS, encoding: "utf8", maxBuffer: 64 * 1024 * 1024,
+      env: { ...process.env, CI: "true", FORCE_COLOR: "0" },
+    });
+    logLine(`${r.stdout || ""}${r.stderr || ""}`.split("\n").slice(-200).join("\n"));
+    if (r.error) return `${name} : ${r.error.code === "ETIMEDOUT" ? "délai dépassé" : r.error.message}`;
+    return r.status === 0 ? null : `${name} : échec (code ${r.status})`;
+  };
+
+  const passed = [], failed = [], missing = [];
+  try {
+    if (!ok("worktree", "add", "--detach", dir, "main")) {
+      result.events.push({ type: "run", ticket, summary: "Vérification indépendante impossible : création du worktree.", link, review: "non" });
+      return result;
+    }
+    logLine(`Vérification indépendante de main @ ${short}, session ${session}`);
+    const install = run("install", ["install", "--frozen-lockfile", "--prefer-offline"]);
+    if (install) failed.push(install);
+    else {
+      const steps = [["lint"], ["typecheck"], has("test:cov") ? ["test:cov"] : ["test:unit", "test:int"], ["test:e2e"], ["ac:check"]].flat();
+      for (const s of steps) {
+        if (!has(s)) { missing.push(s); continue; }
+        const e = run(s, ["run", s]);
+        (e ? failed : passed).push(e || s);
+      }
+    }
+
+    // Couverture mesurée contre couverture déclarée
+    const measured = has("test:cov") && !failed.some((f) => f.startsWith("test:cov")) ? coverageOf(dir) : null;
+    const declared = declaredCoverage(before);
+    if (measured) {
+      const m = `lignes ${measured.lines} %, branches ${measured.branches} %`;
+      if (measured.lines < COVERAGE_MIN || measured.branches < COVERAGE_MIN) failed.push(`couverture sous ${COVERAGE_MIN} % (${m})`);
+      if (declared) {
+        const gap = Math.max(declared.lines - measured.lines, declared.branches - measured.branches);
+        if (gap > COVERAGE_TOLERANCE) failed.push(`couverture mesurée (${m}) inférieure à la couverture déclarée dans ${declared.sha} (lignes ${declared.lines} %, branches ${declared.branches} %)`);
+        else passed.push(`couverture conforme aux trailers (${m})`);
+      } else passed.push(`couverture ${m}`);
+    }
+  } finally {
+    git("worktree", "remove", "--force", dir);
+    rmSync(dir, { recursive: true, force: true });
+  }
+
+  const absent = missing.length ? ` Scripts absents, non vérifiés : ${missing.join(", ")}.` : "";
+  if (failed.length) {
+    result.failures = failed;
+    result.events.push({ type: "contrôle", ticket, link, review: "oui",
+      summary: `Vérification indépendante de main @ ${short} en échec : ${failed.join(" ; ")}.${absent} La session suivante doit corriger via un ticket bug.` });
+  } else {
+    result.events.push({ type: "contrôle", ticket, link, review: "non",
+      summary: `Vérification indépendante de main @ ${short} réussie : ${passed.join(", ")}.${absent}` });
+  }
+  return result;
+}
+
+// Couverture globale : le coverage-summary.json le plus récent du worktree (hors node_modules)
+function coverageOf(dir) {
+  let best = null;
+  const walk = (d, depth) => {
+    if (depth > 4) return;
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      if (e.name === "node_modules" || e.name === ".git") continue;
+      const p = join(d, e.name);
+      if (e.isDirectory()) walk(p, depth + 1);
+      else if (e.name === "coverage-summary.json") {
+        const t = statSync(p).mtimeMs;
+        if (!best || t > best.t) best = { p, t };
+      }
+    }
+  };
+  try { walk(dir, 0); } catch { return null; }
+  if (!best) return null;
+  try {
+    const total = JSON.parse(readFileSync(best.p, "utf8")).total;
+    return { lines: Number(total.lines.pct), branches: Number(total.branches.pct) };
+  } catch { return null; }
+}
+
+// Dernier trailer « Coverage: lines X%, branches Y% » ajouté sur main pendant la session
+function declaredCoverage(before) {
+  const log = git("log", "--format=%h%x1f%B%x1e", before ? `${before}..main` : "main") || "";
+  for (const rec of log.split("\x1e")) {
+    const [sha, body = ""] = rec.trim().split("\x1f");
+    const m = body.match(/^Coverage:\s*lines\s*([\d.]+)\s*%,\s*branches\s*([\d.]+)\s*%/m);
+    if (m) return { sha, lines: Number(m[1]), branches: Number(m[2]) };
+  }
+  return null;
+}
+
 function journal() {
   const events = JSON.parse(readFileSync(0, "utf8") || "[]");
   if (!events.length) return;
@@ -228,5 +347,6 @@ function journal() {
 
 const cmd = process.argv[2];
 if (cmd === "check") process.stdout.write(JSON.stringify(check()));
+else if (cmd === "verify") process.stdout.write(JSON.stringify(verify()));
 else if (cmd === "journal") journal();
-else { console.error("usage: run-checks.mjs check|journal"); process.exit(2); }
+else { console.error("usage: run-checks.mjs check|verify|journal"); process.exit(2); }

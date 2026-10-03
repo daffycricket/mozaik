@@ -5,7 +5,7 @@ Lis ce fichier en entier avant toute action. Il est court par construction : le 
 
 ## 1. Le projet en une phrase
 
-Une application open source de tableau blanc collaboratif de type Miro : canvas infini, post-its, formes, textes, flèches, édition simultanée par plusieurs utilisateurs en temps réel, avec une expérience fluide. Cible actuelle : exécution locale uniquement (pas de déploiement).
+**Mozaik**, une application open source de tableau blanc collaboratif de type Miro : canvas infini, post-its, formes, textes, flèches, édition simultanée par plusieurs utilisateurs en temps réel, avec une expérience fluide. Cible actuelle : exécution locale uniquement (pas de déploiement).
 
 ## 2. Carte de la documentation
 
@@ -75,6 +75,8 @@ Tu travailles **en totale autonomie, sans humain disponible**. Tu ne poses jamai
 **Une session = un ticket.** Chaque session traite un seul ticket jusqu'à son intégration dans `main`, puis se termine. Une nouvelle session sera relancée pour le ticket suivant.
 
 **Git local uniquement.** N'ajoute aucun remote et ne pousse jamais (`git push` est interdit). Les fichiers `RUN.md` et `RUN-SUMMARY.md`, s'ils existent, appartiennent à l'outillage d'exécution : ne les modifie pas.
+
+**Vérification indépendante.** Après chaque session qui modifie `main`, l'outillage d'exécution rejoue sur une copie propre de `main` les commandes `lint`, `typecheck`, `test:cov`, `test:e2e` et `ac:check`, et compare la couverture mesurée aux trailers `Coverage:` de tes commits. Le résultat est tracé dans `docs/journal.md`. Si la consigne de ta session signale un échec, tu le traites avant toute reprise et tout autre ticket : inscris un ticket `bug` dans `docs/backlog.md` qui décrit l'échec, traite-le selon les étapes 4 à 9 ci-dessous, puis termine la session. Un ticket `in-progress` reprendra à la session suivante, sa branche rebasée sur `main` corrigé.
 
 1. Si le dossier n'est pas un dépôt Git, exécute `git init -b main` et commite le contexte tel quel : `docs(context): import agent context`.
 2. **Reprise** : si un ticket est `in-progress` dans `docs/backlog.md`, reprends-le. Va sur sa branche, lis son plan `docs/plans/<ticket-id>.md` et `git log --oneline` pour voir les étapes déjà commitées, abandonne tout travail non commité (`git restore --staged --worktree . && git clean -fd`), et continue à l'étape suivante.

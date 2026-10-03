@@ -48,8 +48,7 @@ git -C "$WS" remote remove origin
 # Premier commit du run : retrait de l'outillage, métadonnées du run
 git -C "$WS" rm -rq --ignore-unmatch runner .devcontainer
 # Retirer du README la section propre au dépôt de contexte (entre les marqueurs runner:start/end)
-sed -i '/<!-- runner:start -->/,/<!-- runner:end -->/d' "$WS/README.md"
-cat -s "$WS/README.md" > "$WS/README.md.tmp" && mv "$WS/README.md.tmp" "$WS/README.md"
+awk '/<!-- runner:start -->/{skip=1} !skip{print} /<!-- runner:end -->/{skip=0}' "$WS/README.md" | cat -s > "$WS/README.md.tmp" && mv "$WS/README.md.tmp" "$WS/README.md"
 git -C "$WS" add README.md
 cat > "$WS/RUN.md" <<META
 # Run $RUN_ID
@@ -58,7 +57,7 @@ cat > "$WS/RUN.md" <<META
 |---|---|
 | Modèle | \`$MODEL\` |
 | Label | ${LABEL:-aucun} |
-| Démarrage | $(date -Is) |
+| Démarrage | $(date -u +%Y-%m-%dT%H:%M:%SZ) |
 | Contexte | \`$CONTEXT_REF\` @ \`$CONTEXT_SHA\` |
 | Branche | \`$RUN_BRANCH\` |
 

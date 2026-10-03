@@ -16,6 +16,8 @@ services:
       MAX_IDLE: ${MAX_IDLE:-2}
       TNR_REPLAY: ${TNR_REPLAY:-1}
       REPLAY_TIMEOUT_MS: ${REPLAY_TIMEOUT_MS:-1200000}
+      VERIFY_INDEPENDENT: ${VERIFY_INDEPENDENT:-1}
+      VERIFY_TIMEOUT_MS: ${VERIFY_TIMEOUT_MS:-1800000}
     volumes:
       - ${RUN_DIR}/workspace:/workspace
       - ${RUN_DIR}/logs:/run-logs

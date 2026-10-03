@@ -89,6 +89,8 @@ L'agent n'a ni remote ni jeton : le jeton n'est utilisé que par la boucle et n'
 | `CONTEXT_REF` | main | Branche ou tag du contexte à utiliser |
 | `TNR_REPLAY` | 1 | Rejeu des tests hérités modifiés (`0` pour le désactiver) |
 | `REPLAY_TIMEOUT_MS` | 1200000 | Durée maximale de chaque étape du rejeu |
+| `VERIFY_INDEPENDENT` | 1 | Vérification indépendante de `main` après chaque session (`0` pour la désactiver) |
+| `VERIFY_TIMEOUT_MS` | 1800000 | Durée maximale de chaque commande de la vérification indépendante |
 | `OPENCODE_VERSION` | latest | Version d'OpenCode installée dans l'image |
 
 Exemple : `MAX_SESSIONS=40 runner/start-run.sh <provider>/<model> court`.
@@ -124,7 +126,15 @@ Chaque refus est aussi écrit dans `logs/guard.jsonl`. Le plugin est installé d
 | Rejeu des tests hérités modifiés | Leur version d'avant la session est exécutée sur le nouveau code (worktree temporaire) : un échec sans changement de spec signale une régression probablement masquée |
 | Session | Garde-fou non chargé, session en erreur ou hors délai |
 
-Les entrées `garde-fou` et `contrôle` sont marquées « À revoir : oui ». Leur nombre par run est un indicateur de discipline du modèle.
+**Vérification indépendante** (`run-checks.mjs verify`), après chaque session qui a fait avancer `main`. La boucle, et non l'agent, rejoue sur un worktree propre de `main` : `pnpm install --frozen-lockfile`, puis `lint`, `typecheck`, `test:cov` (à défaut `test:unit` et `test:int`), `test:e2e`, `ac:check`. Elle compare la couverture mesurée au dernier trailer `Coverage:` de la session (tolérance 0,5 point) et au seuil de 80 %. Un script absent (début de run) est signalé, pas compté comme un échec.
+
+- Réussite : entrée `contrôle` « À revoir : non ».
+- Échec : entrée `contrôle` « À revoir : oui », et la consigne de chaque session suivante signale l'échec tant qu'une nouvelle vérification n'a pas réussi. `AGENTS.md` impose alors de corriger d'abord par un ticket `bug`.
+- Sortie des commandes (200 dernières lignes de chacune) : `logs/verify-<session>.log`.
+
+Durée ajoutée par session : installation (rapide grâce au cache pnpm partagé) et exécution complète des tests, e2e compris.
+
+Les refus du garde-fou et les écarts relevés par les contrôles sont marqués « À revoir : oui ». Leur nombre par run est un indicateur de discipline du modèle.
 
 Les événements d'une session sont commités sur la branche courante en fin de session. Si c'était une branche de ticket jamais intégrée, ils restent visibles dans `RUN-SUMMARY.md` et `logs/events.jsonl`.
 

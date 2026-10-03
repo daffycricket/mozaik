@@ -106,6 +106,10 @@ Quand l'agent est exécuté par l'outillage du run, ces règles sont vérifiées
 - Playwright : `retries: 0` en local. Un test qui ne passe qu'au retry n'est pas vert.
 - Chaque test e2e crée son propre board (nom unique) : aucun état partagé entre tests.
 
+## Vérification indépendante
+
+Après chaque session qui modifie `main`, l'outillage d'exécution rejoue `lint`, `typecheck`, `test:cov` (à défaut `test:unit` et `test:int`), `test:e2e` et `ac:check` sur une copie propre de `main` (installation à partir du lockfile), et compare la couverture mesurée aux trailers `Coverage:` (tolérance 0,5 point, seuil 80 %). Un écart est tracé au journal et se corrige par un ticket `bug` (AGENTS.md section 6). Conséquence : `main` doit rester vert sans rien d'autre que le dépôt, sans fichier non commité ni service lancé à la main.
+
 ## Rapport de test
 
 Un fichier par ticket, `docs/test-reports/<TICKET-ID>.md`, avec **une section par étape du plan**. `pnpm report <TICKET-ID> --step <n>` crée le fichier si besoin et y ajoute (ou remplace) la section de l'étape n, à partir des sorties JSON de Vitest et Playwright et de `coverage-summary.json`. La section est commitée avec l'étape (`process/git.md`).
