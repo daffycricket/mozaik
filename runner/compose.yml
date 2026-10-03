@@ -1,0 +1,31 @@
+# Lancé par runner/start-run.sh, qui fixe RUN_DIR et OPENCODE_MODEL.
+services:
+  agent:
+    build:
+      context: .
+      args:
+        OPENCODE_VERSION: ${OPENCODE_VERSION:-latest}
+    image: miro-agent-runner:${OPENCODE_VERSION:-latest}
+    env_file: .env
+    environment:
+      OPENCODE_MODEL: ${OPENCODE_MODEL}
+      RUN_BRANCH: ${RUN_BRANCH}
+      RUN_REMOTE: ${RUN_REMOTE:-}
+      MAX_SESSIONS: ${MAX_SESSIONS:-80}
+      SESSION_TIMEOUT: ${SESSION_TIMEOUT:-4h}
+      MAX_IDLE: ${MAX_IDLE:-2}
+      TNR_REPLAY: ${TNR_REPLAY:-1}
+      REPLAY_TIMEOUT_MS: ${REPLAY_TIMEOUT_MS:-1200000}
+    volumes:
+      - ${RUN_DIR}/workspace:/workspace
+      - ${RUN_DIR}/logs:/run-logs
+      - ${RUN_DIR}/opencode-data:/home/node/.local/share/opencode
+      - pw-browsers:/ms-playwright
+      - pnpm-store:/home/node/.local/share/pnpm/store
+    shm_size: 1gb
+
+volumes:
+  pw-browsers:
+    name: miro-agent-pw-browsers
+  pnpm-store:
+    name: miro-agent-pnpm-store

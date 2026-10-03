@@ -1,0 +1,42 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": "allow",
+  "provider": {
+    "umans": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Umans AI",
+      "options": {
+        "baseURL": "https://api.code.umans.ai/v1",
+        "apiKey": "{env:UMANS_API_KEY}"
+      },
+      "models": {
+        "umans-coder": { "name": "Umans Coder" },
+        "umans-flash": { "name": "Umans Flash" },
+        "umans-kimi-k2.7": { "name": "Umans Kimi K2.7" },
+        "umans-glm-5.2": { "name": "Umans GLM 5.2" }
+      }
+    },
+    "scw": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Scaleway Generative APIs",
+      "options": {
+        "baseURL": "https://api.scaleway.ai/v1",
+        "apiKey": "{env:SCW_SECRET_KEY}"
+      },
+      "models": {
+        "<model-id-a-remplacer>": { "name": "Modèle Scaleway (à remplacer)" }
+      }
+    },
+    "scw-managed": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Scaleway Managed Inference",
+      "options": {
+        "baseURL": "{env:SCW_MANAGED_BASE_URL}",
+        "apiKey": "{env:SCW_SECRET_KEY}"
+      },
+      "models": {
+        "<model-id-a-remplacer>": { "name": "Modèle déployé (à remplacer)" }
+      }
+    }
+  }
+}

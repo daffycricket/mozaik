@@ -1,0 +1,50 @@
+# Journal du projet
+
+Trace des décisions et des événements qui modifient le cadre du projet pendant l'implémentation. Il permet à l'humain de voir, en revenant, ce que l'agent a décidé ou changé sans lui.
+
+## Ce qui va dans le journal
+
+Une ligne par événement, **la plus récente en haut** :
+
+| Type | Quand |
+|---|---|
+| `décision` | L'agent tranche un point flou ou non spécifié, ou fait un choix structurant (bibliothèque, format de données, protocole, convention, comportement non décrit) |
+| `spec` | Un critère d'acceptance ou une règle métier est ajouté, précisé ou corrigé dans `docs/features/` |
+| `adr` | Un ADR est créé ou en remplace un autre |
+| `seuil` | Un seuil de fluidité est ajusté (détail dans l'historique de F00) |
+| `test` | Un test est désactivé ou instable, une exclusion de couverture est ajoutée, ou un test hérité est modifié parce que sa spec a changé (citer le chemin de chaque fichier et la spec) |
+| `backlog` | Un ticket est ajouté, découpé, réordonné ou abandonné ; un bug est découvert |
+| `blocage` | Un ticket passe en `blocked` malgré les règles de repli |
+| `dépendance` | Une dépendance est ajoutée ou retirée (avec sa licence) |
+| `environnement` | Problème d'outil ou de machine : Docker absent, version changée, test non exécutable |
+| `abandon` | Une approche est abandonnée et l'enseignement dépasse le ticket |
+| `bilan` | Plus aucun ticket n'est faisable : état final (tickets `done`, `blocked`, restants) et raisons |
+| `garde-fou` | *Écrit par l'outillage du run.* Une commande ou une modification interdite a été bloquée |
+| `contrôle` | *Écrit par l'outillage du run.* Un écart aux règles a été constaté après une session (format, historique, fichier protégé, test désactivé) |
+| `run` | *Écrit par l'outillage du run.* Événement d'exécution : session en échec ou hors délai, crédit épuisé, fin du run |
+
+## Entrées écrites par l'outillage
+
+Quand l'agent est exécuté par un outillage automatisé, celui-ci ajoute lui-même des entrées `garde-fou`, `contrôle` et `run`, dans un commit `chore(run): RUN#0 journal`. L'agent les lit comme les autres, ne les modifie pas, et en tient compte (une entrée `contrôle` signale une règle qu'il a enfreinte).
+
+## Ce qui n'y va pas
+
+Fichiers créés, code modifié, exécutions de tests, commits, retours arrière à l'intérieur d'une étape : ils sont déjà dans Git, dans les rapports de test et dans le journal du plan du ticket.
+
+## Colonne « À revoir »
+
+- `oui` pour les types `décision`, `spec`, `adr`, `seuil`, `test`, `garde-fou` et `contrôle` : l'humain doit en prendre connaissance.
+- `non` pour les autres.
+- L'humain remplace `oui` par `revu` après lecture. L'agent ne modifie jamais cette valeur.
+
+## Format
+
+- Date : AAAA-MM-JJ.
+- Résumé : une ou deux phrases, la décision et sa raison.
+- Lien : fichier modifié, ADR, plan ou rapport où se trouve le détail.
+
+## Entrées
+
+| Date | Ticket | Type | Résumé | Lien | À revoir |
+|---|---|---|---|---|---|
+| | | | | | |
