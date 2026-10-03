@@ -59,7 +59,7 @@ Vérifier un fournisseur avant un long run : `MAX_SESSIONS=1 runner/start-run.sh
 | **Crédit épuisé chez le fournisseur** | Le travail **en l'état** : branche de ticket en cours, travail non commité compris, dans un commit `chore(run): RUN#0 stopped, provider credit exhausted` (session, branche, dernière erreur), puis la synthèse |
 | Garde-fou : `MAX_IDLE` sessions sans commit, ou `MAX_SESSIONS` atteint | `main` du run + synthèse |
 
-**Crédit épuisé** : détecté dans les événements d'erreur d'OpenCode (statut HTTP 402, ou message correspondant à `CREDIT_ERROR_PATTERNS` : « insufficient quota », « credit balance », « payment required », « billing »…). Une limite de débit (429) n'arrête pas le run. Si un fournisseur formule son erreur autrement, ajouter son message à `CREDIT_ERROR_PATTERNS` dans `.env`. Si la branche de ticket en cours ne prolonge pas la branche publiée, le travail est poussé sur `run/<run-id>-stopped`.
+**Crédit épuisé** : détecté dans les événements d'erreur d'OpenCode (statut HTTP 402, ou message correspondant à `CREDIT_ERROR_PATTERNS` : « insufficient quota », « credit balance », « payment required », « billing »…). Une limite de débit (429, « rate limit ») n'arrête pas le run tant qu'elle est passagère : OpenCode réessaie en silence. Si elle persiste sans aucune activité de l'agent pendant `QUOTA_WAIT` secondes (15 min par défaut), la boucle interrompt la session et traite le cas comme un crédit épuisé : c'est la forme que prend la fin de quota d'un abonnement (umans : « You've reached the request rate limit for your account »). Les erreurs de fournisseur sont lues dans le log d'OpenCode (`opencode-data/log/`), car elles n'apparaissent pas dans la sortie JSON pendant les réessais. Si un fournisseur formule son erreur autrement, ajouter son message à `CREDIT_ERROR_PATTERNS` dans `.env`. Si la branche de ticket en cours ne prolonge pas la branche publiée, le travail est poussé sur `run/<run-id>-stopped`.
 
 ## Consommation (tokens et coût)
 
@@ -90,6 +90,8 @@ L'agent n'a ni remote ni jeton : le jeton n'est utilisé que par la boucle et n'
 | `TNR_REPLAY` | 1 | Rejeu des tests hérités modifiés (`0` pour le désactiver) |
 | `REPLAY_TIMEOUT_MS` | 1200000 | Durée maximale de chaque étape du rejeu |
 | `VERIFY_INDEPENDENT` | 1 | Vérification indépendante de `main` après chaque session (`0` pour la désactiver) |
+| `QUOTA_WAIT` | 900 | Secondes sans activité de l'agent, avec une erreur de limite de débit ou de quota dans le log OpenCode, avant de traiter le cas comme un crédit épuisé |
+| `STALL_TIMEOUT` | 3600 | Secondes sans aucune activité de l'agent avant d'interrompre la session (le run continue avec la session suivante) |
 | `VERIFY_TIMEOUT_MS` | 1800000 | Durée maximale de chaque commande de la vérification indépendante |
 | `OPENCODE_VERSION` | latest | Version d'OpenCode installée dans l'image |
 
@@ -104,7 +106,7 @@ Deux mécanismes rendent les règles d'`AGENTS.md` applicables, quel que soit le
 | Interdit | Règle |
 |---|---|
 | `git push`, `git remote add/set-url/rename` | Git local uniquement |
-| `--no-verify`, `git commit -n`, `git config core.hooksPath` | Pas de contournement des hooks |
+| `--no-verify`, `git commit -n`, `core.hooksPath` vidé ou pointé vers `/dev/null` (le lire ou l'installer reste permis) | Pas de contournement des hooks |
 | `git reset --hard`, `rebase`, `commit --amend`, `filter-branch`… **sur `main`** | Pas de réécriture de `main` (autorisé sur une branche de ticket) |
 | `git branch -D/-f main`, suppression de `.git` | Intégrité du dépôt |
 | Modification de `RUN.md` ou `RUN-SUMMARY.md` (outil d'édition ou commande shell) | Fichiers de l'outillage |
@@ -140,7 +142,11 @@ Les événements d'une session sont commités sur la branche courante en fin de 
 
 ## Suivre et évaluer un run
 
-Suivre en direct : `docker compose -p <projet> -f runner/compose.yml logs -f` (le nom du projet est affiché au lancement et noté dans `logs/run.meta`), ou la branche `run/<run-id>` sur le dépôt distant, mise à jour après chaque ticket.
+Clore un run interrompu (conteneur arrêté à la main, Mac éteint, plantage) : `runner/finalize.sh <run-id ou fragment> [motif]`. Il relance l'image en mode clôture, sans nouvelle session : commit du travail en l'état sur la branche courante (`chore(run): RUN#0 stopped, run interrupted`), entrée `run` au journal, sessions non comptabilisées ajoutées à la consommation, `RUN-SUMMARY.md`, publication. Il refuse si le conteneur tourne encore ou si le run est déjà clos.
+
+État d'un run à tout moment : `runner/status.sh [run-id ou fragment]` (par défaut le run le plus récent). Il affiche : en cours ou terminé (et motif d'arrêt), dernières lignes de la boucle, branche et commits de l'agent, statuts du backlog et ticket en cours, derniers contrôles et vérifications indépendantes, tokens par session (y compris la session en cours).
+
+Suivre en direct : `docker logs -f <projet>-agent-1` (le nom du projet est affiché au lancement et noté dans `logs/run.meta`), ou la branche `run/<run-id>` sur le dépôt distant, mise à jour après chaque ticket. La boucle n'écrit qu'une ligne au début et quelques lignes à la fin de chaque session : pendant une session, l'activité de l'agent est dans `logs/session-<n>.jsonl` (`tail -f`), et ses commits dans `git -C runner/runs/<run-id>/workspace log --oneline --all`.
 
 Évaluer, depuis n'importe quel poste :
 

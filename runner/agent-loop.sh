@@ -12,6 +12,13 @@ MAX_IDLE="${MAX_IDLE:-2}"
 COST_CURRENCY="${COST_CURRENCY:-USD}"
 # Messages d'erreur signalant un crédit épuisé (expression régulière, insensible à la casse)
 CREDIT_ERROR_PATTERNS="${CREDIT_ERROR_PATTERNS:-insufficient[_ ]quota|insufficient[_ ]credit|credit balance|out of credits|payment required|billing|exceeded your current quota|quota exceeded|no credits}"
+# Limite de débit (abonnement) : OpenCode réessaie en silence. Si l'erreur persiste sans activité pendant
+# QUOTA_WAIT secondes, la boucle traite le cas comme un crédit épuisé.
+RATE_LIMIT_PATTERNS="${RATE_LIMIT_PATTERNS:-rate limit|too many requests|status ?code[\":= ]*429}"
+QUOTA_WAIT="${QUOTA_WAIT:-900}"
+# Session sans aucune activité (ni étape ni appel d'outil) pendant STALL_TIMEOUT secondes : interrompue
+STALL_TIMEOUT="${STALL_TIMEOUT:-3600}"
+OC_LOG_DIR=/home/node/.local/share/opencode/log
 LOGS=/run-logs
 SESSIONS_TSV="$LOGS/sessions.tsv"
 export OPENCODE_CONFIG=/runner/opencode/opencode.json
@@ -23,8 +30,12 @@ PROMPT="Lis AGENTS.md et applique sa boucle de travail pour un seul ticket : rep
 
 cd /workspace
 mkdir -p "$LOGS"
-echo "start=$(date -Is)" >> "$LOGS/run.meta"
-echo "model=$OPENCODE_MODEL" >> "$LOGS/run.meta"
+# FINALIZE=1 (runner/finalize.sh) : pas de nouvelle session, clôture d'un run interrompu
+FINALIZE="${FINALIZE:-0}"
+if [ "$FINALIZE" != 1 ]; then
+  echo "start=$(date -Is)" >> "$LOGS/run.meta"
+  echo "model=$OPENCODE_MODEL" >> "$LOGS/run.meta"
+fi
 [ -f "$SESSIONS_TSV" ] || printf 'session\tdebut\tduree_s\texit\tticket\tin\tout\treasoning\tcache_read\tcache_write\tcout\tmain\n' > "$SESSIONS_TSV"
 
 log() { echo "$*" | tee -a "$LOGS/loop.log"; }
@@ -99,14 +110,32 @@ credit_exhausted() {
   || grep -Eiq "$CREDIT_ERROR_PATTERNS" "$err" 2>/dev/null
 }
 last_error() {
-  jq -R -s -r '[split("\n")[] | fromjson? | select(type=="object" and .type=="error") | .error.data.message // .error.name] | last // empty' "$1" 2>/dev/null \
-    | head -c 300
+  local m
+  m=$(jq -R -s -r '[split("\n")[] | fromjson? | select(type=="object" and .type=="error") | .error.data.message // .error.name] | last // empty' "$1" 2>/dev/null)
+  [ -n "$m" ] || m=$(grep 'level=ERROR' "${oc_log:-/nonexistent}" 2>/dev/null | tail -1 | sed -E 's/.*error\.error="?//; s/"$//')
+  printf '%s' "$m" | head -c 300
 }
 
 STOP_REASON=""
 VERIFY_FAILURES=""
 idle=0
 i=0
+if [ "$FINALIZE" = 1 ]; then
+  # Sessions déjà jouées ; celles qui n'ont pas pu être comptabilisées (conteneur arrêté) sont ajoutées
+  for f in "$LOGS"/session-*.jsonl; do
+    [ -f "$f" ] || continue
+    i=$((i + 1))
+    n=$(basename "$f" .jsonl); n=$((10#${n#session-}))
+    if ! cut -f1 "$SESSIONS_TSV" | grep -qx "$n"; then
+      cur=$(git branch --show-current 2>/dev/null | sed -E 's#^[a-z]+/##; s#-[a-z].*$##')
+      printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$n" "?" "?" "interrompue" "${cur:-?}" "$(usage_of "$f")" "$(main_sha)" >> "$SESSIONS_TSV"
+    fi
+  done
+  STOP_REASON="interrompu : ${STOP_REASON_OVERRIDE:-arrêt manuel du conteneur}"
+  log "Clôture d'un run interrompu ($i session(s))"
+  oc_log=$(ls -t "$OC_LOG_DIR"/*.log 2>/dev/null | head -1)
+  MAX_SESSIONS=0
+fi
 while [ "$i" -lt "$MAX_SESSIONS" ]; do
   i=$((i + 1))
   if ! remaining; then
@@ -126,9 +155,31 @@ while [ "$i" -lt "$MAX_SESSIONS" ]; do
 
 ATTENTION : la vérification indépendante de main par l'outillage a échoué après la dernière session qui a modifié main : $VERIFY_FAILURES. Le détail est dans docs/journal.md (dernière entrée « contrôle »). Applique AGENTS.md section 6, « Vérification indépendante » : corrige d'abord cet échec par un ticket bug."
   fi
+  oc_log=$(ls -t "$OC_LOG_DIR"/*.log 2>/dev/null | head -1)
+  oc_off=$(count_lines "${oc_log:-/nonexistent}")
   # Le jeton de publication n'est pas transmis à l'agent
   env -u GIT_PUSH_TOKEN timeout "$SESSION_TIMEOUT" \
-    opencode run --auto --format json --model "$OPENCODE_MODEL" "$prompt" > "$json" 2> "$err"
+    opencode run --auto --format json --model "$OPENCODE_MODEL" "$prompt" > "$json" 2> "$err" &
+  oc_pid=$!
+  # Surveillance : limite de débit persistante, ou session figée
+  STALLED=""
+  while kill -0 "$oc_pid" 2>/dev/null; do
+    sleep 30
+    idle_s=$(( $(date +%s) - $(stat -c %Y "$json" 2>/dev/null || date +%s) ))
+    [ -n "$oc_log" ] || oc_log=$(ls -t "$OC_LOG_DIR"/*.log 2>/dev/null | head -1)
+    if [ "$idle_s" -ge "$QUOTA_WAIT" ] && [ -n "$oc_log" ] \
+       && tail -n +"$((oc_off + 1))" "$oc_log" | grep 'level=ERROR' | grep -Eiq "$CREDIT_ERROR_PATTERNS|$RATE_LIMIT_PATTERNS"; then
+      STALLED=quota
+    elif [ "$idle_s" -ge "$STALL_TIMEOUT" ]; then
+      STALLED=stall
+    fi
+    if [ -n "$STALLED" ]; then
+      log "   session interrompue par la boucle : ${STALLED} (aucune activité depuis ${idle_s}s)"
+      kill -TERM "$oc_pid" 2>/dev/null; sleep 10; kill -KILL "$oc_pid" 2>/dev/null
+      break
+    fi
+  done
+  wait "$oc_pid" 2>/dev/null
   code=$?
   dur=$(( $(date +%s) - t0 ))
   # Ticket de la session : celui des commits ajoutés (sur main ou sur la branche courante), sinon la branche
@@ -144,8 +195,12 @@ ATTENTION : la vérification indépendante de main par l'outillage a échoué ap
   events=$(node /runner/run-checks.mjs check --before "$before_main" --session "$i" \
     --ticket "${ticket:-RUN}" --exit "$code" --guard-offset "$guard_offset" 2>/dev/null || echo '[]')
 
-  if credit_exhausted "$json" "$err"; then
-    STOP_REASON="crédit épuisé chez le fournisseur ($(last_error "$json"))"
+  if [ "$STALLED" = stall ]; then
+    events=$(jq -c --arg s "Session interrompue par la boucle : aucune activité de l'agent depuis plus de ${STALL_TIMEOUT}s." \
+      '. + [{type:"run", ticket:"RUN", summary:$s, link:"logs du run", review:"oui"}]' <<< "$events")
+  fi
+  if [ "$STALLED" = quota ] || credit_exhausted "$json" "$err"; then
+    STOP_REASON="crédit ou quota épuisé chez le fournisseur ($(last_error "$json"))"
     log "!! $STOP_REASON"
     PENDING_EVENTS="$events"
     break
@@ -190,18 +245,23 @@ log "Arrêt : $STOP_REASON"
 # Événement de fin de run, ajouté au journal de la branche publiée
 end_event() {
   local review="non"
-  [[ "$STOP_REASON" == crédit* || "$STOP_REASON" == aucun* || "$STOP_REASON" == nombre* ]] && review="oui"
+  [[ "$STOP_REASON" == crédit* || "$STOP_REASON" == aucun* || "$STOP_REASON" == nombre* || "$STOP_REASON" == interrompu* ]] && review="oui"
   jq -n --arg s "Fin du run après $i session(s) : $STOP_REASON." --arg r "$review" \
     '[{type:"run", ticket:"RUN", summary:$s, link:"RUN-SUMMARY.md", review:$r}]'
 }
 
-# Crédit épuisé : le travail est conservé en l'état, sur la branche courante, avec un commit dédié
-if [[ "$STOP_REASON" == crédit* ]]; then
+# Crédit épuisé ou run interrompu : le travail est conservé en l'état, sur la branche courante, avec un commit dédié
+if [[ "$STOP_REASON" == crédit* || "$STOP_REASON" == interrompu* ]]; then
   CUR=$(git branch --show-current 2>/dev/null || echo detached)
   journal_commit "${PENDING_EVENTS:-[]}" yes
   journal_commit "$(end_event)" yes
   git add -A
-  commit_runner --allow-empty -m "chore(run): RUN#0 stopped, provider credit exhausted" -m "Run interrompu : crédit épuisé chez le fournisseur.
+  if [[ "$STOP_REASON" == interrompu* ]]; then
+    SUBJECT="chore(run): RUN#0 stopped, run interrupted"; WHY="Run interrompu ($STOP_REASON)."
+  else
+    SUBJECT="chore(run): RUN#0 stopped, provider credit exhausted"; WHY="Run interrompu : crédit ou quota épuisé chez le fournisseur."
+  fi
+  commit_runner --allow-empty -m "$SUBJECT" -m "$WHY
 Session : $i
 Branche de travail : $CUR
 Dernière erreur : $(last_error "$LOGS/session-$(printf '%03d' "$i").jsonl")

@@ -18,6 +18,8 @@ services:
       REPLAY_TIMEOUT_MS: ${REPLAY_TIMEOUT_MS:-1200000}
       VERIFY_INDEPENDENT: ${VERIFY_INDEPENDENT:-1}
       VERIFY_TIMEOUT_MS: ${VERIFY_TIMEOUT_MS:-1800000}
+      QUOTA_WAIT: ${QUOTA_WAIT:-900}
+      STALL_TIMEOUT: ${STALL_TIMEOUT:-3600}
     volumes:
       - ${RUN_DIR}/workspace:/workspace
       - ${RUN_DIR}/logs:/run-logs
@@ -29,5 +31,7 @@ services:
 volumes:
   pw-browsers:
     name: miro-agent-pw-browsers
+    external: true
   pnpm-store:
     name: miro-agent-pnpm-store
+    external: true

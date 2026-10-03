@@ -82,8 +82,13 @@ PROJECT="miro-$(echo "$RUN_ID" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9_\n-' '-')"
 echo "project=$PROJECT" >> "$RUN_DIR/logs/run.meta"
 
 export RUN_DIR RUN_BRANCH RUN_REMOTE OPENCODE_MODEL="$MODEL"
+# Caches partagés entre runs (navigateurs Playwright, store pnpm) : créés une fois, hors projet Compose
+docker volume create miro-agent-pw-browsers >/dev/null
+docker volume create miro-agent-pnpm-store >/dev/null
 docker compose -f "$RUNNER/compose.yml" -p "$PROJECT" up --build -d
 echo "Run lancé : $RUN_ID"
 echo "Branche   : $RUN_BRANCH"
-echo "Suivre    : docker compose -p $PROJECT -f runner/compose.yml logs -f"
+echo "État      : runner/status.sh $RUN_ID"
+echo "Suivre    : docker logs -f $PROJECT-agent-1"
+echo "Détail    : tail -f runner/runs/$RUN_ID/logs/loop.log"
 echo "Local     : runner/runs/$RUN_ID/"

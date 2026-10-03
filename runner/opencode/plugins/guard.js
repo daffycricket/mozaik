@@ -36,7 +36,9 @@ const BASH_RULES = [
   [/\bgit\s+push\b/, "Interdit de pousser (AGENTS.md §6, Git local uniquement).", "Commite localement ; la publication est faite par l'outillage du run.", false],
   [/\bgit\s+remote\s+(add|set-url|rename)\b/, "Interdit d'ajouter ou de modifier un remote (AGENTS.md §6).", "Travaille sans remote.", false],
   [/(--no-verify\b|\bgit\s+commit\b[^;&|]*\s-n\b)/, "Interdit de contourner les hooks Git (process/git.md).", "Corrige le message ou le code pour que le hook l'accepte.", false],
-  [/\bgit\s+config\b[^;&|]*core\.hooksPath/, "Interdit de désactiver ou déplacer les hooks Git (process/git.md).", "Laisse les hooks en place.", false],
+  // Lire core.hooksPath ou l'installer (husky) reste permis ; le vider ou le pointer vers /dev/null est refusé
+  [/\bgit\b[^;&|]*core\.hooksPath(\s*=\s*|\s+)(\/dev\/null|''|"")/, "Interdit de désactiver les hooks Git (process/git.md).", "Laisse les hooks en place.", false],
+  [/\bgit\b[^;&|]*core\.hooksPath=(\s|$)/, "Interdit de désactiver les hooks Git (process/git.md).", "Laisse les hooks en place.", false],
   [/\brm\b[^;&|]*(^|\s|\/)\.git(\s|\/|$)/, "Interdit de supprimer le dépôt Git.", "Utilise git restore / git revert pour revenir en arrière.", false],
   [/\bgit\s+(reset\s+--hard|rebase|commit\s+--amend|filter-branch|filter-repo|update-ref|replace)\b/, "Interdit de réécrire l'historique de main (process/git.md).", "Sur main, annule avec git revert ; réécris seulement sur ta branche de ticket.", true],
   [/\bgit\s+branch\s+(-D|-f|--force|-M)\s+main\b/, "Interdit de supprimer ou forcer la branche main.", "Laisse main intacte.", false],
