@@ -10,10 +10,36 @@
         "apiKey": "{env:UMANS_API_KEY}"
       },
       "models": {
-        "umans-coder": { "name": "Umans Coder" },
-        "umans-flash": { "name": "Umans Flash" },
-        "umans-kimi-k2.7": { "name": "Umans Kimi K2.7" },
-        "umans-glm-5.2": { "name": "Umans GLM 5.2" }
+        "umans-coder": {
+          "name": "umans-coder"
+        },
+        "umans-flash": {
+          "name": "umans-flash"
+        },
+        "umans-kimi-k3": {
+          "name": "umans-kimi-k3"
+        },
+        "umans-glm-5.3": {
+          "name": "umans-glm-5.3"
+        },
+        "umans-glm-5.3-flash": {
+          "name": "umans-glm-5.3-flash"
+        },
+        "umans-deepseek-v4.1-flash": {
+          "name": "umans-deepseek-v4.1-flash"
+        },
+        "umans-deepseek-v4-flash-0731": {
+          "name": "umans-deepseek-v4-flash-0731"
+        },
+        "umans-qwen3.6-35b-a3b": {
+          "name": "umans-qwen3.6-35b-a3b"
+        },
+        "umans-deepseek-v4.1-flash-lab": {
+          "name": "umans-deepseek-v4.1-flash-lab"
+        },
+        "umans-mimo-v2.6-pro-lab": {
+          "name": "umans-mimo-v2.6-pro-lab"
+        }
       }
     },
     "scw": {
@@ -24,7 +50,9 @@
         "apiKey": "{env:SCW_SECRET_KEY}"
       },
       "models": {
-        "<model-id-a-remplacer>": { "name": "Modèle Scaleway (à remplacer)" }
+        "<model-id-a-remplacer>": {
+          "name": "Modèle Scaleway (à remplacer)"
+        }
       }
     },
     "scw-managed": {
@@ -35,7 +63,9 @@
         "apiKey": "{env:SCW_SECRET_KEY}"
       },
       "models": {
-        "<model-id-a-remplacer>": { "name": "Modèle déployé (à remplacer)" }
+        "<model-id-a-remplacer>": {
+          "name": "Modèle déployé (à remplacer)"
+        }
       }
     }
   }
