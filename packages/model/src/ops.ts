@@ -1,6 +1,7 @@
 import { generateKeyBetween } from 'fractional-indexing';
 import * as Y from 'yjs';
 import type { Box } from './geometry';
+import { canReorder, type ReorderDirection, reorderStep } from './order';
 import { type Element, elementSchema, type PaletteColor, STICKY_DEFAULT_SIZE } from './schema';
 import type { Point } from './viewport';
 
@@ -321,6 +322,56 @@ export function setElementsColor(doc: Y.Doc, ids: string[], color: PaletteColor)
       value.set('color', color);
     }
   }, LOCAL_ORIGIN);
+}
+
+function reorderElements(doc: Y.Doc, ids: string[], direction: ReorderDirection): void {
+  const next = reorderStep(getElements(doc), ids, direction);
+  if (next.size === 0) {
+    return;
+  }
+  const map = elementsMap(doc);
+  doc.transact(() => {
+    for (const [id, zIndex] of next) {
+      const value = map.get(id);
+      if (value !== undefined) {
+        value.set('zIndex', zIndex);
+      }
+    }
+  }, LOCAL_ORIGIN);
+}
+
+/**
+ * Moves the given elements one step towards the top of the board in a single
+ * local transaction, preserving their relative order (F07-S4-AC1, AC4). Each
+ * moved element only writes its own zIndex, so concurrent moves converge
+ * (F07-S4-AC5).
+ */
+export function bringForward(doc: Y.Doc, ids: string[]): void {
+  reorderElements(doc, ids, 'forward');
+}
+
+/**
+ * Moves the given elements one step towards the bottom of the board in a single
+ * local transaction, preserving their relative order (F07-S4-AC2, AC4).
+ */
+export function sendBackward(doc: Y.Doc, ids: string[]): void {
+  reorderElements(doc, ids, 'backward');
+}
+
+/**
+ * Tells whether the given elements can move one step forward, so the button can
+ * be disabled when the selection already sits on top (F07-S4-AC3).
+ */
+export function canBringForward(doc: Y.Doc, ids: string[]): boolean {
+  return canReorder(getElements(doc), ids, 'forward');
+}
+
+/**
+ * Tells whether the given elements can move one step backward, so the button can
+ * be disabled when the selection already sits at the bottom (F07-S4-AC3).
+ */
+export function canSendBackward(doc: Y.Doc, ids: string[]): boolean {
+  return canReorder(getElements(doc), ids, 'backward');
 }
 
 /**

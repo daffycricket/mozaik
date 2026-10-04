@@ -55,7 +55,8 @@ packages/
       schema.ts       Types et validation (zod) des éléments, palette de couleurs
       doc.ts          Création/accès au Y.Doc d'un board
       history.ts      Historique d'annulation (`createBoardHistory`, limité à LOCAL_ORIGIN)
-      ops.ts          Opérations : createElement, createSticky, updateElement, moveElements, setElementsColor, deleteElements, elementAtPoint, elementsInBox, LOCAL_ORIGIN
+      ops.ts          Opérations : createElement, createSticky, updateElement, moveElements, setElementsColor, bringForward, sendBackward, deleteElements, elementAtPoint, elementsInBox, LOCAL_ORIGIN
+      order.ts        Ordre de superposition : `sortByZIndex`, `reorderStep`, `canReorder` (avancer/reculer d'un plan, F07-S4)
       resize.ts       Redimensionnement : `MIN_ELEMENT_SIZE`, `RESIZE_HANDLE_ORDER`, `isResizable`, `resizeHandlePoint`, `resizeHandleAtPoint`, `resizeBox`
       text-fit.ts     Taille de police d'un post-it qui fait tenir son texte (`fitStickyFontSize`)
       geometry.ts     Boîte englobante (`unionBounds`), rectangle de sélection (`boxFromPoints`)
@@ -135,7 +136,9 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 
 **Édition de texte** : un double-clic sur un post-it existant, ou Entrée sur un post-it seul sélectionné, ouvre l'éditeur HTML superposé à l'élément. La saisie reste locale (état React de l'éditeur) et n'est écrite dans Yjs qu'à la validation (Entrée, Échap ou perte de focus), ce qui préserve le texte et la position du curseur malgré les mises à jour distantes (F03-S2, FL-5). La taille de police est ajustée par `fitStickyFontSize` pour que le texte tienne, sans descendre sous 10 px.
 
-**Changement de couleur** (F03-S3) : quand la sélection contient un post-it ou un texte, la barre contextuelle (`components/board/context-bar.tsx`) apparaît centrée au-dessus du cadre de sélection (ou en dessous s'il n'y a pas la place, UI-BOARD-7) et propose les dix couleurs de la palette, la couleur courante marquée `aria-pressed`. Choisir une couleur écrit `color` sur tous les post-its et textes sélectionnés via `setElementsColor`, en une seule transaction à origine locale : l'effet est local et immédiat, sans attendre le serveur (FL-1).
+**Changement de couleur** (F03-S3) : quand la sélection contient un post-it ou un texte, la barre contextuelle (`components/board/context-bar.tsx`) propose les dix couleurs de la palette, la couleur courante marquée `aria-pressed`. Choisir une couleur écrit `color` sur tous les post-its et textes sélectionnés via `setElementsColor`, en une seule transaction à origine locale : l'effet est local et immédiat, sans attendre le serveur (FL-1).
+
+**Ordre de superposition** (F07-S4) : `]` ou le bouton « Avancer », `[` ou le bouton « Reculer » déplacent la sélection d'un plan. `reorderStep` trie les éléments par `zIndex` (`sortByZIndex`), fait glisser chaque élément sélectionné d'un cran sans lui faire dépasser un élément non sélectionné (l'ordre relatif d'une sélection multiple est conservé) et calcule les nouvelles clés `zIndex` avec `generateKeyBetween`. `bringForward`/`sendBackward` n'écrivent que les `zIndex` des éléments déplacés, en une transaction à origine locale : deux utilisateurs qui avancent deux éléments différents écrivent des clés distinctes et convergent (F07-S4-AC5). `canBringForward`/`canSendBackward` désactivent le bouton quand rien ne peut bouger (AC3). Les éléments sont rendus de bas en haut (`board-elements.tsx`), et la barre contextuelle apparaît pour toute sélection non vide, avec les pastilles de couleur seulement si elle contient un post-it ou un texte (UI-BOARD-8).
 
 **Modification distante** : serveur → provider → mise à jour appliquée au `Y.Doc` → observation → rendu. Le `Y.UndoManager` ne suit que `LOCAL_ORIGIN` : annuler n'annule jamais le travail d'un autre.
 

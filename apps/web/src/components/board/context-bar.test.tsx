@@ -1,5 +1,12 @@
 // @vitest-environment happy-dom
-import { createBoardDoc, createElement, getElement, PALETTE_COLORS } from '@mozaik/model';
+import {
+  createBoardDoc,
+  createElement,
+  getElement,
+  getElements,
+  PALETTE_COLORS,
+  sortByZIndex,
+} from '@mozaik/model';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
@@ -120,7 +127,7 @@ describe('[F03-S3-AC1] recolour the selection', () => {
     doc.destroy();
   });
 
-  test('[F03-S3-AC1] hides the bar when the selection holds no recolourable element', () => {
+  test('[UI-BOARD-8] shows only the order buttons when the selection holds no recolourable element', () => {
     const doc = createBoardDoc();
     createElement(
       doc,
@@ -132,7 +139,90 @@ describe('[F03-S3-AC1] recolour the selection', () => {
     });
     render(doc);
 
-    expect(item('context-bar')).toBeNull();
+    expect(item('context-bar')).not.toBeNull();
+    expect(item('color-yellow')).toBeNull();
+    expect(item('order-forward')).not.toBeNull();
+    expect(item('order-backward')).not.toBeNull();
+    doc.destroy();
+  });
+});
+
+function orderOf(doc: ReturnType<typeof createBoardDoc>): string[] {
+  return sortByZIndex(getElements(doc)).map((element) => element.id);
+}
+
+function orderBoard(): ReturnType<typeof createBoardDoc> {
+  const doc = createBoardDoc();
+  for (const [index, id] of ['a', 'b', 'c'].entries()) {
+    createElement(
+      doc,
+      { type: 'sticky', x: index * 120, y: 0, width: 100, height: 100 },
+      { id, createdBy: 'u', zIndex: `a${index}` },
+    );
+  }
+  return doc;
+}
+
+describe('[F07-S4-AC1] context bar order buttons', () => {
+  test('[F07-S4-AC1] advances the selection on "Avancer"', () => {
+    const doc = orderBoard();
+    act(() => {
+      useSelectionStore.getState().setSelection(['a']);
+    });
+    render(doc);
+
+    act(() => {
+      item('order-forward')?.click();
+    });
+
+    expect(orderOf(doc)).toEqual(['b', 'a', 'c']);
+    doc.destroy();
+  });
+
+  test('[F07-S4-AC2] sends the selection back on "Reculer"', () => {
+    const doc = orderBoard();
+    act(() => {
+      useSelectionStore.getState().setSelection(['c']);
+    });
+    render(doc);
+
+    act(() => {
+      item('order-backward')?.click();
+    });
+
+    expect(orderOf(doc)).toEqual(['a', 'c', 'b']);
+    doc.destroy();
+  });
+
+  test('[F07-S4-AC3] disables the buttons at the stacking limits', () => {
+    const doc = orderBoard();
+    act(() => {
+      useSelectionStore.getState().setSelection(['a']);
+    });
+    render(doc);
+    expect((item('order-backward') as HTMLButtonElement | null)?.disabled).toBe(true);
+    expect((item('order-forward') as HTMLButtonElement | null)?.disabled).toBe(false);
+
+    act(() => {
+      useSelectionStore.getState().setSelection(['c']);
+    });
+    expect((item('order-forward') as HTMLButtonElement | null)?.disabled).toBe(true);
+    expect((item('order-backward') as HTMLButtonElement | null)?.disabled).toBe(false);
+    doc.destroy();
+  });
+
+  test('[F07-S4-AC4] moves every selected element while preserving their order', () => {
+    const doc = orderBoard();
+    act(() => {
+      useSelectionStore.getState().setSelection(['a', 'b']);
+    });
+    render(doc);
+
+    act(() => {
+      item('order-forward')?.click();
+    });
+
+    expect(orderOf(doc)).toEqual(['c', 'a', 'b']);
     doc.destroy();
   });
 });

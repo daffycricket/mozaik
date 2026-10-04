@@ -1,9 +1,11 @@
 import {
   type BoardDoc,
   type BoardHistory,
+  bringForward,
   getElement,
   moveElements,
   type Point,
+  sendBackward,
   ZOOM_STEP,
 } from '@mozaik/model';
 import { useEffect, useState } from 'react';
@@ -140,6 +142,39 @@ export function useMoveShortcuts(doc: BoardDoc | null): void {
       event.preventDefault();
       const step = event.shiftKey ? MOVE_STEP_LARGE : MOVE_STEP;
       moveElements(doc, selection, { x: direction.x * step, y: direction.y * step });
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [doc]);
+}
+
+/**
+ * Moves the selection one step forward (`]`) or backward (`[`) in the stacking
+ * order (F07-S4-AC1, AC2). Inactive while a text field has focus or no element
+ * is selected.
+ */
+export function useOrderShortcuts(doc: BoardDoc | null): void {
+  useEffect(() => {
+    if (doc === null) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.ctrlKey || event.metaKey || event.altKey || isTextEditingTarget(event.target)) {
+        return;
+      }
+      if (event.key !== ']' && event.key !== '[') {
+        return;
+      }
+      const selection = useSelectionStore.getState().selection;
+      if (selection.length === 0) {
+        return;
+      }
+      event.preventDefault();
+      if (event.key === ']') {
+        bringForward(doc, selection);
+      } else {
+        sendBackward(doc, selection);
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);

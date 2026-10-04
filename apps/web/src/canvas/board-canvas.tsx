@@ -10,7 +10,12 @@ import { useCanvasSizeStore } from '@/state/canvas-size-store';
 import { useEditingStore } from '@/state/editing-store';
 import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
-import { useMoveShortcuts, useStartEditingShortcut, useUndoShortcut } from '@/tools/shortcuts';
+import {
+  useMoveShortcuts,
+  useOrderShortcuts,
+  useStartEditingShortcut,
+  useUndoShortcut,
+} from '@/tools/shortcuts';
 import { BoardElements } from './board-elements';
 import { RemoteCursors } from './remote-cursors';
 import { SelectionMarquee, SelectionOverlay } from './selection-overlay';
@@ -43,6 +48,7 @@ export function BoardCanvas() {
   useCreateSticky(containerRef, doc);
   useStartEditingShortcut(doc);
   useMoveShortcuts(doc);
+  useOrderShortcuts(doc);
   useUndoShortcut(history);
   useLocalCursor(containerRef);
   useWheelZoom(containerRef);

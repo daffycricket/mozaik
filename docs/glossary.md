@@ -14,6 +14,7 @@ Terme métier (documentation, français) → identifiant dans le code (anglais).
 | Menu des boards | `BoardListPage` | Page `/` listant tous les boards |
 | Fluidité | `fluidity` | Exigences FL-1 à FL-8 de F00, mesurées dans le navigateur |
 | Redimensionnement | `resize` | Changement de largeur et hauteur d'un élément par une poignée du cadre ; taille minimale `MIN_ELEMENT_SIZE` |
+| Ordre de superposition | `order`, `zIndex` | Position d'un élément dans le plan (devant/derrière), clé `zIndex` ; avancer/reculer d'un plan via `bringForward`/`sendBackward` (F07-S4) |
 | Viewport | `viewport` | Partie visible du canvas : position et zoom, locale à l'utilisateur |
 | Coordonnées monde | `world` | Repère du board, indépendant du zoom |
 | Coordonnées écran | `screen` | Pixels dans la fenêtre du navigateur |

@@ -1,14 +1,20 @@
 import {
+  bringForward,
+  canBringForward,
+  canSendBackward,
   PALETTE,
   PALETTE_COLORS,
   type PaletteColor,
+  sendBackward,
   setElementsColor,
   unionBounds,
   worldToScreen,
 } from '@mozaik/model';
+import { ChevronsDown, ChevronsUp } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useElements } from '@/canvas/use-elements';
 import { useBoardDoc } from '@/collab/board-doc-context';
+import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
@@ -16,11 +22,12 @@ import { useViewportStore } from '@/state/viewport-store';
 const BAR_GAP = 8;
 
 /**
- * Floating colour bar of the board (F03-S3). It appears only when the selection
- * contains a sticky note or a free text, offers the ten palette colours with the
- * current one pressed, and recolours every selected element in one transaction.
- * It sits centered above the selection frame, eight pixels away, and drops below
- * it when there is no room above (UI-BOARD-7).
+ * Floating context bar of the board. It appears for any non-empty selection,
+ * centered above the selection frame, eight pixels away, and drops below it when
+ * there is no room above (UI-BOARD-7). It shows the ten palette colours only
+ * when the selection contains a sticky note or a free text (F03-S3), then the
+ * "Avancer" and "Reculer" buttons, disabled at the limits of the stacking order
+ * (F07-S4, UI-BOARD-8).
  */
 export function ContextBar() {
   const doc = useBoardDoc();
@@ -40,11 +47,12 @@ export function ContextBar() {
   });
 
   const selected = elements.filter((element) => selection.includes(element.id));
+  const selectedIds = selected.map((element) => element.id);
   const recolorable = selected.filter(
     (element) => element.type === 'sticky' || element.type === 'text',
   );
   const box = unionBounds(
-    recolorable.map((element) => ({
+    selected.map((element) => ({
       x: element.x,
       y: element.y,
       width: element.width,
@@ -59,6 +67,8 @@ export function ContextBar() {
   const colors = new Set(recolorable.map((element) => element.color));
   const currentColor: PaletteColor | null =
     colors.size === 1 ? (colors.values().next().value ?? null) : null;
+  const canForward = canBringForward(doc, selectedIds);
+  const canBackward = canSendBackward(doc, selectedIds);
 
   const topLeft = worldToScreen(viewport, { x: box.x, y: box.y });
   const width = box.width * viewport.zoom;
@@ -70,39 +80,64 @@ export function ContextBar() {
     <div
       ref={barRef}
       role="toolbar"
-      aria-label="Couleur"
+      aria-label="Actions"
       data-testid="context-bar"
-      className="absolute z-10 rounded-lg border bg-background p-1 shadow-md"
+      className="absolute z-10 flex items-center gap-1 rounded-lg border bg-background p-1 shadow-md"
       style={{
         left: topLeft.x + width / 2,
         top,
         transform: placeBelow ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
       }}
     >
-      <ToggleGroup
-        value={currentColor === null ? [] : [currentColor]}
-        onValueChange={(value) => {
-          const next = value[0];
-          if (next !== undefined) {
-            setElementsColor(
-              doc,
-              recolorable.map((element) => element.id),
-              next as PaletteColor,
-            );
-          }
-        }}
+      {recolorable.length > 0 && (
+        <>
+          <ToggleGroup
+            value={currentColor === null ? [] : [currentColor]}
+            onValueChange={(value) => {
+              const next = value[0];
+              if (next !== undefined) {
+                setElementsColor(doc, selectedIds, next as PaletteColor);
+              }
+            }}
+          >
+            {PALETTE_COLORS.map((color) => (
+              <ToggleGroupItem
+                key={color}
+                value={color}
+                aria-label={color}
+                data-testid={`color-${color}`}
+                className="size-6 rounded-full border aria-pressed:ring-2 aria-pressed:ring-ring"
+                style={{ backgroundColor: PALETTE[color].background }}
+              />
+            ))}
+          </ToggleGroup>
+          <div aria-hidden="true" className="mx-1 h-5 w-px bg-border" />
+        </>
+      )}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Avancer"
+        title="Avancer"
+        data-testid="order-forward"
+        disabled={!canForward}
+        onClick={() => bringForward(doc, selectedIds)}
       >
-        {PALETTE_COLORS.map((color) => (
-          <ToggleGroupItem
-            key={color}
-            value={color}
-            aria-label={color}
-            data-testid={`color-${color}`}
-            className="size-6 rounded-full border aria-pressed:ring-2 aria-pressed:ring-ring"
-            style={{ backgroundColor: PALETTE[color].background }}
-          />
-        ))}
-      </ToggleGroup>
+        <ChevronsUp aria-hidden="true" />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Reculer"
+        title="Reculer"
+        data-testid="order-backward"
+        disabled={!canBackward}
+        onClick={() => sendBackward(doc, selectedIds)}
+      >
+        <ChevronsDown aria-hidden="true" />
+      </Button>
     </div>
   );
 }

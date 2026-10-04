@@ -2,6 +2,7 @@ export * from './doc';
 export * from './geometry';
 export * from './history';
 export * from './ops';
+export * from './order';
 export * from './presence';
 export * from './resize';
 export * from './schema';
