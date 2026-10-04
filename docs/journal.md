@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F04-S1 | contrôle | Vérification indépendante de main @ 8f9f3c5 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90 %, branches 83.19 %). | logs/verify-027.log | non |
 | 2026-10-04 | F04-S1 | décision | Le style fixe des formes (contour `#1f2937`, épaisseur 2) et les constantes de taille (`SHAPE_DEFAULT_WIDTH` 160, `SHAPE_DEFAULT_HEIGHT` 100, `SHAPE_MIN_SIZE` 10) vivent dans `packages/model/src/schema.ts`, emplacement autorisé pour les couleurs d'éléments (T-006-AC7) et unique source partagée par le modèle et le rendu. | packages/model/src/schema.ts | oui |
 | 2026-10-04 | F04-S1 | décision | Pendant le tracé, l'aperçu de la forme est un état d'interface local (`draft-store.ts`), rendu par `ShapeNode` et jamais écrit dans Yjs ; au relâchement, `createShape` crée la forme en une seule transaction à origine locale (une entrée d'annulation). `window.__board.getDraftShape()` expose l'aperçu aux tests e2e, comme `getOverlayBoxes` (T-006). | apps/web/src/state/draft-store.ts, apps/web/src/canvas/use-draw-shape.ts, apps/web/src/testing/board-api.ts | oui |
 | 2026-10-04 | F04-S1 | décision | `BoardElements` est mémoïsé (`memo`) pour qu'un changement d'aperçu ou de sélection ne réaffiche pas les 300 éléments : optimisation justifiée par FL-2 pendant le tracé. | apps/web/src/canvas/board-elements.tsx | oui |
