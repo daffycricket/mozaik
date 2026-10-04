@@ -47,6 +47,10 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | T-003 | contrôle | Vérification indépendante de main @ ce0d7ba réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 93.58 %, branches 93.81 %). | logs/verify-004.log | non |
+| 2026-10-04 | T-003 | contrôle | Test hérité modifié : e2e/create-board.spec.ts, modification non justifiée (aucune spec modifiée dans la session). | session 004 (logs du run) | oui |
+| 2026-10-04 | T-003 | contrôle | Commit(s) non conforme(s) à process/git.md : 8cf0150 « docs(plan): T-003#0 plan 1 step » (trailer Refs absent, trailer Plan-Step absent). | session 004 (logs du run) | oui |
+| 2026-10-04 | RUN | run | Reprise du run : session 4, outillage @ c661826-dirty. | logs/loop.log | non |
 | 2026-10-04 | T-003 | décision | Hocuspocus est monté sur le serveur HTTP de Fastify via l'adaptateur Node de `crossws` (classe `Hocuspocus`), pour tenir ADR-0005 (même port, WebSocket sur `/collab`) sans second serveur. | apps/server/src/collab/server.ts | oui |
 | 2026-10-04 | T-003 | décision | `DELETE /api/boards/:id` est ajouté dans T-003 (base serveur de F01-S4) car T-003-AC5 exige un chemin de suppression réel ; l'UI et `GET /api/boards/:id` restent à F01-S4. | apps/server/src/http/boards.ts | oui |
 | 2026-10-04 | T-003 | décision | Le seed de test (`POST /api/test/seed`) pré-remplit désormais le document Yjs avec N éléments, comme annoncé au journal de T-002. | apps/server/src/app.ts | oui |
