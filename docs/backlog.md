@@ -21,7 +21,7 @@ Liste ordonnée de tout le travail. L'agent prend toujours le **premier ticket `
 | 6 | T-006 | Design system et harnais de conformité aux maquettes | tech | T-003 | done |  |
 | 7 | F10-S1 | Saisir son nom avant d'entrer dans un board | story | T-003, T-006 | done |  |
 | 8 | F01-S2 | Lister les boards, naviguer, URL partagée | story | F10-S1, T-004, T-006 | done |  |
-| 9 | F01-S5 | Board inexistant | story | T-003, T-006 | todo |  |
+| 9 | F01-S5 | Board inexistant | story | T-003, T-006 | in-progress |  |
 | 10 | F01-S3 | Renommer un board | story | F01-S2 | todo |  |
 | 11 | F01-S4 | Supprimer un board | story | F01-S2 | todo |  |
 | 12 | F02-S1 | Se déplacer (pan) | story | T-004, T-006 | todo |  |
