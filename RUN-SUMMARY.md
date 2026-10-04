@@ -9,6 +9,12 @@
 - end=2026-10-04T09:25:32+00:00
 - sessions=3
 - stop_reason=nombre maximal de sessions atteint (3)
+- resumed=2026-10-04T10:39:07Z
+- runner_commit=c661826-dirty
+- resume_sessions=1
+- end=2026-10-04T11:14:20+00:00
+- sessions=4
+- stop_reason=nombre maximal de sessions atteint (4, dont 1 après la reprise)
 
 ## Consommation
 
@@ -17,7 +23,8 @@
 | 1 | 2026-10-04T08:05:41+00:00 | 1350 | 0 | T-001 | 124590 | 20475 | 42137 | 6642232 | 0 | 0.2422 |
 | 2 | 2026-10-04T08:28:15+00:00 | 2280 | 0 | T-002 | 167823 | 37387 | 49736 | 16933230 | 0 | 0.5516 |
 | 3 | 2026-10-04T09:06:26+00:00 | 1140 | 0 | F01-S1 | 109766 | 14568 | 29382 | 6186050 | 0 | 0.216 |
-| **Total** | | 4770 | | | 402179 | 72430 | 121255 | 29761512 | 0 | 1.0098 |
+| 4 | 2026-10-04T10:39:10+00:00 | 2101 | 0 | T-003 | 245710 | 33750 | 60926 | 23115834 | 0 | 0.7409 |
+| **Total** | | 6871 | | | 647889 | 106180 | 182181 | 52877346 | 0 | 1.7507 |
 
 Coûts calculés par OpenCode à partir des tarifs connus du modèle (0 si le tarif n'est pas renseigné dans `opencode.json`).
 
@@ -33,21 +40,26 @@ Coûts calculés par OpenCode à partir des tarifs connus du modèle (0 si le ta
 | contrôle | T-002 | Vérification indépendante de main @ bc0d437 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 96.36 %, branches 85 %). | non |
 | contrôle | F01-S1 | Vérification indépendante de main @ 2842500 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 91 %, branches 89.65 %). | non |
 | run | RUN | Fin du run après 3 session(s) : nombre maximal de sessions atteint (3). | oui |
+| run | RUN | Reprise du run : session 4, outillage @ c661826-dirty. | non |
+| contrôle | T-003 | Commit(s) non conforme(s) à process/git.md : 8cf0150 « docs(plan): T-003#0 plan 1 step » (trailer Refs absent, trailer Plan-Step absent). | oui |
+| contrôle | T-003 | Test hérité modifié : e2e/create-board.spec.ts, modification non justifiée (aucune spec modifiée dans la session). | oui |
+| contrôle | T-003 | Vérification indépendante de main @ ce0d7ba réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 93.58 %, branches 93.81 %). | non |
+| run | RUN | Fin du run après 4 session(s) : nombre maximal de sessions atteint (4, dont 1 après la reprise). | oui |
 
-Totaux : contrôle 7, run 1.
+Totaux : contrôle 10, run 3.
 
 ## Tickets (backlog de main)
-- done : 3
+- done : 4
 - in-progress : 0
 - blocked : 0
-- todo : 30
+- todo : 29
 
 ## Journal
-- entrées à revoir : 12
+- entrées à revoir : 25
 
 ## Git
-- commits sur main : 24
-- branche publiée : main @ 14b9c04
+- commits sur main : 28
+- branche publiée : main @ 3194d7b
 
 ## Sessions
 ```
@@ -68,6 +80,16 @@ Totaux : contrôle 7, run 1.
    publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 14b9c04
 Arrêt : nombre maximal de sessions atteint (3)
    journal : 1 événement(s) (run)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 28d41cb
+Fin du run. Synthèse : RUN-SUMMARY.md
+== reprise 2026-10-04T10:39:10+00:00 : session 4, outillage @ c661826-dirty, branche main, main=28d41cb
+== session 4 2026-10-04T10:39:10+00:00 main=28d41cb
+   exit=0 durée=2101s ticket=T-003 tokens in=245710 out=33750 reasoning=60926 cache_read=23115834 cache_write=0 coût=0.7409 USD
+   vérification indépendante : réussie
+   journal : 4 événement(s) (run, contrôle, contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 3194d7b
+Arrêt : nombre maximal de sessions atteint (4, dont 1 après la reprise)
+   journal : 1 événement(s) (run)
 ```
 
 ## opencode stats
@@ -75,21 +97,21 @@ Arrêt : nombre maximal de sessions atteint (3)
 ┌────────────────────────────────────────────────────────┐
 │                       OVERVIEW                         │
 ├────────────────────────────────────────────────────────┤
-│Sessions                                              3 │
-│Messages                                            314 │
+│Sessions                                              4 │
+│Messages                                            461 │
 │Days                                                  1 │
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
 │                    COST & TOKENS                       │
 ├────────────────────────────────────────────────────────┤
-│Total Cost                                        $1.01 │
-│Avg Cost/Day                                      $1.01 │
-│Avg Tokens/Session                                10.1M │
-│Median Tokens/Session                              6.8M │
-│Input                                            402.2K │
-│Output                                            72.4K │
-│Cache Read                                        29.8M │
+│Total Cost                                        $1.75 │
+│Avg Cost/Day                                      $1.75 │
+│Avg Tokens/Session                                13.5M │
+│Median Tokens/Session                             12.0M │
+│Input                                            647.9K │
+│Output                                           106.2K │
+│Cache Read                                        52.9M │
 │Cache Write                                           0 │
 └────────────────────────────────────────────────────────┘
 
@@ -97,23 +119,23 @@ Arrêt : nombre maximal de sessions atteint (3)
 │                      MODEL USAGE                       │
 ├────────────────────────────────────────────────────────┤
 │ umans/umans-deepseek-v4.1-flash                        │
-│  Messages                                          311 │
-│  Input Tokens                                   402.2K │
-│  Output Tokens                                  193.7K │
-│  Cache Read                                      29.8M │
+│  Messages                                          457 │
+│  Input Tokens                                   647.9K │
+│  Output Tokens                                  288.4K │
+│  Cache Read                                      52.9M │
 │  Cache Write                                         0 │
-│  Cost                                          $1.0099 │
+│  Cost                                          $1.7508 │
 ├────────────────────────────────────────────────────────┤
 [1A└────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
 │                      TOOL USAGE                        │
 ├────────────────────────────────────────────────────────┤
-│ bash               ████████████████████ 149 (34.3%)    │
-│ read               ███████████████      119 (27.4%)    │
-│ write              ████████████          92 (21.2%)    │
-│ edit               █████████             72 (16.6%)    │
-│ todowrite          █                      2 ( 0.5%)    │
+│ bash               ████████████████████ 226 (34.9%)    │
+│ read               ██████████████████   205 (31.6%)    │
+│ write              ██████████           120 (18.5%)    │
+│ edit               ████████              95 (14.7%)    │
+│ todowrite          █                      2 ( 0.3%)    │
 └────────────────────────────────────────────────────────┘
 
 ```

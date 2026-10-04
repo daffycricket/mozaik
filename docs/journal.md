@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | RUN | run | Fin du run après 4 session(s) : nombre maximal de sessions atteint (4, dont 1 après la reprise). | RUN-SUMMARY.md | oui |
 | 2026-10-04 | T-003 | contrôle | Vérification indépendante de main @ ce0d7ba réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 93.58 %, branches 93.81 %). | logs/verify-004.log | non |
 | 2026-10-04 | T-003 | contrôle | Test hérité modifié : e2e/create-board.spec.ts, modification non justifiée (aucune spec modifiée dans la session). | session 004 (logs du run) | oui |
 | 2026-10-04 | T-003 | contrôle | Commit(s) non conforme(s) à process/git.md : 8cf0150 « docs(plan): T-003#0 plan 1 step » (trailer Refs absent, trailer Plan-Step absent). | session 004 (logs du run) | oui |
