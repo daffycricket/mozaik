@@ -13,6 +13,7 @@ Terme métier (documentation, français) → identifiant dans le code (anglais).
 | Palette | `PaletteColor` | Les 10 couleurs fixes des post-its et des textes |
 | Menu des boards | `BoardListPage` | Page `/` listant tous les boards |
 | Fluidité | `fluidity` | Exigences FL-1 à FL-8 de F00, mesurées dans le navigateur |
+| Redimensionnement | `resize` | Changement de largeur et hauteur d'un élément par une poignée du cadre ; taille minimale `MIN_ELEMENT_SIZE` |
 | Viewport | `viewport` | Partie visible du canvas : position et zoom, locale à l'utilisateur |
 | Coordonnées monde | `world` | Repère du board, indépendant du zoom |
 | Coordonnées écran | `screen` | Pixels dans la fenêtre du navigateur |

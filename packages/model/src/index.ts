@@ -3,6 +3,7 @@ export * from './geometry';
 export * from './history';
 export * from './ops';
 export * from './presence';
+export * from './resize';
 export * from './schema';
 export * from './text-fit';
 export * from './viewport';

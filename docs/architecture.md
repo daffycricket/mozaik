@@ -31,7 +31,7 @@ apps/
   web/            Front React + Vite + Konva
     src/
       app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`)
-      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), sélection et déplacement au pointeur (`use-select.ts`, cadre et poignées dans `selection-overlay.tsx`, positions dans `selection-handles.ts`), création et édition de post-its (`use-create.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
+      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), sélection, déplacement et redimensionnement au pointeur (`use-select.ts`, cadre et poignées dans `selection-overlay.tsx`, positions dans `selection-handles.ts`), création et édition de post-its (`use-create.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
       tools/      Raccourcis clavier (`shortcuts.ts` : outils, zoom, déplacement aux flèches, `Ctrl+Z`) ; les outils eux-mêmes arrivent avec leurs stories
       identity/   Identité locale (`identity.ts`, `localStorage`) et dialogue de nom
       components/
@@ -56,6 +56,7 @@ packages/
       doc.ts          Création/accès au Y.Doc d'un board
       history.ts      Historique d'annulation (`createBoardHistory`, limité à LOCAL_ORIGIN)
       ops.ts          Opérations : createElement, createSticky, updateElement, moveElements, setElementsColor, deleteElements, elementAtPoint, elementsInBox, LOCAL_ORIGIN
+      resize.ts       Redimensionnement : `MIN_ELEMENT_SIZE`, `RESIZE_HANDLE_ORDER`, `isResizable`, `resizeHandlePoint`, `resizeHandleAtPoint`, `resizeBox`
       text-fit.ts     Taille de police d'un post-it qui fait tenir son texte (`fitStickyFontSize`)
       geometry.ts     Boîte englobante (`unionBounds`), rectangle de sélection (`boxFromPoints`)
       viewport.ts     Conversions coordonnées monde ↔ écran
@@ -129,6 +130,8 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 **Sélection** (F07-S1) : la sélection est un état local (Zustand), jamais écrite dans le document Yjs. Avec l'outil Sélection, un clic sélectionne l'élément sous le pointeur (le plus haut), Shift+clic l'ajoute ou le retire, un glisser depuis une zone vide trace un rectangle qui sélectionne les éléments entièrement contenus (`elementsInBox`), `Ctrl+A` sélectionne tout et Échap ou un clic dans le vide désélectionne. Le cadre et ses huit poignées (`selectionHandles`, tailles divisées par le zoom) sont dessinés par `selection-overlay.tsx`.
 
 **Déplacement** (F07-S2) : un glisser sur un élément déjà sélectionné déplace toute la sélection de `(dx/zoom, dy/zoom)` en coordonnées monde, via `moveElements` (une transaction par écriture, `x`/`y` et les extrémités d'une flèche). Les positions intermédiaires sont écrites au plus toutes les 50 ms (FL-4) ; `stopCapturing()` encadre le glisser pour que le `Y.UndoManager` en fasse une seule entrée d'annulation. Les flèches du clavier déplacent la sélection de 1 unité monde, ou 10 avec Shift. `Ctrl+Z` annule la dernière modification locale (`useUndoShortcut`) ; le rétablissement, les boutons et l'isolation entre utilisateurs arrivent avec F08-S2.
+
+**Redimensionnement** (F07-S3) : un appui sur une poignée du cadre, quand un seul élément redimensionnable (post-it, forme) est sélectionné, démarre un redimensionnement. `resizeBox` calcule la nouvelle boîte pure à partir de la boîte d'origine, de la poignée et du pointeur : le coin ou le côté opposé reste fixe (AC1), Shift conserve le rapport largeur/hauteur (AC2) et la taille est bornée à `MIN_ELEMENT_SIZE` (AC3). Le texte libre (taille liée au contenu) et les flèches (poignées d'extrémité, F06-S2) ne se redimensionnent pas. `updateElement` écrit `x`/`y`/`width`/`height` au plus toutes les 50 ms, `stopCapturing()` encadre le geste pour une seule entrée d'annulation.
 
 **Édition de texte** : un double-clic sur un post-it existant, ou Entrée sur un post-it seul sélectionné, ouvre l'éditeur HTML superposé à l'élément. La saisie reste locale (état React de l'éditeur) et n'est écrite dans Yjs qu'à la validation (Entrée, Échap ou perte de focus), ce qui préserve le texte et la position du curseur malgré les mises à jour distantes (F03-S2, FL-5). La taille de police est ajustée par `fitStickyFontSize` pour que le texte tienne, sans descendre sous 10 px.
 
