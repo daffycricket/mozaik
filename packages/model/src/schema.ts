@@ -47,6 +47,16 @@ export const STICKY_DEFAULT_SIZE = 200;
  */
 export const STICKY_FONT_SIZE = 20;
 
+/**
+ * Smallest font size a sticky note text can be reduced to at 100 % zoom (F03).
+ */
+export const STICKY_MIN_FONT_SIZE = 10;
+
+/**
+ * Maximum length of a sticky note text, in characters (F03).
+ */
+export const STICKY_TEXT_MAX_LENGTH = 2000;
+
 const STICKY_TEXT_COLOR = '#111827';
 const STICKY_TEXT_COLOR_ON_BLACK = '#FFFFFF';
 

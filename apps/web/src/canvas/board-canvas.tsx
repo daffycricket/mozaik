@@ -9,6 +9,7 @@ import { useCanvasSizeStore } from '@/state/canvas-size-store';
 import { useEditingStore } from '@/state/editing-store';
 import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
+import { useStartEditingShortcut } from '@/tools/shortcuts';
 import { BoardElements } from './board-elements';
 import { RemoteCursors } from './remote-cursors';
 import { SelectionOverlay } from './selection-overlay';
@@ -36,6 +37,7 @@ export function BoardCanvas() {
   const session = usePresenceSession();
   const pan = usePan(containerRef);
   useCreateSticky(containerRef, doc);
+  useStartEditingShortcut(doc);
   useLocalCursor(containerRef);
   useWheelZoom(containerRef);
 
@@ -96,7 +98,7 @@ export function BoardCanvas() {
           scaleX={viewport.zoom}
           scaleY={viewport.zoom}
         >
-          <BoardElements elements={elements} />
+          <BoardElements elements={elements} editingId={editingId} />
           {selectionBox !== null && <SelectionOverlay box={selectionBox} zoom={viewport.zoom} />}
           {session !== null && (
             <RemoteCursors provider={session.provider} viewport={viewport} size={size} />

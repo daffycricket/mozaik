@@ -5,6 +5,7 @@ import {
   createElement,
   deleteElements,
   ELEMENTS_KEY,
+  elementAtPoint,
   getElement,
   getElements,
   LOCAL_ORIGIN,
@@ -221,6 +222,37 @@ describe('[F09-S1-AC2] concurrent updates', () => {
     updateElement(doc, 's1', { x: 50 });
 
     expect(getElement(doc, 's1')).toMatchObject({ x: 50, color: 'blue', text: 'idée' });
+    doc.destroy();
+  });
+});
+
+describe('[F03-S2-AC1] element hit testing', () => {
+  test('[F03-S2-AC1] returns the topmost element under a world point', () => {
+    const doc = createBoardDoc();
+    createElement(
+      doc,
+      { type: 'sticky', x: 0, y: 0, width: 200, height: 200 },
+      { id: 's1', createdBy: 'u' },
+    );
+    createElement(
+      doc,
+      { type: 'sticky', x: 0, y: 0, width: 200, height: 200 },
+      { id: 's2', createdBy: 'u' },
+    );
+
+    expect(elementAtPoint(getElements(doc), { x: 100, y: 100 })?.id).toBe('s2');
+    doc.destroy();
+  });
+
+  test('[F03-S2-AC1] returns undefined when the point hits nothing', () => {
+    const doc = createBoardDoc();
+    createElement(
+      doc,
+      { type: 'sticky', x: 0, y: 0, width: 100, height: 100 },
+      { id: 's1', createdBy: 'u' },
+    );
+
+    expect(elementAtPoint(getElements(doc), { x: 500, y: 500 })).toBeUndefined();
     doc.destroy();
   });
 });

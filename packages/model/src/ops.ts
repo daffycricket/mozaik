@@ -85,6 +85,28 @@ export function getElement(doc: Y.Doc, id: string): Element | undefined {
   return parsed.success ? parsed.data : undefined;
 }
 
+/**
+ * Returns the topmost element whose bounding box contains the world point, or
+ * `undefined` when the point hits nothing (F03-S2-AC1).
+ */
+export function elementAtPoint(elements: Element[], point: Point): Element | undefined {
+  let hit: Element | undefined;
+  for (const element of elements) {
+    if (
+      point.x < element.x ||
+      point.x > element.x + element.width ||
+      point.y < element.y ||
+      point.y > element.y + element.height
+    ) {
+      continue;
+    }
+    if (hit === undefined || element.zIndex > hit.zIndex) {
+      hit = element;
+    }
+  }
+  return hit;
+}
+
 function nextZIndex(doc: Y.Doc): string {
   const keys = getElements(doc)
     .map((element) => element.zIndex)

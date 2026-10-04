@@ -1,13 +1,17 @@
 import {
   type Element,
+  fitStickyFontSize,
   PALETTE,
-  STICKY_FONT_SIZE,
   type StickyElement,
   stickyTextColor,
 } from '@mozaik/model';
 import { Group, Rect, Text } from 'react-konva';
 
-function StickyNote({ element }: { element: StickyElement }) {
+function StickyNote({ element, isEditing }: { element: StickyElement; isEditing: boolean }) {
+  const fontSize = fitStickyFontSize(element.text, {
+    width: element.width,
+    height: element.height,
+  });
   return (
     <Group x={element.x} y={element.y}>
       <Rect
@@ -15,17 +19,19 @@ function StickyNote({ element }: { element: StickyElement }) {
         height={element.height}
         fill={PALETTE[element.color].background}
       />
-      <Text
-        text={element.text}
-        width={element.width}
-        height={element.height}
-        align="center"
-        verticalAlign="middle"
-        wrap="word"
-        padding={8}
-        fontSize={STICKY_FONT_SIZE}
-        fill={stickyTextColor(element.color)}
-      />
+      {!isEditing && (
+        <Text
+          text={element.text}
+          width={element.width}
+          height={element.height}
+          align="center"
+          verticalAlign="middle"
+          wrap="word"
+          padding={8}
+          fontSize={fontSize}
+          fill={stickyTextColor(element.color)}
+        />
+      )}
     </Group>
   );
 }
@@ -33,12 +39,21 @@ function StickyNote({ element }: { element: StickyElement }) {
 /**
  * Konva rendering of the board elements, in world coordinates. Only the sticky
  * notes exist at this stage; the other element types land with their stories.
+ * The text of the element being edited is hidden behind its HTML input.
  */
-export function BoardElements({ elements }: { elements: Element[] }) {
+export function BoardElements({
+  elements,
+  editingId,
+}: {
+  elements: Element[];
+  editingId: string | null;
+}) {
   return (
     <>
       {elements.map((element) =>
-        element.type === 'sticky' ? <StickyNote key={element.id} element={element} /> : null,
+        element.type === 'sticky' ? (
+          <StickyNote key={element.id} element={element} isEditing={element.id === editingId} />
+        ) : null,
       )}
     </>
   );

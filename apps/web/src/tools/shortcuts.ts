@@ -1,6 +1,8 @@
-import { ZOOM_STEP } from '@mozaik/model';
+import { type BoardDoc, getElement, ZOOM_STEP } from '@mozaik/model';
 import { useEffect, useState } from 'react';
 import { useCanvasSizeStore } from '@/state/canvas-size-store';
+import { useEditingStore } from '@/state/editing-store';
+import { useSelectionStore } from '@/state/selection-store';
 import { type Tool, useToolStore } from '@/state/tool-store';
 import { useViewportStore } from '@/state/viewport-store';
 
@@ -95,4 +97,39 @@ export function useSpacePan(): boolean {
   }, []);
 
   return isSpaceHeld;
+}
+
+/**
+ * Enters text editing on Enter when a single sticky note or text element is
+ * selected (F03-S2-AC1). Inactive while a text field has focus.
+ */
+export function useStartEditingShortcut(doc: BoardDoc | null): void {
+  const startEditing = useEditingStore((state) => state.startEditing);
+
+  useEffect(() => {
+    if (doc === null) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== 'Enter' || event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+      if (isTextEditingTarget(event.target)) {
+        return;
+      }
+      const selection = useSelectionStore.getState().selection;
+      const id = selection.length === 1 ? selection[0] : undefined;
+      if (id === undefined) {
+        return;
+      }
+      const element = getElement(doc, id);
+      if (element === undefined || (element.type !== 'sticky' && element.type !== 'text')) {
+        return;
+      }
+      event.preventDefault();
+      startEditing(element.id);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [doc, startEditing]);
 }

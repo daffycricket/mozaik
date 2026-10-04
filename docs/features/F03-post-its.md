@@ -42,7 +42,7 @@ L'utilisateur pose des post-its colorés et y écrit du texte, l'élément de ba
   - Quand je double-clique dessus ou appuie sur Entrée quand il est seul sélectionné
   - Alors une zone de saisie (`data-testid="text-editor"`) apparaît sur le post-it avec le texte existant
 - **F03-S2-AC2** : valider
-  - Quand je saisis « Idée 1 », puis Échap ou clic en dehors
+  - Quand je saisis « Idée 1 », puis Échap, Entrée ou clic en dehors
   - Alors le texte du post-it est « Idée 1 » dans le document
 - **F03-S2-AC3** : multi-ligne
   - Quand je saisis Shift+Entrée pendant l'édition

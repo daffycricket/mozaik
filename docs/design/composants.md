@@ -24,7 +24,7 @@ Position et dimensions de référence : `ecrans.md`. Apparence : shadcn/ui et je
 | Barre d'outils | `toolbar` | `toggle-group`, `separator`, `button`, `tooltip` | Conteneur `role="toolbar"` vertical ; outils `tool-<nom>` (`select`, `hand`, `sticky`, `rect`, `ellipse`, `text`, `arrow`) en groupe à choix unique, outil actif `aria-pressed="true"` ; séparateur ; `undo`, `redo` en boutons `ghost`, désactivés sans historique | raccourcis de `features/README.md` ; flèches haut/bas entre les boutons |
 | Contrôles de zoom | `zoom-controls` | `button` (`ghost`, icône) | `zoom-out`, pourcentage `zoom-level`, `zoom-in` | `Ctrl+-`, `Ctrl+=`, `Ctrl+0` |
 | Barre contextuelle | `context-bar` | `toggle-group`, `separator`, `button`, `tooltip` | `role="toolbar"` ; pastilles `color-<code>` (24 px, rondes, `aria-pressed` sur la couleur courante) ; séparateur ; `order-forward`, `order-backward`, désactivés aux limites (F07-S4-AC3) | Tab entre les boutons |
-| Zone de saisie de texte | `text-editor` | sur mesure | `textarea` transparent, cadre `--selection`, superposé à l'élément | Shift+Entrée = retour à la ligne ; Échap valide |
+| Zone de saisie de texte | `text-editor` | sur mesure | `textarea` transparent, cadre `--selection`, superposé à l'élément | Entrée ou Échap valide ; Shift+Entrée = retour à la ligne |
 | Cadre de sélection | (rendu Konva) | aucun | Cadre 1 px `--selection`, poignées 8 × 8 px fond blanc bordure `--selection` | |
 | Curseur distant | (rendu Konva) | aucun | Flèche 16 px couleur de l'utilisateur, étiquette arrondie de même couleur, texte blanc 12 px | |
 

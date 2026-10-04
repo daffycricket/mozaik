@@ -66,3 +66,116 @@ describe('[F03-S1-AC2] text editor overlay', () => {
     doc.destroy();
   });
 });
+
+describe('[F03-S2-AC2] text editor validation', () => {
+  test('[F03-S2-AC2] commits the text on Enter', () => {
+    const doc = createBoardDoc();
+    const created = createElement(
+      doc,
+      { type: 'sticky', x: 10, y: 20, width: 200, height: 200, text: 'Idée' },
+      { id: 's1', createdBy: 'u' },
+    );
+    if (created.type !== 'sticky') {
+      throw new Error('expected a sticky element');
+    }
+    useEditingStore.setState({ editingId: 's1' });
+
+    act(() => {
+      root.render(<TextEditor doc={doc} element={created} />);
+    });
+
+    const textarea = container.querySelector('textarea');
+    act(() => {
+      if (textarea !== null) {
+        setTextareaValue(textarea, 'Idée 1');
+      }
+    });
+    act(() => {
+      textarea?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    });
+
+    expect(getElement(doc, 's1')).toMatchObject({ text: 'Idée 1' });
+    expect(useEditingStore.getState().editingId).toBeNull();
+    doc.destroy();
+  });
+
+  test('[F03-S2-AC2] commits the text when the field loses focus', () => {
+    const doc = createBoardDoc();
+    const created = createElement(
+      doc,
+      { type: 'sticky', x: 10, y: 20, width: 200, height: 200, text: 'Idée' },
+      { id: 's1', createdBy: 'u' },
+    );
+    if (created.type !== 'sticky') {
+      throw new Error('expected a sticky element');
+    }
+    useEditingStore.setState({ editingId: 's1' });
+
+    act(() => {
+      root.render(<TextEditor doc={doc} element={created} />);
+    });
+
+    const textarea = container.querySelector('textarea');
+    act(() => {
+      if (textarea !== null) {
+        setTextareaValue(textarea, 'Idée 1');
+      }
+    });
+    act(() => {
+      textarea?.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+    });
+
+    expect(getElement(doc, 's1')).toMatchObject({ text: 'Idée 1' });
+    expect(useEditingStore.getState().editingId).toBeNull();
+    doc.destroy();
+  });
+
+  test('[F03-S2-AC2] limits the text to 2000 characters', () => {
+    const doc = createBoardDoc();
+    const created = createElement(
+      doc,
+      { type: 'sticky', x: 10, y: 20, width: 200, height: 200, text: '' },
+      { id: 's1', createdBy: 'u' },
+    );
+    if (created.type !== 'sticky') {
+      throw new Error('expected a sticky element');
+    }
+
+    act(() => {
+      root.render(<TextEditor doc={doc} element={created} />);
+    });
+
+    expect(container.querySelector('textarea')?.getAttribute('maxlength')).toBe('2000');
+    doc.destroy();
+  });
+});
+
+describe('[F03-S2-AC3] text editor line break', () => {
+  test('[F03-S2-AC3] keeps editing and does not commit on Shift+Enter', () => {
+    const doc = createBoardDoc();
+    const created = createElement(
+      doc,
+      { type: 'sticky', x: 10, y: 20, width: 200, height: 200, text: 'Idée' },
+      { id: 's1', createdBy: 'u' },
+    );
+    if (created.type !== 'sticky') {
+      throw new Error('expected a sticky element');
+    }
+    useEditingStore.setState({ editingId: 's1' });
+
+    act(() => {
+      root.render(<TextEditor doc={doc} element={created} />);
+    });
+
+    const textarea = container.querySelector('textarea');
+    act(() => {
+      textarea?.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true, bubbles: true }),
+      );
+    });
+
+    expect(getElement(doc, 's1')).toMatchObject({ text: 'Idée' });
+    expect(useEditingStore.getState().editingId).toBe('s1');
+    doc.destroy();
+  });
+});

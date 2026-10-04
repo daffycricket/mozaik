@@ -31,7 +31,7 @@ apps/
   web/            Front React + Vite + Konva
     src/
       app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`)
-      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), cadre de sélection (`selection-overlay.tsx`), création de post-its (`use-create.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
+      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), cadre de sélection (`selection-overlay.tsx`), création et édition de post-its (`use-create.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
       tools/      Raccourcis clavier (`shortcuts.ts`) ; les outils eux-mêmes arrivent avec leurs stories
       identity/   Identité locale (`identity.ts`, `localStorage`) et dialogue de nom
       components/
@@ -54,7 +54,8 @@ packages/
     src/
       schema.ts       Types et validation (zod) des éléments, palette de couleurs
       doc.ts          Création/accès au Y.Doc d'un board
-      ops.ts          Opérations : createElement, createSticky, updateElement, deleteElements, LOCAL_ORIGIN
+      ops.ts          Opérations : createElement, createSticky, updateElement, deleteElements, elementAtPoint, LOCAL_ORIGIN
+      text-fit.ts     Taille de police d'un post-it qui fait tenir son texte (`fitStickyFontSize`)
       geometry.ts     Boîte englobante (`unionBounds`)
       viewport.ts     Conversions coordonnées monde ↔ écran
   config/         Configs partagées (tsconfig, biome)
@@ -123,6 +124,8 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 ## Flux principaux
 
 **Modification locale** : événement pointeur → outil actif → fonction de `packages/model/ops` dans `doc.transact(fn, LOCAL_ORIGIN)` → Yjs émet la mise à jour → (a) le rendu Konva se met à jour via l'observation du document, sans attendre le serveur (FL-1), (b) le provider envoie la mise à jour au serveur. Pendant un glisser, les positions intermédiaires sont écrites au plus toutes les 50 ms (FL-4).
+
+**Édition de texte** : un double-clic sur un post-it existant, ou Entrée sur un post-it seul sélectionné, ouvre l'éditeur HTML superposé à l'élément. La saisie reste locale (état React de l'éditeur) et n'est écrite dans Yjs qu'à la validation (Entrée, Échap ou perte de focus), ce qui préserve le texte et la position du curseur malgré les mises à jour distantes (F03-S2, FL-5). La taille de police est ajustée par `fitStickyFontSize` pour que le texte tienne, sans descendre sous 10 px.
 
 **Modification distante** : serveur → provider → mise à jour appliquée au `Y.Doc` → observation → rendu. Le `Y.UndoManager` ne suit que `LOCAL_ORIGIN` : annuler n'annule jamais le travail d'un autre.
 
