@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F02-S1 | contrôle | Vérification indépendante de main @ f0e2b31 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 85.91 %, branches 81.32 %). | logs/verify-012.log | non |
 | 2026-10-04 | F02-S1 | décision | Le serveur e2e passe en `NODE_ENV=test` (playwright.config.ts) pour exposer `POST /api/test/seed`, seule source d'un board de 300 éléments pour F02-S1-AC4 ; aucun autre comportement serveur n'en dépend. | playwright.config.ts | non |
 | 2026-10-04 | F02-S1 | décision | Les critères de pan (F02-S1-AC1 à AC3) sont vérifiés via `window.__board.getViewport()` et `worldToScreen` plutôt que sur un élément rendu : le rendu des éléments arrive avec F03-S1, mais c'est bien le viewport qui détermine leur position à l'écran. | e2e/board-pan.spec.ts | non |
 | 2026-10-04 | F02-S1 | décision | La grille de points est dessinée en CSS (`background-image` radial-gradient + `background-position`) sur le conteneur du canvas, pas en Konva : elle suit le pan sans recréer de nœud ni peser sur FL-2. | apps/web/src/canvas/board-canvas.tsx | non |
