@@ -93,6 +93,91 @@ describe('[F03-S3-AC2] context bar palette', () => {
   });
 });
 
+describe('[F05-S2-AC1] recolour the selected free texts', () => {
+  test('[F05-S2-AC1] recolours every selected free text on colour click', () => {
+    const doc = createBoardDoc();
+    createElement(
+      doc,
+      { type: 'text', x: 0, y: 0, width: 60, height: 24, text: 'Titre' },
+      { id: 't1', createdBy: 'u' },
+    );
+    createElement(
+      doc,
+      { type: 'text', x: 0, y: 0, width: 60, height: 24, text: 'Note' },
+      { id: 't2', createdBy: 'u' },
+    );
+    act(() => {
+      useSelectionStore.getState().setSelection(['t1', 't2']);
+    });
+    render(doc);
+
+    act(() => {
+      item('color-red')?.click();
+    });
+
+    expect(getElement(doc, 't1')).toMatchObject({ color: 'red' });
+    expect(getElement(doc, 't2')).toMatchObject({ color: 'red' });
+    expect(item('color-red')?.getAttribute('aria-pressed')).toBe('true');
+    doc.destroy();
+  });
+});
+
+describe('[F05-S2-AC2] palette for a text selection', () => {
+  test('[F05-S2-AC2] offers the ten palette colours and marks the current one', () => {
+    const doc = createBoardDoc();
+    createElement(
+      doc,
+      { type: 'text', x: 0, y: 0, width: 60, height: 24, text: 'Titre' },
+      { id: 't1', createdBy: 'u' },
+    );
+    act(() => {
+      useSelectionStore.getState().setSelection(['t1']);
+    });
+    render(doc);
+
+    for (const color of PALETTE_COLORS) {
+      expect(item(`color-${color}`)).not.toBeNull();
+    }
+    expect(item('color-black')?.getAttribute('aria-pressed')).toBe('true');
+    expect(item('color-red')?.getAttribute('aria-pressed')).toBe('false');
+
+    act(() => {
+      item('color-red')?.click();
+    });
+    expect(item('color-red')?.getAttribute('aria-pressed')).toBe('true');
+    expect(item('color-black')?.getAttribute('aria-pressed')).toBe('false');
+    doc.destroy();
+  });
+});
+
+describe('[F05-S2-AC3] mixed selection', () => {
+  test('[F05-S2-AC3] recolours sticky notes and free texts in a mixed selection', () => {
+    const doc = createBoardDoc();
+    createElement(
+      doc,
+      { type: 'sticky', x: 0, y: 0, width: 100, height: 100, text: 'Idée' },
+      { id: 's1', createdBy: 'u' },
+    );
+    createElement(
+      doc,
+      { type: 'text', x: 0, y: 0, width: 60, height: 24, text: 'Titre' },
+      { id: 't1', createdBy: 'u' },
+    );
+    act(() => {
+      useSelectionStore.getState().setSelection(['s1', 't1']);
+    });
+    render(doc);
+
+    act(() => {
+      item('color-green')?.click();
+    });
+
+    expect(getElement(doc, 's1')).toMatchObject({ color: 'green' });
+    expect(getElement(doc, 't1')).toMatchObject({ color: 'green' });
+    doc.destroy();
+  });
+});
+
 describe('[F03-S3-AC1] recolour the selection', () => {
   test('[F03-S3-AC1] recolours every selected sticky note on colour click', () => {
     const doc = createBoardDoc();
