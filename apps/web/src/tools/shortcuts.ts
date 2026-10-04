@@ -2,6 +2,7 @@ import {
   type BoardDoc,
   type BoardHistory,
   bringForward,
+  deleteElements,
   getElement,
   moveElements,
   type Point,
@@ -175,6 +176,40 @@ export function useOrderShortcuts(doc: BoardDoc | null): void {
       } else {
         sendBackward(doc, selection);
       }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [doc]);
+}
+
+/**
+ * Deletes the selection with `Delete` or `Backspace` in a single local
+ * transaction (F08-S1-AC1), then clears the local selection. Inactive while a
+ * text field has focus or an element is being edited, so `Backspace` keeps
+ * erasing characters (F08-S1-AC2), and without a selection.
+ */
+export function useDeleteShortcut(doc: BoardDoc | null): void {
+  useEffect(() => {
+    if (doc === null) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+      if (event.key !== 'Delete' && event.key !== 'Backspace') {
+        return;
+      }
+      if (isTextEditingTarget(event.target) || useEditingStore.getState().editingId !== null) {
+        return;
+      }
+      const selection = useSelectionStore.getState().selection;
+      if (selection.length === 0) {
+        return;
+      }
+      event.preventDefault();
+      deleteElements(doc, selection);
+      useSelectionStore.getState().clearSelection();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);

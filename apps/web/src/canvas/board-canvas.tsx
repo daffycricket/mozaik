@@ -11,6 +11,7 @@ import { useEditingStore } from '@/state/editing-store';
 import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
 import {
+  useDeleteShortcut,
   useMoveShortcuts,
   useOrderShortcuts,
   useStartEditingShortcut,
@@ -49,6 +50,7 @@ export function BoardCanvas() {
   useStartEditingShortcut(doc);
   useMoveShortcuts(doc);
   useOrderShortcuts(doc);
+  useDeleteShortcut(doc);
   useUndoShortcut(history);
   useLocalCursor(containerRef);
   useWheelZoom(containerRef);
