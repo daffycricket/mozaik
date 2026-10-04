@@ -47,6 +47,8 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | T-005 | contrôle | Vérification indépendante de main @ 6090fe2 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 87.82 %, branches 82 %). | logs/verify-017.log | non |
+| 2026-10-04 | T-005 | contrôle | Commit(s) non conforme(s) à process/git.md : 714fc9a « docs(plan): T-005#0 plan 1 step » (trailer Refs absent, trailer Plan-Step absent). | session 017 (logs du run) | oui |
 | 2026-10-04 | T-005 | dépendance | Ajout de @fastify/static 8.3.0 (MIT) à `apps/server` pour servir le front compilé depuis `STATIC_DIR` (actifs, types MIME, protection contre la traversée de chemin). | apps/server/package.json, pnpm-lock.yaml | non |
 | 2026-10-04 | T-005 | décision | En mode packagé, `apps/server/src/http/static.ts` sert `STATIC_DIR` via `@fastify/static` et un `setNotFoundHandler` renvoie `index.html` pour toute route hors `/api` et `/collab` (routage côté client, ADR-0010) ; `/api` inconnu reste un 404 JSON. | apps/server/src/http/static.ts | oui |
 | 2026-10-04 | T-005 | décision | `apps/web` reçoit un script `build` (`vite build`) : nécessaire à l'image Docker (ADR-0010) et au test e2e du mode packagé sans Docker (T-005-AC8). | apps/web/package.json | non |
