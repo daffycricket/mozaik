@@ -47,6 +47,8 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F03-S3 | contrôle | Vérification indépendante de main @ 76e882e réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 89.26 %, branches 82.78 %). | logs/verify-021.log | non |
+| 2026-10-04 | RUN | run | Reprise du run : sessions 21 à 35, outillage @ 34dec3f. | logs/loop.log | non |
 | 2026-10-04 | F03-S3 | décision | La barre contextuelle n'affiche une couleur `aria-pressed="true"` que si tous les post-its et textes sélectionnés partagent la même couleur ; une sélection mixte n'en marque aucune. Choisir une couleur écrit sur toute la sélection en une seule transaction (`setElementsColor`), pour une action = une entrée d'annulation (`process/code.md` §5). | packages/model/src/ops.ts, apps/web/src/components/board/context-bar.tsx | oui |
 | 2026-10-04 | F03-S3 | décision | La barre contextuelle est affichée seulement si la sélection contient au moins un post-it ou un texte (règle UI-BOARD-8 anticipée), et sa hauteur est mesurée au rendu pour la basculer en dessous de la sélection quand la place manque au-dessus (UI-BOARD-7). Elle reste centrée horizontalement, même si la sélection touche un bord. | apps/web/src/components/board/context-bar.tsx | oui |
 | 2026-10-04 | F03-S3 | test | Nouveaux tests ajoutés sans modifier les tests hérités : `packages/model/src/ops.test.ts` (cas `[F03-S3-AC1]`), `apps/web/src/components/board/context-bar.test.tsx`, `e2e/sticky-color.spec.ts`, `e2e/layout/board-context-bar.spec.ts`, `e2e/fluidity/sticky-color.spec.ts`. Aucun cas ni assertion existant retiré. | voir fichiers | oui |
