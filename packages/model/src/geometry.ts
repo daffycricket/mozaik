@@ -1,6 +1,19 @@
 export type Box = { x: number; y: number; width: number; height: number };
 
 /**
+ * Normalized box spanning two points, used for the selection rectangle dragged
+ * from an empty area (F07-S1-AC3).
+ */
+export function boxFromPoints(a: { x: number; y: number }, b: { x: number; y: number }): Box {
+  return {
+    x: Math.min(a.x, b.x),
+    y: Math.min(a.y, b.y),
+    width: Math.abs(b.x - a.x),
+    height: Math.abs(b.y - a.y),
+  };
+}
+
+/**
  * Bounding box of a set of boxes, or `null` when the set is empty. Used to draw
  * the selection frame around one or several elements (F07).
  */

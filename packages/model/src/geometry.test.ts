@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { unionBounds } from './geometry';
+import { boxFromPoints, unionBounds } from './geometry';
 
 describe('union bounds', () => {
   test('returns null without boxes', () => {
@@ -22,5 +22,22 @@ describe('union bounds', () => {
         { x: -5, y: 60, width: 10, height: 10 },
       ]),
     ).toEqual({ x: -5, y: 20, width: 45, height: 50 });
+  });
+});
+
+describe('[F07-S1-AC3] selection rectangle', () => {
+  test('[F07-S1-AC3] normalizes a rectangle dragged in any direction', () => {
+    expect(boxFromPoints({ x: 30, y: 40 }, { x: 10, y: 20 })).toEqual({
+      x: 10,
+      y: 20,
+      width: 20,
+      height: 20,
+    });
+    expect(boxFromPoints({ x: 10, y: 20 }, { x: 30, y: 40 })).toEqual({
+      x: 10,
+      y: 20,
+      width: 20,
+      height: 20,
+    });
   });
 });

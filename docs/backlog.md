@@ -32,7 +32,7 @@ Liste ordonnée de tout le travail. L'agent prend toujours le **premier ticket `
 | 17 | T-005 | Lancement local avec Docker Compose | tech | F09-S2 | done |  |
 | 18 | F10-S2 | Voir où sont les autres (curseurs) | story | F09-S1 | done |  |
 | 19 | F03-S2 | Écrire dans un post-it | story | F03-S1 | done |  |
-| 20 | F07-S1 | Sélectionner | story | F03-S1 | in-progress |  |
+| 20 | F07-S1 | Sélectionner | story | F03-S1 | done |  |
 | 21 | F03-S3 | Changer la couleur d'un post-it | story | F07-S1 | todo |  |
 | 22 | F07-S2 | Déplacer | story | F07-S1 | todo |  |
 | 23 | F07-S3 | Redimensionner | story | F07-S1 | todo |  |

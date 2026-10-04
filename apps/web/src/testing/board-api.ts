@@ -12,6 +12,7 @@ import {
   type Viewport,
   worldToScreen,
 } from '@mozaik/model';
+import { HANDLE_SIZE, selectionHandles } from '@/canvas/selection-handles';
 
 export type OverlayBox = { x: number; y: number; width: number; height: number };
 
@@ -33,8 +34,6 @@ export type BoardApi = {
   getOverlayBoxes: () => OverlayBoxes;
 };
 
-const HANDLE_SIZE = 8;
-
 function toScreenBox(viewport: Viewport, box: WorldBox): OverlayBox {
   const topLeft = worldToScreen(viewport, { x: box.x, y: box.y });
   return {
@@ -45,23 +44,14 @@ function toScreenBox(viewport: Viewport, box: WorldBox): OverlayBox {
   };
 }
 
-/**
- * Builds the eight square handles (corners and side midpoints) of a selection box.
- */
-export function selectionHandles(selection: OverlayBox): OverlayBox[] {
+function handleBoxes(selection: OverlayBox): OverlayBox[] {
   const half = HANDLE_SIZE / 2;
-  const handles: OverlayBox[] = [];
-  for (let row = 0; row < 3; row += 1) {
-    for (let column = 0; column < 3; column += 1) {
-      if (row === 1 && column === 1) {
-        continue;
-      }
-      const x = selection.x + (selection.width * column) / 2;
-      const y = selection.y + (selection.height * row) / 2;
-      handles.push({ x: x - half, y: y - half, width: HANDLE_SIZE, height: HANDLE_SIZE });
-    }
-  }
-  return handles;
+  return selectionHandles(selection).map((handle) => ({
+    x: handle.x - half,
+    y: handle.y - half,
+    width: HANDLE_SIZE,
+    height: HANDLE_SIZE,
+  }));
 }
 
 /**
@@ -75,7 +65,7 @@ export function computeOverlayBoxes(input: {
   const selection = input.selection === null ? null : toScreenBox(input.viewport, input.selection);
   return {
     selection,
-    handles: selection === null ? [] : selectionHandles(selection),
+    handles: selection === null ? [] : handleBoxes(selection),
     cursors: input.cursors.map((cursor) => worldToScreen(input.viewport, cursor)),
   };
 }

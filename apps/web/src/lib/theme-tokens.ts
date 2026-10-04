@@ -7,6 +7,7 @@ export const PROJECT_TOKENS = {
   '--canvas-dot': '#D4D4D8',
   '--selection': '#2563EB',
   '--selection-fill': 'rgba(37, 99, 235, 0.08)',
+  '--handle-fill': '#FFFFFF',
   '--shape-stroke': '#1F2937',
   '--cursor-label-text': '#FFFFFF',
   '--header-height-menu': '56px',

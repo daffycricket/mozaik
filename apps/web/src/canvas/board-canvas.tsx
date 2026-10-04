@@ -12,10 +12,11 @@ import { useViewportStore } from '@/state/viewport-store';
 import { useStartEditingShortcut } from '@/tools/shortcuts';
 import { BoardElements } from './board-elements';
 import { RemoteCursors } from './remote-cursors';
-import { SelectionOverlay } from './selection-overlay';
+import { SelectionMarquee, SelectionOverlay } from './selection-overlay';
 import { useCreateSticky } from './use-create';
 import { useElements } from './use-elements';
 import { usePan } from './use-pan';
+import { useSelect } from './use-select';
 import { useWheelZoom } from './use-zoom';
 
 const GRID_STEP = 32;
@@ -36,6 +37,7 @@ export function BoardCanvas() {
   const elements = useElements(doc);
   const session = usePresenceSession();
   const pan = usePan(containerRef);
+  const marquee = useSelect(containerRef, doc);
   useCreateSticky(containerRef, doc);
   useStartEditingShortcut(doc);
   useLocalCursor(containerRef);
@@ -100,6 +102,7 @@ export function BoardCanvas() {
         >
           <BoardElements elements={elements} editingId={editingId} />
           {selectionBox !== null && <SelectionOverlay box={selectionBox} zoom={viewport.zoom} />}
+          {marquee !== null && <SelectionMarquee box={marquee} zoom={viewport.zoom} />}
           {session !== null && (
             <RemoteCursors provider={session.provider} viewport={viewport} size={size} />
           )}

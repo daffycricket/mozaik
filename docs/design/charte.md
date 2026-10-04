@@ -20,6 +20,7 @@ Déclarés une seule fois dans le fichier CSS du thème (à côté des variables
 | `--canvas-dot` | `#D4D4D8` | Points de la grille |
 | `--selection` | `#2563EB` | Cadre de sélection, poignées, cadre de la zone de saisie de texte, rectangle de sélection |
 | `--selection-fill` | `rgba(37, 99, 235, 0.08)` | Intérieur du rectangle de sélection |
+| `--handle-fill` | `#FFFFFF` | Fond des poignées de sélection |
 | `--shape-stroke` | `#1F2937` | Trait des formes et des flèches |
 | `--cursor-label-text` | `#FFFFFF` | Texte de l'étiquette du curseur distant |
 | `--header-height-menu` | 56 px | En-tête du menu |

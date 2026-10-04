@@ -1,5 +1,6 @@
 import { generateKeyBetween } from 'fractional-indexing';
 import * as Y from 'yjs';
+import type { Box } from './geometry';
 import { type Element, elementSchema, type PaletteColor, STICKY_DEFAULT_SIZE } from './schema';
 import type { Point } from './viewport';
 
@@ -105,6 +106,20 @@ export function elementAtPoint(elements: Element[], point: Point): Element | und
     }
   }
   return hit;
+}
+
+/**
+ * Returns the elements entirely contained in the box, ignoring the ones that
+ * only overlap it. Used by the selection rectangle (F07-S1-AC3).
+ */
+export function elementsInBox(elements: Element[], box: Box): Element[] {
+  return elements.filter(
+    (element) =>
+      element.x >= box.x &&
+      element.y >= box.y &&
+      element.x + element.width <= box.x + box.width &&
+      element.y + element.height <= box.y + box.height,
+  );
 }
 
 function nextZIndex(doc: Y.Doc): string {

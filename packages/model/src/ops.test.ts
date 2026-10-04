@@ -6,6 +6,7 @@ import {
   deleteElements,
   ELEMENTS_KEY,
   elementAtPoint,
+  elementsInBox,
   getElement,
   getElements,
   LOCAL_ORIGIN,
@@ -253,6 +254,44 @@ describe('[F03-S2-AC1] element hit testing', () => {
     );
 
     expect(elementAtPoint(getElements(doc), { x: 500, y: 500 })).toBeUndefined();
+    doc.destroy();
+  });
+});
+
+describe('[F07-S1-AC3] selection rectangle containment', () => {
+  function board(): ReturnType<typeof createBoardDoc> {
+    const doc = createBoardDoc();
+    createElement(
+      doc,
+      { type: 'sticky', x: 0, y: 0, width: 100, height: 100 },
+      { id: 'inside', createdBy: 'u' },
+    );
+    createElement(
+      doc,
+      { type: 'sticky', x: 120, y: 0, width: 100, height: 100 },
+      { id: 'also-inside', createdBy: 'u' },
+    );
+    createElement(
+      doc,
+      { type: 'sticky', x: 240, y: 0, width: 100, height: 100 },
+      { id: 'outside', createdBy: 'u' },
+    );
+    return doc;
+  }
+
+  test('[F07-S1-AC3] selects only the elements entirely contained in the box', () => {
+    const doc = board();
+    const selected = elementsInBox(getElements(doc), { x: 0, y: 0, width: 230, height: 150 });
+
+    expect(selected.map((element) => element.id).sort()).toEqual(['also-inside', 'inside']);
+    doc.destroy();
+  });
+
+  test('[F07-S1-AC3] rejects an element only partially overlapped', () => {
+    const doc = board();
+    const selected = elementsInBox(getElements(doc), { x: 50, y: 50, width: 100, height: 100 });
+
+    expect(selected).toEqual([]);
     doc.destroy();
   });
 });
