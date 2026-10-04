@@ -15,7 +15,7 @@ Liste ordonnée de tout le travail. L'agent prend toujours le **premier ticket `
 |---|---|---|---|---|---|---|
 | 1 | T-001 | Bootstrap du monorepo et de l'outillage | tech |  | done |  |
 | 2 | T-002 | Harnais de test, couverture, rapports, traçabilité | tech | T-001 | done |  |
-| 3 | F01-S1 | Créer un board et l'ouvrir | story | T-002 | todo |  |
+| 3 | F01-S1 | Créer un board et l'ouvrir | story | T-002 | in-progress |  |
 | 4 | T-003 | Socle collaboratif : document Yjs, provider, persistance, `window.__board` | tech | F01-S1 | todo |  |
 | 5 | T-004 | Harnais de mesure de la fluidité (F00) | tech | T-003 | todo |  |
 | 6 | T-006 | Design system et harnais de conformité aux maquettes | tech | T-003 | todo |  |
