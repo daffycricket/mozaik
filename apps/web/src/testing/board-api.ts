@@ -4,7 +4,9 @@ import {
   DEFAULT_VIEWPORT,
   getElement,
   getElements,
+  isPointVisible,
   type Point,
+  parsePresenceState,
   screenToWorld,
   unionBounds,
   type Viewport,
@@ -83,7 +85,29 @@ export type BoardApiDependencies = {
   provider: HocuspocusProvider | null;
   getViewport?: () => Viewport;
   getSelection?: () => string[];
+  getCanvasSize?: () => { width: number; height: number };
 };
+
+/**
+ * Reads the cursor of every other connected user from the awareness state (F10-S2).
+ */
+export function readRemoteCursors(provider: HocuspocusProvider | null, selfId: number): Point[] {
+  const awareness = provider?.awareness;
+  if (awareness == null) {
+    return [];
+  }
+  const cursors: Point[] = [];
+  for (const [clientId, state] of awareness.getStates()) {
+    if (clientId === selfId) {
+      continue;
+    }
+    const parsed = parsePresenceState(state);
+    if (parsed?.cursor != null) {
+      cursors.push(parsed.cursor);
+    }
+  }
+  return cursors;
+}
 
 /**
  * Tells whether the application runs in end-to-end test mode.
@@ -100,6 +124,7 @@ export function createBoardApi({
   provider,
   getViewport = () => DEFAULT_VIEWPORT,
   getSelection = () => [],
+  getCanvasSize = () => ({ width: Number.POSITIVE_INFINITY, height: Number.POSITIVE_INFINITY }),
 }: BoardApiDependencies): BoardApi {
   return {
     getElements: () => getElements(doc),
@@ -108,6 +133,11 @@ export function createBoardApi({
     screenToWorld: (point) => screenToWorld(getViewport(), point),
     getSelection: () => [...getSelection()],
     getOverlayBoxes: () => {
+      const viewport = getViewport();
+      const size = getCanvasSize();
+      const cursors = readRemoteCursors(provider, doc.clientID).filter((cursor) =>
+        isPointVisible(worldToScreen(viewport, cursor), size),
+      );
       const boxes = getSelection()
         .map((id) => getElement(doc, id))
         .filter((element) => element !== undefined)
@@ -118,9 +148,9 @@ export function createBoardApi({
           height: element.height,
         }));
       return computeOverlayBoxes({
-        viewport: getViewport(),
+        viewport,
         selection: unionBounds(boxes),
-        cursors: [],
+        cursors,
       });
     },
     getPeers: () => {

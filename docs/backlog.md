@@ -30,7 +30,7 @@ Liste ordonnée de tout le travail. L'agent prend toujours le **premier ticket `
 | 15 | F09-S1 | Synchroniser les modifications | story | F03-S1 | done |  |
 | 16 | F09-S2 | Persister | story | F09-S1 | done |  |
 | 17 | T-005 | Lancement local avec Docker Compose | tech | F09-S2 | done |  |
-| 18 | F10-S2 | Voir où sont les autres (curseurs) | story | F09-S1 | in-progress |  |
+| 18 | F10-S2 | Voir où sont les autres (curseurs) | story | F09-S1 | done |  |
 | 19 | F03-S2 | Écrire dans un post-it | story | F03-S1 | todo |  |
 | 20 | F07-S1 | Sélectionner | story | F03-S1 | todo |  |
 | 21 | F03-S3 | Changer la couleur d'un post-it | story | F07-S1 | todo |  |
@@ -142,6 +142,7 @@ Note : les tests de AC1 à AC5 vivent dans `e2e-docker/`, hors de `pnpm test:e2e
 | ID | Titre | Découvert dans | Statut | Notes |
 |---|---|---|---|---|
 | B-001 | Mesure FL-2 du pan instable sous charge | F09-S2 | todo | F02-S1-AC4 : intervalle d'image max de 411 ms (seuil 200 ms) au premier run e2e complet, repasse isolé puis au run complet suivant ; à investiguer (charge machine, GC). |
+| B-002 | Mesure FL-2 du zoom instable sous charge | F10-S2 | todo | F02-S2-AC4 : intervalle d'image max de 547 ms (seuil 200 ms, plancher 500 ms) au run e2e complet, repasse isolé puis au run complet suivant ; à investiguer (charge machine, GC). |
 
 ### B-001 : Mesure FL-2 du pan instable sous charge
 
@@ -150,6 +151,14 @@ Contexte : `e2e/fluidity/board-pan.spec.ts`, exigence FL-2 (F00).
 Critères d'acceptance :
 
 - **B-001-AC1** : `pnpm test:e2e` complet enchaîné plusieurs fois de suite ne fait plus échouer F02-S1-AC4, sans abaisser les seuils de F00 ni marquer le test `skip`.
+
+### B-002 : Mesure FL-2 du zoom instable sous charge
+
+Contexte : `e2e/fluidity/board-zoom.spec.ts`, exigence FL-2 (F00).
+
+Critères d'acceptance :
+
+- **B-002-AC1** : `pnpm test:e2e` complet enchaîné plusieurs fois de suite ne fait plus échouer F02-S2-AC4, sans abaisser les seuils de F00 ni marquer le test `skip`.
 
 ## Dette technique
 

@@ -21,6 +21,7 @@ Déclarés une seule fois dans le fichier CSS du thème (à côté des variables
 | `--selection` | `#2563EB` | Cadre de sélection, poignées, cadre de la zone de saisie de texte, rectangle de sélection |
 | `--selection-fill` | `rgba(37, 99, 235, 0.08)` | Intérieur du rectangle de sélection |
 | `--shape-stroke` | `#1F2937` | Trait des formes et des flèches |
+| `--cursor-label-text` | `#FFFFFF` | Texte de l'étiquette du curseur distant |
 | `--header-height-menu` | 56 px | En-tête du menu |
 | `--header-height-board` | 48 px | En-tête du board |
 | `--float-gap` | 12 px | Distance des barres flottantes aux bords |

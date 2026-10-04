@@ -15,6 +15,19 @@ Sans authentification, chaque utilisateur se présente par un simple nom. Sur un
 - Couleur de l'utilisateur dérivée de son identifiant, dans une palette de 12 couleurs contrastées (distincte de la palette des éléments).
 - Présence = curseurs uniquement : on voit le curseur d'un autre utilisateur quand il est dans la partie visible de son propre écran ; rien n'est affiché pour un utilisateur hors de l'écran.
 
+## Palette des curseurs
+
+Douze couleurs, distinctes de la palette des éléments (`features/README.md`). L'étiquette du curseur est en blanc (jeton `--cursor-label-text`). La couleur d'un utilisateur est déterministe : hachage FNV-1a de son identifiant, modulo 12.
+
+| # | Couleur | # | Couleur |
+|---|---|---|---|
+| 1 | `#E11D48` | 7 | `#0891B2` |
+| 2 | `#DB2777` | 8 | `#0D9488` |
+| 3 | `#9333EA` | 9 | `#16A34A` |
+| 4 | `#7C3AED` | 10 | `#CA8A04` |
+| 5 | `#4F46E5` | 11 | `#EA580C` |
+| 6 | `#2563EB` | 12 | `#DC2626` |
+
 ## Stories
 
 ### F10-S1 : Saisir son nom avant d'entrer dans un board

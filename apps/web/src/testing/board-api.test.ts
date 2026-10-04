@@ -1,6 +1,12 @@
 import { createBoardDoc, createElement } from '@mozaik/model';
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { computeOverlayBoxes, createBoardApi, exposeBoardApi, isE2E } from './board-api';
+import {
+  computeOverlayBoxes,
+  createBoardApi,
+  exposeBoardApi,
+  isE2E,
+  readRemoteCursors,
+} from './board-api';
 
 function fakeProvider(states: Array<[number, unknown]>) {
   return {
@@ -79,6 +85,56 @@ describe('[T-006-AC6] overlay boxes', () => {
     const doc = createBoardDoc();
     const api = createBoardApi({ doc, provider: null });
     expect(api.getOverlayBoxes()).toEqual({ selection: null, handles: [], cursors: [] });
+    doc.destroy();
+  });
+});
+
+const peerState = (cursor: { x: number; y: number } | null) => ({
+  user: { id: 'peer', name: 'Nico L', color: '#E11D48' },
+  cursor,
+});
+
+describe('[F10-S2-AC1] remote cursors', () => {
+  test('[F10-S2-AC1] reads the cursors of the other users only', () => {
+    const doc = createBoardDoc();
+    const cursors = readRemoteCursors(
+      fakeProvider([
+        [doc.clientID, peerState({ x: 1, y: 1 })],
+        [doc.clientID + 1, peerState({ x: 20, y: 30 })],
+        [doc.clientID + 2, { name: 'invalid' }],
+        [doc.clientID + 3, peerState(null)],
+      ]),
+      doc.clientID,
+    );
+    expect(cursors).toEqual([{ x: 20, y: 30 }]);
+    doc.destroy();
+  });
+
+  test('[F10-S2-AC1] reports no cursors without a provider', () => {
+    expect(readRemoteCursors(null, 1)).toEqual([]);
+  });
+});
+
+describe('[F10-S2-AC3] cursor visibility in overlay boxes', () => {
+  test('[F10-S2-AC3] exposes a visible remote cursor at its screen position', () => {
+    const doc = createBoardDoc();
+    const api = createBoardApi({
+      doc,
+      provider: fakeProvider([[doc.clientID + 1, peerState({ x: 100, y: 50 })]]),
+      getCanvasSize: () => ({ width: 1280, height: 752 }),
+    });
+    expect(api.getOverlayBoxes().cursors).toEqual([{ x: 100, y: 50 }]);
+    doc.destroy();
+  });
+
+  test('[F10-S2-AC3] hides a remote cursor outside the canvas', () => {
+    const doc = createBoardDoc();
+    const api = createBoardApi({
+      doc,
+      provider: fakeProvider([[doc.clientID + 1, peerState({ x: 100, y: 50 })]]),
+      getCanvasSize: () => ({ width: 50, height: 50 }),
+    });
+    expect(api.getOverlayBoxes().cursors).toEqual([]);
     doc.destroy();
   });
 });

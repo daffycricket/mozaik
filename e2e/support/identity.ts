@@ -16,12 +16,27 @@ export function storedIdentityState(origin = E2E_WEB_ORIGIN): {
   cookies: [];
   origins: Array<{ origin: string; localStorage: Array<{ name: string; value: string }> }>;
 } {
+  return identityState(E2E_USER.id, E2E_USER.name, origin);
+}
+
+/**
+ * Playwright storage state with a given memorized identity, so two contexts
+ * count as two distinct users (F09, F10).
+ */
+export function identityState(
+  id: string,
+  name: string,
+  origin = E2E_WEB_ORIGIN,
+): {
+  cookies: [];
+  origins: Array<{ origin: string; localStorage: Array<{ name: string; value: string }> }>;
+} {
   return {
     cookies: [],
     origins: [
       {
         origin,
-        localStorage: [{ name: IDENTITY_STORAGE_KEY, value: JSON.stringify(E2E_USER) }],
+        localStorage: [{ name: IDENTITY_STORAGE_KEY, value: JSON.stringify({ id, name }) }],
       },
     ],
   };

@@ -42,6 +42,7 @@
   --selection: #2563eb;
   --selection-fill: rgba(37, 99, 235, 0.08);
   --shape-stroke: #1f2937;
+  --cursor-label-text: #ffffff;
   --header-height-menu: 56px;
   --header-height-board: 48px;
   --float-gap: 12px;

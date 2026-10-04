@@ -1,7 +1,8 @@
 import { ArrowLeft } from 'lucide-react';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { BoardCanvas } from '@/canvas/board-canvas';
 import { BoardDocContext } from '@/collab/board-doc-context';
+import { PresenceContext } from '@/collab/presence-context';
 import { useBoardConnection } from '@/collab/use-board-connection';
 import { Toolbar } from '@/components/board/toolbar';
 import { ZoomControls } from '@/components/board/zoom-controls';
@@ -15,6 +16,7 @@ import {
 import { NameDialog } from '@/identity/name-dialog';
 import { type BoardRead, readBoard } from '@/lib/board-read';
 import { renameBoard } from '@/lib/boards-api';
+import { useCanvasSizeStore } from '@/state/canvas-size-store';
 import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
 import { createBoardApi, exposeBoardApi } from '@/testing/board-api';
@@ -55,7 +57,9 @@ export function BoardScreen({
   if (identity === null) {
     return <NameDialog onSubmit={onEnter} onBack={onBack} />;
   }
-  return <BoardView boardId={boardId} name={read.board.name} onRename={onRename} />;
+  return (
+    <BoardView boardId={boardId} identity={identity} name={read.board.name} onRename={onRename} />
+  );
 }
 
 /**
@@ -110,10 +114,12 @@ export function BoardPage({ boardId }: { boardId: string }) {
 
 function BoardView({
   boardId,
+  identity,
   name,
   onRename,
 }: {
   boardId: string;
+  identity: UserIdentity;
   name: string;
   onRename: (name: string) => void;
 }) {
@@ -133,14 +139,22 @@ function BoardView({
         provider,
         getViewport: () => useViewportStore.getState().viewport,
         getSelection: () => useSelectionStore.getState().selection,
+        getCanvasSize: () => useCanvasSizeStore.getState().size,
       }),
     );
   }, [doc, provider]);
 
+  const session = useMemo(
+    () => (provider === null ? null : { provider, identity }),
+    [provider, identity],
+  );
+
   return (
     <BoardDocContext.Provider value={doc}>
-      <BoardShell name={name} onRename={onRename} />
-      {isDeleted && <BoardDeleted />}
+      <PresenceContext.Provider value={session}>
+        <BoardShell name={name} onRename={onRename} />
+        {isDeleted && <BoardDeleted />}
+      </PresenceContext.Provider>
     </BoardDocContext.Provider>
   );
 }

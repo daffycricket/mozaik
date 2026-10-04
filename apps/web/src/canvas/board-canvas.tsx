@@ -2,12 +2,15 @@ import { unionBounds } from '@mozaik/model';
 import { useEffect, useRef } from 'react';
 import { Layer, Stage } from 'react-konva';
 import { useBoardDoc } from '@/collab/board-doc-context';
+import { usePresenceSession } from '@/collab/presence-context';
+import { useLocalCursor } from '@/collab/use-local-cursor';
 import { TextEditor } from '@/components/board/text-editor';
 import { useCanvasSizeStore } from '@/state/canvas-size-store';
 import { useEditingStore } from '@/state/editing-store';
 import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
 import { BoardElements } from './board-elements';
+import { RemoteCursors } from './remote-cursors';
 import { SelectionOverlay } from './selection-overlay';
 import { useCreateSticky } from './use-create';
 import { useElements } from './use-elements';
@@ -30,8 +33,10 @@ export function BoardCanvas() {
   const selection = useSelectionStore((state) => state.selection);
   const editingId = useEditingStore((state) => state.editingId);
   const elements = useElements(doc);
+  const session = usePresenceSession();
   const pan = usePan(containerRef);
   useCreateSticky(containerRef, doc);
+  useLocalCursor(containerRef);
   useWheelZoom(containerRef);
 
   useEffect(() => {
@@ -93,6 +98,9 @@ export function BoardCanvas() {
         >
           <BoardElements elements={elements} />
           {selectionBox !== null && <SelectionOverlay box={selectionBox} zoom={viewport.zoom} />}
+          {session !== null && (
+            <RemoteCursors provider={session.provider} viewport={viewport} size={size} />
+          )}
         </Layer>
       </Stage>
       {doc !== null && editable !== null && <TextEditor doc={doc} element={editable} />}

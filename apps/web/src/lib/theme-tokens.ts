@@ -8,6 +8,7 @@ export const PROJECT_TOKENS = {
   '--selection': '#2563EB',
   '--selection-fill': 'rgba(37, 99, 235, 0.08)',
   '--shape-stroke': '#1F2937',
+  '--cursor-label-text': '#FFFFFF',
   '--header-height-menu': '56px',
   '--header-height-board': '48px',
   '--float-gap': '12px',
