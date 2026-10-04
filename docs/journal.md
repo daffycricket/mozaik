@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | RUN | run | Fin du run après 10 session(s) : nombre maximal de sessions atteint (10, dont 3 après la reprise). | RUN-SUMMARY.md | oui |
 | 2026-10-04 | F01-S3 | contrôle | Vérification indépendante de main @ 25fb169 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 81.3 %, branches 81.48 %). | logs/verify-010.log | non |
 | 2026-10-04 | F01-S3 | contrôle | Test hérité modifié : apps/web/src/app/board-page.test.tsx, modification non justifiée (ni ticket bug, ni spec modifiée dans la session, ni critère F01-S3-ACn cité dans l'entrée test). | session 010 (logs du run) | oui |
 | 2026-10-04 | F01-S3 | décision | Le renommage met à jour `updated_at`, donc un board renommé remonte en tête du menu (tri par date de dernière modification). | apps/server/src/db/boards.ts | oui |

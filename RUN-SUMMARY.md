@@ -21,6 +21,12 @@
 - end=2026-10-04T13:16:13+00:00
 - sessions=7
 - stop_reason=nombre maximal de sessions atteint (7, dont 3 après la reprise)
+- resumed=2026-10-04T13:37:55Z
+- runner_commit=b22dc98
+- resume_sessions=3
+- end=2026-10-04T14:26:50+00:00
+- sessions=10
+- stop_reason=nombre maximal de sessions atteint (10, dont 3 après la reprise)
 
 ## Consommation
 
@@ -33,7 +39,10 @@
 | 5 | 2026-10-04T12:11:56+00:00 | 1380 | 0 | T-004 | 125243 | 15800 | 33706 | 6206258 | 0 | 0.2223 |
 | 6 | 2026-10-04T12:35:10+00:00 | 1290 | 0 | T-006 | 163820 | 27571 | 42444 | 11218328 | 0 | 0.3807 |
 | 7 | 2026-10-04T12:56:54+00:00 | 1140 | 0 | F10-S1 | 146547 | 17102 | 36157 | 8980942 | 0 | 0.3054 |
-| **Total** | | 10681 | | | 1083499 | 166653 | 294488 | 79282874 | 0 | 2.6591 |
+| 8 | 2026-10-04T13:38:00+00:00 | 1260 | 0 | F01-S2 | 158201 | 20213 | 46291 | 8357758 | 0 | 0.2976 |
+| 9 | 2026-10-04T13:59:30+00:00 | 900 | 0 | F01-S5 | 123606 | 13220 | 29636 | 5644714 | 0 | 0.2023 |
+| 10 | 2026-10-04T14:14:56+00:00 | 690 | 0 | F01-S3 | 114754 | 14320 | 16558 | 5728254 | 0 | 0.1961 |
+| **Total** | | 13531 | | | 1480060 | 214406 | 386973 | 99013600 | 0 | 3.3551 |
 
 Coûts calculés par OpenCode à partir des tarifs connus du modèle (0 si le tarif n'est pas renseigné dans `opencode.json`).
 
@@ -66,21 +75,33 @@ Coûts calculés par OpenCode à partir des tarifs connus du modèle (0 si le ta
 | contrôle | F10-S1 | Rejeu : l'ancienne version de tooling/design-system.test.ts échoue sur le nouveau code sans changement de comportement justifié (ni ticket bug, ni spec modifiée, ni critère du ticket cité au journal). Régression probablement masquée en modifiant le test. | oui |
 | contrôle | F10-S1 | Vérification indépendante de main @ e7b33c3 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 87.74 %, branches 85.43 %). | non |
 | run | RUN | Fin du run après 7 session(s) : nombre maximal de sessions atteint (7, dont 3 après la reprise). | oui |
+| run | RUN | Reprise du run : sessions 8 à 10, outillage @ b22dc98. | non |
+| contrôle | F01-S2 | Test hérité modifié : apps/web/src/app/pages.test.tsx, modification non justifiée (ni ticket bug, ni spec modifiée dans la session, ni critère F01-S2-ACn cité dans l'entrée test). | oui |
+| contrôle | F01-S2 | Test hérité modifié : e2e/home.spec.ts, modification non justifiée (ni ticket bug, ni spec modifiée dans la session, ni critère F01-S2-ACn cité dans l'entrée test). | oui |
+| contrôle | F01-S2 | Rejeu : l'ancienne version de apps/web/src/app/pages.test.tsx échoue sur le nouveau code sans changement de comportement justifié (ni ticket bug, ni spec modifiée, ni critère du ticket cité au journal). Régression probablement masquée en modifiant le test. | oui |
+| contrôle | F01-S2 | Rejeu : l'ancienne version de e2e/home.spec.ts échoue sur le nouveau code sans changement de comportement justifié (ni ticket bug, ni spec modifiée, ni critère du ticket cité au journal). Régression probablement masquée en modifiant le test. | oui |
+| contrôle | F01-S2 | Vérification indépendante de main @ c801daf réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 84.66 %, branches 84.06 %). | non |
+| contrôle | F01-S5 | Test hérité modifié : apps/web/src/app/pages.test.tsx, modification justifiée (entrée test au journal, critère F01-S5-ACn cité) ; 2 test(s) disparu(s) : « gates a board route without a stored identity behi », « renders the board canvas on a board route with a s ». | oui |
+| contrôle | F01-S5 | Rejeu : l'ancienne version de apps/web/src/app/pages.test.tsx échoue sur le nouveau code ; changement de comportement justifié (critère F01-S5-ACn cité). | oui |
+| contrôle | F01-S5 | Vérification indépendante de main @ b5e8369 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 83.48 %, branches 83.15 %). | non |
+| contrôle | F01-S3 | Test hérité modifié : apps/web/src/app/board-page.test.tsx, modification non justifiée (ni ticket bug, ni spec modifiée dans la session, ni critère F01-S3-ACn cité dans l'entrée test). | oui |
+| contrôle | F01-S3 | Vérification indépendante de main @ 25fb169 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 81.3 %, branches 81.48 %). | non |
+| run | RUN | Fin du run après 10 session(s) : nombre maximal de sessions atteint (10, dont 3 après la reprise). | oui |
 
-Totaux : contrôle 20, run 5.
+Totaux : contrôle 30, run 7.
 
 ## Tickets (backlog de main)
-- done : 7
+- done : 10
 - in-progress : 0
 - blocked : 0
-- todo : 26
+- todo : 23
 
 ## Journal
-- entrées à revoir : 49
+- entrées à revoir : 70
 
 ## Git
-- commits sur main : 38
-- branche publiée : main @ 4fc5651
+- commits sur main : 48
+- branche publiée : main @ 610a537
 
 ## Sessions
 ```
@@ -131,6 +152,26 @@ Fin du run. Synthèse : RUN-SUMMARY.md
    publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 4fc5651
 Arrêt : nombre maximal de sessions atteint (7, dont 3 après la reprise)
    journal : 1 événement(s) (run)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 7839ec8
+Fin du run. Synthèse : RUN-SUMMARY.md
+== reprise 2026-10-04T13:38:00+00:00 : sessions 8 à 10, outillage @ b22dc98, branche main, main=7839ec8
+== session 8 2026-10-04T13:38:00+00:00 main=7839ec8
+   exit=0 durée=1260s ticket=F01-S2 tokens in=158201 out=20213 reasoning=46291 cache_read=8357758 cache_write=0 coût=0.2976 USD
+   vérification indépendante : réussie
+   journal : 6 événement(s) (run, contrôle, contrôle, contrôle, contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 319cab2
+== session 9 2026-10-04T13:59:30+00:00 main=319cab2
+   exit=0 durée=900s ticket=F01-S5 tokens in=123606 out=13220 reasoning=29636 cache_read=5644714 cache_write=0 coût=0.2023 USD
+   vérification indépendante : réussie
+   journal : 3 événement(s) (contrôle, contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 62bbb74
+== session 10 2026-10-04T14:14:56+00:00 main=62bbb74
+   exit=0 durée=690s ticket=F01-S3 tokens in=114754 out=14320 reasoning=16558 cache_read=5728254 cache_write=0 coût=0.1961 USD
+   vérification indépendante : réussie
+   journal : 2 événement(s) (contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 610a537
+Arrêt : nombre maximal de sessions atteint (10, dont 3 après la reprise)
+   journal : 1 événement(s) (run)
 ```
 
 ## opencode stats
@@ -138,21 +179,21 @@ Arrêt : nombre maximal de sessions atteint (7, dont 3 après la reprise)
 ┌────────────────────────────────────────────────────────┐
 │                       OVERVIEW                         │
 ├────────────────────────────────────────────────────────┤
-│Sessions                                              7 │
-│Messages                                            726 │
+│Sessions                                             10 │
+│Messages                                            929 │
 │Days                                                  1 │
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
 │                    COST & TOKENS                       │
 ├────────────────────────────────────────────────────────┤
-│Total Cost                                        $2.66 │
-│Avg Cost/Day                                      $2.66 │
-│Avg Tokens/Session                                11.5M │
-│Median Tokens/Session                              9.2M │
-│Input                                              1.1M │
-│Output                                           166.7K │
-│Cache Read                                        79.3M │
+│Total Cost                                        $3.36 │
+│Avg Cost/Day                                      $3.36 │
+│Avg Tokens/Session                                10.1M │
+│Median Tokens/Session                              7.7M │
+│Input                                              1.5M │
+│Output                                           214.4K │
+│Cache Read                                        99.0M │
 │Cache Write                                           0 │
 └────────────────────────────────────────────────────────┘
 
@@ -160,23 +201,24 @@ Arrêt : nombre maximal de sessions atteint (7, dont 3 après la reprise)
 │                      MODEL USAGE                       │
 ├────────────────────────────────────────────────────────┤
 │ umans/umans-deepseek-v4.1-flash                        │
-│  Messages                                          719 │
-│  Input Tokens                                     1.1M │
-│  Output Tokens                                  461.1K │
-│  Cache Read                                      79.3M │
+│  Messages                                          919 │
+│  Input Tokens                                     1.5M │
+│  Output Tokens                                  601.4K │
+│  Cache Read                                      99.0M │
 │  Cache Write                                         0 │
-│  Cost                                          $2.6591 │
+│  Cost                                          $3.3552 │
 ├────────────────────────────────────────────────────────┤
 [1A└────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
 │                      TOOL USAGE                        │
 ├────────────────────────────────────────────────────────┤
-│ read               ████████████████████ 364 (35.4%)    │
-│ bash               ██████████████████   345 (33.6%)    │
-│ edit               ████████             158 (15.4%)    │
-│ write              ████████             153 (14.9%)    │
-│ todowrite          █                      8 ( 0.8%)    │
+│ read               ████████████████████ 458 (35.1%)    │
+│ bash               ███████████████████  443 (33.9%)    │
+│ edit               █████████            207 (15.9%)    │
+│ write              ███████              180 (13.8%)    │
+│ todowrite          █                     14 ( 1.1%)    │
+│ grep               █                      3 ( 0.2%)    │
 └────────────────────────────────────────────────────────┘
 
 ```
