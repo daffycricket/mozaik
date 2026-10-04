@@ -30,13 +30,13 @@ Document vivant : il décrit l'état **actuel** du code. Toute évolution de str
 apps/
   web/            Front React + Vite + Konva
     src/
-      app/        Routage, pages (BoardListPage = menu `/`, BoardPage = `/b/:id`), dialogue de nom
+      app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`), dialogue de nom
       canvas/     Composants Konva, gestion des événements pointeur
       tools/      Outils (select, hand, sticky, rect, ellipse, text, arrow)
       components/
         ui/       Composants shadcn/ui ajoutés par la CLI (ADR-0011)
         board/    Composants du projet : en-tête, barre d'outils, barre contextuelle, zoom, dialogues
-      lib/        Utilitaires (dont `cn` de shadcn/ui) et jetons du projet exposés au canvas
+      lib/        Utilitaires (dont `cn` de shadcn/ui), client REST (`boards-api.ts`) et jetons du projet exposés au canvas
       index.css   Thème : import Tailwind, variables shadcn/ui, jetons du projet
       state/      Stores Zustand (UI locale uniquement)
       collab/     Connexion Hocuspocus, awareness (curseurs)
@@ -119,6 +119,8 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 **Modification locale** : événement pointeur → outil actif → fonction de `packages/model/ops` dans `doc.transact(fn, LOCAL_ORIGIN)` → Yjs émet la mise à jour → (a) le rendu Konva se met à jour via l'observation du document, sans attendre le serveur (FL-1), (b) le provider envoie la mise à jour au serveur. Pendant un glisser, les positions intermédiaires sont écrites au plus toutes les 50 ms (FL-4).
 
 **Modification distante** : serveur → provider → mise à jour appliquée au `Y.Doc` → observation → rendu. Le `Y.UndoManager` ne suit que `LOCAL_ORIGIN` : annuler n'annule jamais le travail d'un autre.
+
+**Création d'un board** : clic sur « Nouveau board » → `POST /api/boards` → navigation vers `/b/<id>`.
 
 **Ouverture d'un board** (depuis le menu ou une URL directe) : `GET /api/boards/:id` (404 si inexistant) → si aucun nom en `localStorage`, dialogue de nom → connexion Hocuspocus → synchronisation de l'état serveur → affichage.
 

@@ -19,3 +19,4 @@ L'agent crée et accepte seul ses ADR, y compris un ADR qui en remplace un autre
 | [0009](0009-biome-lint-format.md) | Biome pour le lint et le formatage | Accepted |
 | [0010](0010-lancement-local-docker.md) | Lancement local de l'application avec Docker Compose | Accepted |
 | [0011](0011-design-system-shadcn.md) | Design system shadcn/ui sur Base UI, avec Tailwind CSS | Accepted |
+| [0012](0012-routage-client-sans-dependance.md) | Routage client minimal sans dépendance | Accepted |

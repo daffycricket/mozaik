@@ -47,6 +47,11 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F01-S1 | décision | Le menu reste minimal pour F01-S1 : il conserve le titre « Mozaik » de T-001 (T-001-AC2) et ajoute le bouton « Nouveau board » ; le titre « Boards », la liste et les règles UI-MENU arrivent avec F01-S2. | apps/web/src/app/board-list-page.tsx | oui |
+| 2026-10-04 | F01-S1 | décision | La page board de F01-S1 n'affiche qu'un conteneur `board-canvas` vide : le stage Konva et la connexion Yjs arrivent avec T-003. | apps/web/src/app/board-page.tsx | oui |
+| 2026-10-04 | F01-S1 | adr | ADR-0012 : routage client minimal sans dépendance (`parsePath` pur, `navigate` sur l'API History, `useRoute` via `useSyncExternalStore`). | docs/adr/0012-routage-client-sans-dependance.md | oui |
+| 2026-10-04 | F01-S1 | dépendance | Ajout de zod 4.6.5 (MIT) à `apps/web` pour valider la réponse de `POST /api/boards`. | apps/web/package.json | non |
+| 2026-10-04 | F01-S1 | backlog | Plan F01-S1 ramené de 2 étapes à 1 : `pnpm ac:check` bloque tout critère non couvert d'un ticket `in-progress`, donc un premier commit limité au serveur échouait sur F01-S1-AC1 (test e2e côté front). | docs/plans/F01-S1.md | non |
 | 2026-10-04 | T-002 | contrôle | Vérification indépendante de main @ bc0d437 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 96.36 %, branches 85 %). | logs/verify-002.log | non |
 | 2026-10-04 | T-002 | contrôle | Rejeu : l'ancienne version de tooling/commit-msg.test.ts échoue sur le nouveau code alors qu'aucune spec n'a changé. Régression probablement masquée en modifiant le test. | session 002 (logs du run) | oui |
 | 2026-10-04 | T-002 | contrôle | Test hérité modifié : tooling/commit-msg.test.ts, modification non justifiée (aucune spec modifiée dans la session) ; 1 test(s) disparu(s) : « [T-001-AC4] accepts an n/a report for the T-001 bo ». | session 002 (logs du run) | oui |

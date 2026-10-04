@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { isTestEnv, type ServerConfig } from './config';
 import { type BoardDatabase, openDatabase } from './db';
 import { createBoard, resetBoards } from './db/boards';
+import { registerBoardRoutes } from './http/boards';
+import { validationError } from './http/errors';
 
 export type BuildAppOptions = {
   config?: ServerConfig;
@@ -14,10 +16,6 @@ const seedSchema = z.object({
   name: z.string().min(1).max(100),
   elements: z.number().int().nonnegative().default(0),
 });
-
-function validationError(message: string): { error: { code: string; message: string } } {
-  return { error: { code: 'VALIDATION_ERROR', message } };
-}
 
 function registerTestRoutes(app: FastifyInstance, db: BoardDatabase): void {
   app.post('/api/test/seed', async (request, reply) => {
@@ -49,6 +47,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
         db.close();
       });
     }
+    registerBoardRoutes(app, db);
     if (isTestEnv(options.config)) {
       registerTestRoutes(app, db);
     }
