@@ -36,7 +36,7 @@ Liste ordonnée de tout le travail. L'agent prend toujours le **premier ticket `
 | 21 | F03-S3 | Changer la couleur d'un post-it | story | F07-S1 | done |  |
 | 22 | F07-S2 | Déplacer | story | F07-S1 | done |  |
 | 23 | F07-S3 | Redimensionner | story | F07-S1 | done |  |
-| 24 | F07-S4 | Avancer et reculer dans le plan | story | F07-S1 | todo |  |
+| 24 | F07-S4 | Avancer et reculer dans le plan | story | F07-S1 | in-progress |  |
 | 25 | F08-S1 | Supprimer des éléments | story | F07-S1 | todo |  |
 | 26 | F08-S2 | Annuler et rétablir | story | F07-S2 | todo |  |
 | 27 | F04-S1 | Dessiner une forme | story | F07-S1 | todo |  |
