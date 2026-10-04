@@ -31,7 +31,7 @@ apps/
   web/            Front React + Vite + Konva
     src/
       app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`)
-      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), sélection, déplacement et redimensionnement au pointeur (`use-select.ts`, cadre et poignées dans `selection-overlay.tsx`, positions dans `selection-handles.ts`), création et édition de post-its (`use-create.ts`), tracé de formes (`use-draw-shape.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
+      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), sélection, déplacement et redimensionnement au pointeur (`use-select.ts`, cadre et poignées dans `selection-overlay.tsx`, positions dans `selection-handles.ts`), création et édition de post-its et de textes libres (`use-create.ts`), tracé de formes (`use-draw-shape.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
       tools/      Raccourcis clavier (`shortcuts.ts` : outils, zoom, déplacement aux flèches, `Ctrl+Z` / `Ctrl+Shift+Z`) ; les outils eux-mêmes arrivent avec leurs stories
       identity/   Identité locale (`identity.ts`, `localStorage`) et dialogue de nom
       components/
@@ -55,10 +55,10 @@ packages/
       schema.ts       Types et validation (zod) des éléments, palette de couleurs
       doc.ts          Création/accès au Y.Doc d'un board
       history.ts      Historique d'annulation (`createBoardHistory`, limité à LOCAL_ORIGIN)
-      ops.ts          Opérations : createElement, createSticky, createShape, updateElement, moveElements, setElementsColor, bringForward, sendBackward, deleteElements, elementAtPoint, elementsInBox, LOCAL_ORIGIN
+      ops.ts          Opérations : createElement, createSticky, createText, createShape, updateElement, moveElements, setElementsColor, bringForward, sendBackward, deleteElements, elementAtPoint, elementsInBox, LOCAL_ORIGIN
       order.ts        Ordre de superposition : `sortByZIndex`, `reorderStep`, `canReorder` (avancer/reculer d'un plan, F07-S4)
       resize.ts       Redimensionnement : `MIN_ELEMENT_SIZE`, `RESIZE_HANDLE_ORDER`, `isResizable`, `resizeHandlePoint`, `resizeHandleAtPoint`, `resizeBox`
-      text-fit.ts     Taille de police d'un post-it qui fait tenir son texte (`fitStickyFontSize`)
+      text-fit.ts     Taille de police d'un post-it qui fait tenir son texte (`fitStickyFontSize`) et boîte d'un texte libre selon son contenu (`measureTextBox`, `TEXT_LINE_HEIGHT`)
       geometry.ts     Boîte englobante (`unionBounds`), rectangle de sélection (`boxFromPoints`), boîte d'une forme tracée (`shapeBoxFromDrag`) ou créée au clic (`defaultShapeBox`)
       viewport.ts     Conversions coordonnées monde ↔ écran
   config/         Configs partagées (tsconfig, biome)
@@ -136,7 +136,9 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 
 **Tracé d'une forme** (F04-S1) : avec l'outil Rectangle (`R`) ou Ellipse (`O`), un glisser dessine la forme ; `shapeBoxFromDrag` normalise la boîte entre les deux coins (positive dans tous les sens, minimum `SHAPE_MIN_SIZE`, carrée avec Shift pour l'ellipse), un clic simple utilise `defaultShapeBox` (160 × 100 centrée). Pendant le glisser, l'aperçu vit dans `draft-store.ts` et est rendu par `ShapeNode` : il suit le pointeur sans écrire dans le document (FL-1, FL-2). Au relâchement, `createShape` écrit la forme en une transaction à origine locale, la sélectionne et l'outil revient à Sélection. Le style est fixe (contour `SHAPE_STROKE`, épaisseur `SHAPE_STROKE_WIDTH`, remplissage transparent).
 
-**Édition de texte** : un double-clic sur un post-it existant, ou Entrée sur un post-it seul sélectionné, ouvre l'éditeur HTML superposé à l'élément. La saisie reste locale (état React de l'éditeur) et n'est écrite dans Yjs qu'à la validation (Entrée, Échap ou perte de focus), ce qui préserve le texte et la position du curseur malgré les mises à jour distantes (F03-S2, FL-5). La taille de police est ajustée par `fitStickyFontSize` pour que le texte tienne, sans descendre sous 10 px.
+**Texte libre** (F05-S1) : avec l'outil Texte (`T`), un clic crée un texte vide dont le coin haut-gauche est le point cliqué, le sélectionne, repasse à Sélection et ouvre son éditeur. La taille de police est fixe (20) et `measureTextBox` calcule la boîte : la largeur suit la plus longue ligne jusqu'à 600 unités, puis le texte revient à la ligne et la hauteur suit le nombre de lignes. Le texte est rendu sans fond à la couleur « texte » de la palette ; un texte vide validé est supprimé du document.
+
+**Édition de texte** : un double-clic sur un post-it ou un texte libre existant, ou Entrée sur un élément seul sélectionné, ouvre l'éditeur HTML superposé à l'élément. La saisie reste locale (état React de l'éditeur) et n'est écrite dans Yjs qu'à la validation (Entrée, Échap ou perte de focus), ce qui préserve le texte et la position du curseur malgré les mises à jour distantes (F03-S2, F05-S1, FL-5). Pour un post-it, la taille de police est ajustée par `fitStickyFontSize` pour que le texte tienne, sans descendre sous 10 px ; pour un texte libre, la police reste fixe et la boîte suit le contenu.
 
 **Changement de couleur** (F03-S3) : quand la sélection contient un post-it ou un texte, la barre contextuelle (`components/board/context-bar.tsx`) propose les dix couleurs de la palette, la couleur courante marquée `aria-pressed`. Choisir une couleur écrit `color` sur tous les post-its et textes sélectionnés via `setElementsColor`, en une seule transaction à origine locale : l'effet est local et immédiat, sans attendre le serveur (FL-1).
 

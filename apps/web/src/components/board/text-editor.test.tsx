@@ -1,5 +1,11 @@
 // @vitest-environment happy-dom
-import { createBoardDoc, createElement, getElement } from '@mozaik/model';
+import {
+  createBoardDoc,
+  createElement,
+  getElement,
+  measureTextBox,
+  TEXT_LINE_HEIGHT,
+} from '@mozaik/model';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
@@ -146,6 +152,70 @@ describe('[F03-S2-AC2] text editor validation', () => {
     });
 
     expect(container.querySelector('textarea')?.getAttribute('maxlength')).toBe('2000');
+    doc.destroy();
+  });
+});
+
+describe('[F05-S1-AC2] empty free text removal', () => {
+  test('[F05-S1-AC2] removes the text when validating without typing', () => {
+    const doc = createBoardDoc();
+    const created = createElement(
+      doc,
+      { type: 'text', x: 10, y: 20, ...measureTextBox('') },
+      { id: 't1', createdBy: 'u' },
+    );
+    if (created.type !== 'text') {
+      throw new Error('expected a text element');
+    }
+    useEditingStore.setState({ editingId: 't1' });
+
+    act(() => {
+      root.render(<TextEditor doc={doc} element={created} />);
+    });
+
+    act(() => {
+      container
+        .querySelector('textarea')
+        ?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    });
+
+    expect(getElement(doc, 't1')).toBeUndefined();
+    expect(useEditingStore.getState().editingId).toBeNull();
+    doc.destroy();
+  });
+});
+
+describe('[F05-S1-AC3] free text auto size', () => {
+  test('[F05-S1-AC3] sets the box height to the number of typed lines', () => {
+    const doc = createBoardDoc();
+    const created = createElement(
+      doc,
+      { type: 'text', x: 10, y: 20, ...measureTextBox('') },
+      { id: 't1', createdBy: 'u' },
+    );
+    if (created.type !== 'text') {
+      throw new Error('expected a text element');
+    }
+    useEditingStore.setState({ editingId: 't1' });
+
+    act(() => {
+      root.render(<TextEditor doc={doc} element={created} />);
+    });
+
+    const textarea = container.querySelector('textarea');
+    act(() => {
+      if (textarea !== null) {
+        setTextareaValue(textarea, 'a\nb\nc');
+      }
+    });
+    act(() => {
+      textarea?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    });
+
+    expect(getElement(doc, 't1')).toMatchObject({
+      text: 'a\nb\nc',
+      height: 3 * TEXT_LINE_HEIGHT,
+    });
     doc.destroy();
   });
 });

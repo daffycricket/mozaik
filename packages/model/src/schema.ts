@@ -69,6 +69,26 @@ export function stickyTextColor(color: PaletteColor): string {
 }
 
 /**
+ * Fixed font size of a free text at 100 % zoom (F05).
+ */
+export const TEXT_FONT_SIZE = 20;
+
+/**
+ * Maximum width of a free text, in world units, before it wraps (F05).
+ */
+export const TEXT_MAX_WIDTH = 600;
+
+/**
+ * Width of an empty free text, in world units, so its editor stays usable (F05).
+ */
+export const TEXT_MIN_WIDTH = 20;
+
+/**
+ * Line height multiplier of a free text (F05).
+ */
+export const TEXT_LINE_HEIGHT_RATIO = 1.2;
+
+/**
  * Default size of a shape created by a simple click (F04-S1-AC3).
  */
 export const SHAPE_DEFAULT_WIDTH = 160;

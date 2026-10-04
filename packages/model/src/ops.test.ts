@@ -3,6 +3,7 @@ import * as Y from 'yjs';
 import { createBoardDoc } from './doc';
 import {
   createElement,
+  createText,
   deleteElements,
   ELEMENTS_KEY,
   elementAtPoint,
@@ -14,6 +15,7 @@ import {
   setElementsColor,
   updateElement,
 } from './ops';
+import { measureTextBox } from './text-fit';
 
 describe('[T-003-AC1] element operations', () => {
   test('[T-003-AC1] creates a sticky note with defaults', () => {
@@ -264,6 +266,29 @@ describe('[F03-S3-AC1] element colour', () => {
     expect(getElement(doc, 's2')).toMatchObject({ color: 'blue' });
     expect(getElement(doc, 't1')).toMatchObject({ color: 'blue' });
     expect(getElement(doc, 'r1')).not.toHaveProperty('color');
+    expect(origins).toEqual([LOCAL_ORIGIN]);
+    doc.destroy();
+  });
+});
+
+describe('[F05-S1-AC1] free text creation', () => {
+  test('[F05-S1-AC1] creates an empty text at the given point in one local transaction', () => {
+    const doc = createBoardDoc();
+    const origins: unknown[] = [];
+    doc.on('afterTransaction', (transaction) => {
+      origins.push(transaction.origin);
+    });
+
+    const text = createText(doc, { x: 120, y: 80 }, { id: 't1', createdBy: 'u' });
+
+    expect(text).toMatchObject({
+      type: 'text',
+      x: 120,
+      y: 80,
+      text: '',
+      color: 'black',
+      ...measureTextBox(''),
+    });
     expect(origins).toEqual([LOCAL_ORIGIN]);
     doc.destroy();
   });

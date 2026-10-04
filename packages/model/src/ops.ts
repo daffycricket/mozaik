@@ -9,6 +9,7 @@ import {
   type ShapeType,
   STICKY_DEFAULT_SIZE,
 } from './schema';
+import { measureTextBox } from './text-fit';
 import type { Point } from './viewport';
 
 /**
@@ -250,6 +251,18 @@ export function createShape(
   options: CreateElementOptions,
 ): Element {
   return createElement(doc, { type, ...box }, options);
+}
+
+/**
+ * Creates an empty free text whose top-left corner is at `point` (F05-S1-AC1)
+ * in a local transaction.
+ */
+export function createText(doc: Y.Doc, point: Point, options: CreateElementOptions): Element {
+  return createElement(
+    doc,
+    { type: 'text', x: point.x, y: point.y, ...measureTextBox('') },
+    options,
+  );
 }
 
 /**

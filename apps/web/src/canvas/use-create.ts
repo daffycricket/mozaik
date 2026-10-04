@@ -1,6 +1,7 @@
 import {
   type BoardDoc,
   createSticky,
+  createText,
   elementAtPoint,
   getElements,
   screenToWorld,
@@ -13,11 +14,12 @@ import { useToolStore } from '@/state/tool-store';
 import { useViewportStore } from '@/state/viewport-store';
 
 /**
- * Sticky note creation and text editing on the canvas: a click with the sticky
- * tool creates and selects a note then returns to the selection tool
- * (F03-S1-AC1); a double-click with the selection tool edits the element under
- * the pointer when there is one, otherwise creates a note and enters editing
- * (F03-S1-AC2, F03-S2-AC1).
+ * Sticky note and free text creation, and text editing on the canvas: a click
+ * with the sticky tool creates and selects a note then returns to the selection
+ * tool (F03-S1-AC1); a click with the text tool creates an empty text at the
+ * point and opens its editor (F05-S1-AC1); a double-click with the selection
+ * tool edits the element under the pointer when there is one, otherwise creates
+ * a note and enters editing (F03-S1-AC2, F03-S2-AC1).
  */
 export function useCreateSticky(
   containerRef: RefObject<HTMLElement | null>,
@@ -50,9 +52,25 @@ export function useCreateSticky(
         useEditingStore.getState().startEditing(sticky.id);
       }
     };
+    const createTextAt = (event: MouseEvent): void => {
+      const identity = loadStoredIdentity();
+      if (doc === null || identity === null) {
+        return;
+      }
+      const text = createText(doc, worldAt(event), {
+        id: crypto.randomUUID(),
+        createdBy: identity.id,
+      });
+      useSelectionStore.getState().setSelection([text.id]);
+      useToolStore.getState().setTool('select');
+      useEditingStore.getState().startEditing(text.id);
+    };
     const onClick = (event: MouseEvent): void => {
-      if (useToolStore.getState().tool === 'sticky') {
+      const tool = useToolStore.getState().tool;
+      if (tool === 'sticky') {
         createAt(event, false);
+      } else if (tool === 'text') {
+        createTextAt(event);
       }
     };
     const onDoubleClick = (event: MouseEvent): void => {

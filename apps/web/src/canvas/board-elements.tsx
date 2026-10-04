@@ -9,6 +9,9 @@ import {
   type StickyElement,
   sortByZIndex,
   stickyTextColor,
+  TEXT_FONT_SIZE,
+  TEXT_LINE_HEIGHT_RATIO,
+  type TextElement,
 } from '@mozaik/model';
 import { memo } from 'react';
 import { Ellipse, Group, Rect, Text } from 'react-konva';
@@ -39,6 +42,24 @@ function StickyNote({ element, isEditing }: { element: StickyElement; isEditing:
         />
       )}
     </Group>
+  );
+}
+
+function TextNode({ element, isEditing }: { element: TextElement; isEditing: boolean }) {
+  if (isEditing) {
+    return null;
+  }
+  return (
+    <Text
+      x={element.x}
+      y={element.y}
+      width={element.width}
+      text={element.text}
+      wrap="word"
+      lineHeight={TEXT_LINE_HEIGHT_RATIO}
+      fontSize={TEXT_FONT_SIZE}
+      fill={PALETTE[element.color].text}
+    />
   );
 }
 
@@ -90,6 +111,10 @@ function BoardElementsView({
           case 'rect':
           case 'ellipse':
             return <ShapeNode key={element.id} type={element.type} box={element} />;
+          case 'text':
+            return (
+              <TextNode key={element.id} element={element} isEditing={element.id === editingId} />
+            );
           default:
             return null;
         }
@@ -100,9 +125,10 @@ function BoardElementsView({
 
 /**
  * Konva rendering of the board elements, in world coordinates, from the bottom
- * to the top of the stacking order (`zIndex`, F07-S4). Only the sticky notes and
- * the shapes exist at this stage; the other element types land with their
- * stories. The text of the element being edited is hidden behind its HTML input.
+ * to the top of the stacking order (`zIndex`, F07-S4). Only the sticky notes,
+ * the shapes and the free texts exist at this stage; the other element types
+ * land with their stories. The text of the element being edited is hidden behind
+ * its HTML input.
  * Memoized so a draft preview or a selection change does not re-render every
  * element (FL-2).
  */
