@@ -14,7 +14,9 @@ Avec Docker (aucun autre prérequis) :
 docker compose up --build
 ```
 
-Puis ouvrir http://localhost:8080. Les données sont conservées dans le volume Docker `board-data` (`docker compose down -v` les efface).
+Puis ouvrir http://localhost:8080. Le serveur sert le front compilé, l'API et le WebSocket sur le même port, publié uniquement sur `127.0.0.1` : l'URL d'un board (`http://localhost:8080/b/<id>`) est donc partageable seulement depuis la même machine.
+
+Les données sont conservées dans le volume Docker `board-data` (`docker compose down -v` les efface). Un healthcheck vérifie `/api/health`.
 
 ## Développer
 

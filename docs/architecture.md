@@ -58,8 +58,11 @@ packages/
       geometry.ts     Boîte englobante (`unionBounds`)
       viewport.ts     Conversions coordonnées monde ↔ écran
   config/         Configs partagées (tsconfig, biome)
-tooling/          Outillage du dépôt (validateur de message de commit)
+tooling/          Outillage du dépôt (validateur de message de commit, orchestration Docker)
 e2e/              Tests Playwright
+e2e-docker/       Tests Playwright de l'image Docker (`pnpm test:docker`)
+Dockerfile        Image multi-étapes de l'application packagée (ADR-0010)
+docker-compose.yml Lancement local (port 127.0.0.1:8080, volume board-data)
 docs/             Documentation (voir AGENTS.md)
 ```
 

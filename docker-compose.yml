@@ -1,0 +1,29 @@
+services:
+  app:
+    build:
+      context: .
+    image: mozaik:local
+    ports:
+      - "127.0.0.1:${MOZAIK_PORT:-8080}:3001"
+    environment:
+      PORT: "3001"
+      DATABASE_PATH: /data/board.sqlite
+      STATIC_DIR: /app/apps/web/dist
+      NODE_ENV: production
+    volumes:
+      - board-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/api/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  board-data:

@@ -1,7 +1,12 @@
 import { execFileSync } from 'node:child_process';
-import { runVerify, VERIFY_STEPS } from './verify';
+import { buildVerifyPlan, isDockerAvailable, runVerify } from './verify';
 
-const exitCode = runVerify(VERIFY_STEPS, (step) => {
+const dockerAvailable = isDockerAvailable();
+if (!dockerAvailable) {
+  process.stderr.write('verify: Docker is not available, skipping test:docker\n');
+}
+
+const exitCode = runVerify(buildVerifyPlan(dockerAvailable), (step) => {
   process.stdout.write(`\nverify: ${step.name}\n`);
   try {
     execFileSync(step.command, step.args, { stdio: 'inherit' });

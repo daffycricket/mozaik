@@ -29,7 +29,7 @@ Liste ordonnée de tout le travail. L'agent prend toujours le **premier ticket `
 | 14 | F03-S1 | Créer un post-it | story | F02-S2 | done |  |
 | 15 | F09-S1 | Synchroniser les modifications | story | F03-S1 | done |  |
 | 16 | F09-S2 | Persister | story | F09-S1 | done |  |
-| 17 | T-005 | Lancement local avec Docker Compose | tech | F09-S2 | in-progress |  |
+| 17 | T-005 | Lancement local avec Docker Compose | tech | F09-S2 | done |  |
 | 18 | F10-S2 | Voir où sont les autres (curseurs) | story | F09-S1 | todo |  |
 | 19 | F03-S2 | Écrire dans un post-it | story | F03-S1 | todo |  |
 | 20 | F07-S1 | Sélectionner | story | F03-S1 | todo |  |

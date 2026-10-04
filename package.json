@@ -16,6 +16,7 @@
     "test:int": "vitest run --config vitest.int.config.ts",
     "test:cov": "vitest run --config vitest.cov.config.ts --coverage",
     "test:e2e": "tsx tooling/ensure-playwright-browsers.ts && playwright test",
+    "test:docker": "tsx tooling/test-docker-cli.ts",
     "report": "tsx tooling/report-cli.ts",
     "ac:check": "tsx tooling/ac-check-cli.ts",
     "verify": "tsx tooling/verify-cli.ts",

@@ -10,6 +10,7 @@ import { createBoard, resetBoards } from './db/boards';
 import { storeDocumentState } from './db/documents';
 import { registerBoardRoutes } from './http/boards';
 import { validationError } from './http/errors';
+import { registerStatic } from './http/static';
 
 export type BuildAppOptions = {
   config?: ServerConfig;
@@ -77,6 +78,9 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     }
     const collab = registerCollab(app, db);
     registerBoardRoutes(app, db, collab);
+    if (options.config.staticDir !== undefined) {
+      registerStatic(app, options.config.staticDir);
+    }
     if (isTestEnv(options.config)) {
       registerTestRoutes(app, db);
     }

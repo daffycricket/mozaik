@@ -6,6 +6,7 @@
   "include": [
     "tooling",
     "e2e",
+    "e2e-docker",
     "playwright.config.ts",
     "vitest.config.ts",
     "vitest.int.config.ts",

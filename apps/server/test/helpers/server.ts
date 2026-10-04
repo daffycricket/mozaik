@@ -19,11 +19,12 @@ export type TestServer = {
 export async function startTestServer(
   nodeEnv: ServerConfig['nodeEnv'] = 'test',
   databasePath = ':memory:',
+  staticDir?: string,
 ): Promise<TestServer> {
   const config: ServerConfig = {
     port: 0,
     databasePath,
-    staticDir: undefined,
+    staticDir,
     nodeEnv,
   };
   const db = openDatabase(databasePath);

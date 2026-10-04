@@ -53,6 +53,16 @@ const EMPTY_COUNTS: TestLevelCounts = { passed: 0, failed: 0, skipped: 0, durati
 const EMPTY_COVERAGE: CoverageRow = { lines: null, branches: null, functions: null };
 
 /**
+ * Tells whether the packaged image was verified, from the marker written by
+ * `pnpm test:docker` after a successful run (T-005-AC6).
+ */
+export function readDockerStatus(repoRoot: string): string {
+  return existsSync(join(repoRoot, 'test-results/docker-verified.json'))
+    ? 'vérifié'
+    : 'non vérifié';
+}
+
+/**
  * Reads the JSON report produced by the Vitest json reporter and splits unit and integration levels.
  */
 export function parseVitestResults(path: string): {
@@ -389,7 +399,7 @@ export function runReport(repoRoot: string, ticketId: string, stepNumber: number
     date: new Date().toISOString(),
     branch: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']),
     parentCommit: gitOutput(['rev-parse', '--short', 'HEAD']),
-    docker: 'non vérifié',
+    docker: readDockerStatus(repoRoot),
     unit: vitest.unit,
     integration: vitest.integration,
     e2e: parsePlaywrightResults(join(repoRoot, 'test-results/playwright-results.json')),
