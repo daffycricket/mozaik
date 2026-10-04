@@ -47,6 +47,8 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | T-002 | test | Le test hérité `tooling/commit-msg.test.ts` « accepts an n/a report for the T-001 bootstrap ticket » est remplacé par « [T-002-AC8] rejects an n/a report even for the bootstrap ticket » : T-002-AC8 supprime l'exception `n/a` du hook. Le cas reste couvert, aucune assertion n'est perdue. | tooling/commit-msg.test.ts, tooling/commit-msg.ts | oui |
+| 2026-10-04 | T-002 | décision | `pnpm ac:check` cherche les identifiants de critères (`FNN-SN-ACN`, `T-NNN-ACN`, `UI-*`) entre crochets dans les fichiers de test, rattache chaque critère à son ticket (les règles `UI-*` à leur story dans `ecrans.md`) et bloque seulement les critères non couverts des tickets `in-progress` ou `done`. | tooling/ac-check.ts | oui |
 | 2026-10-04 | T-002 | décision | Le mode e2e lance l'application complète par deux `webServer` Playwright : le serveur API (port 3001, `DATABASE_PATH=:memory:`) et le serveur Vite (port 5173, `VITE_E2E=1`, hôte `127.0.0.1`), le front relayant `/api` et `/collab` vers l'API. Le mode packagé sans Docker (STATIC_DIR) reste prévu par T-005. | playwright.config.ts | oui |
 | 2026-10-04 | T-002 | dépendance | Ajout de @playwright/test 1.63.0 (Apache-2.0) pour les tests e2e ; Chromium est installé à la demande par `test:e2e`. | package.json | non |
 | 2026-10-04 | T-002 | dépendance | Ajout de @vitest/coverage-v8 5.0.3 (MIT) pour la couverture fusionnée unitaire + intégration. | package.json | non |

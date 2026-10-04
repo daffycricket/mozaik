@@ -17,7 +17,8 @@
     "test:cov": "vitest run --config vitest.cov.config.ts --coverage",
     "test:e2e": "tsx tooling/ensure-playwright-browsers.ts && playwright test",
     "report": "tsx tooling/report-cli.ts",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test:unit",
+    "ac:check": "tsx tooling/ac-check-cli.ts",
+    "verify": "tsx tooling/verify-cli.ts",
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {

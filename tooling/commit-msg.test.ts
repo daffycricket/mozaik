@@ -68,11 +68,11 @@ describe('[T-001-AC4] commit message validation', () => {
     expect(validateCommitMessage(message).valid).toBe(false);
   });
 
-  test('[T-001-AC4] accepts an n/a report for the T-001 bootstrap ticket', () => {
+  test('[T-002-AC8] rejects an n/a report even for the bootstrap ticket', () => {
     const message = stepCommit
       .replaceAll('F03-S1', 'T-001')
       .replace('docs/test-reports/T-001.md (step 2)', 'n/a (T-002)');
-    expect(validateCommitMessage(message).valid).toBe(true);
+    expect(validateCommitMessage(message).valid).toBe(false);
   });
 
   test('[T-001-AC4] rejects an n/a report for another ticket', () => {

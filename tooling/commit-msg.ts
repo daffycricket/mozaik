@@ -60,8 +60,8 @@ export function validateCommitMessage(message: string): ValidationResult {
   }
 
   const report = trailers.get('Report');
-  if (report?.startsWith('n/a') && ticketId !== 'T-001') {
-    errors.push('trailer "Report:" must reference a test report (n/a is only allowed for T-001)');
+  if (report?.startsWith('n/a')) {
+    errors.push('trailer "Report:" must reference a test report');
   }
 
   return errors.length === 0 ? { valid: true } : { valid: false, errors };
