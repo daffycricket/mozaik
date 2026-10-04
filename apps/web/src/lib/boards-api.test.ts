@@ -3,6 +3,7 @@ import {
   BoardNotFoundError,
   createBoard,
   DEFAULT_BOARD_NAME,
+  deleteBoard,
   getBoard,
   listBoards,
   nextBoardName,
@@ -164,5 +165,29 @@ describe('getBoard', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 404 })));
 
     await expect(getBoard('missing')).rejects.toBeInstanceOf(BoardNotFoundError);
+  });
+});
+
+describe('deleteBoard', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test('[F01-S4-AC1] sends a DELETE request for the board', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await deleteBoard(board.id);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/boards/${board.id}`,
+      expect.objectContaining({ method: 'DELETE' }),
+    );
+  });
+
+  test('throws when the server rejects the deletion', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 404 })));
+
+    await expect(deleteBoard(board.id)).rejects.toThrow('404');
   });
 });

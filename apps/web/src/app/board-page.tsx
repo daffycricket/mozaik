@@ -13,6 +13,7 @@ import { NameDialog } from '@/identity/name-dialog';
 import { type BoardRead, readBoard } from '@/lib/board-read';
 import { renameBoard } from '@/lib/boards-api';
 import { createBoardApi, exposeBoardApi } from '@/testing/board-api';
+import { BoardDeleted } from './board-deleted';
 import { BoardName } from './board-name';
 import { BoardNotFound } from './board-not-found';
 import { navigate } from './routes';
@@ -110,13 +111,18 @@ function BoardView({
   name: string;
   onRename: (name: string) => void;
 }) {
-  const { doc, provider } = useBoardConnection(boardId);
+  const { doc, provider, isDeleted } = useBoardConnection(boardId);
 
   useEffect(() => {
     exposeBoardApi(createBoardApi({ doc, provider }));
   }, [doc, provider]);
 
-  return <BoardShell name={name} onRename={onRename} />;
+  return (
+    <>
+      <BoardShell name={name} onRename={onRename} />
+      {isDeleted && <BoardDeleted />}
+    </>
+  );
 }
 
 /**

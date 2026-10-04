@@ -1,8 +1,15 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { type Board, createBoard, DEFAULT_BOARD_NAME, listBoards } from '@/lib/boards-api';
+import {
+  type Board,
+  createBoard,
+  DEFAULT_BOARD_NAME,
+  deleteBoard,
+  listBoards,
+} from '@/lib/boards-api';
 import { formatRelativeDate } from '@/lib/relative-date';
+import { DeleteBoardDialog } from './delete-board-dialog';
 import { navigate } from './routes';
 
 type BoardListProps = {
@@ -10,12 +17,13 @@ type BoardListProps = {
   isCreating: boolean;
   onCreate: () => void;
   onOpen: (boardId: string) => void;
+  onDelete: (board: Board) => void;
 };
 
 /**
  * Menu of the boards. `boards` is null while the list is loading.
  */
-export function BoardList({ boards, isCreating, onCreate, onOpen }: BoardListProps) {
+export function BoardList({ boards, isCreating, onCreate, onOpen, onDelete }: BoardListProps) {
   return (
     <main className="flex h-screen flex-col">
       <header className="flex h-14 shrink-0 items-center justify-between border-b px-6">
@@ -35,7 +43,7 @@ export function BoardList({ boards, isCreating, onCreate, onOpen }: BoardListPro
               className="mx-auto w-full max-w-[720px] divide-y divide-border overflow-hidden rounded-lg border"
             >
               {boards.map((board) => (
-                <BoardRow key={board.id} board={board} onOpen={onOpen} />
+                <BoardRow key={board.id} board={board} onOpen={onOpen} onDelete={onDelete} />
               ))}
             </ul>
           </div>
@@ -65,7 +73,15 @@ function BoardEmpty({ onCreate, isCreating }: { onCreate: () => void; isCreating
   );
 }
 
-function BoardRow({ board, onOpen }: { board: Board; onOpen: (boardId: string) => void }) {
+function BoardRow({
+  board,
+  onOpen,
+  onDelete,
+}: {
+  board: Board;
+  onOpen: (boardId: string) => void;
+  onDelete: (board: Board) => void;
+}) {
   return (
     <li data-testid="board-item" className="flex items-center bg-background hover:bg-accent">
       <a
@@ -88,6 +104,7 @@ function BoardRow({ board, onOpen }: { board: Board; onOpen: (boardId: string) =
         data-testid="board-delete"
         aria-label={`Supprimer ${board.name}`}
         className="mr-2 text-muted-foreground hover:text-destructive"
+        onClick={() => onDelete(board)}
       >
         <Trash2 aria-hidden="true" />
       </Button>
@@ -101,6 +118,7 @@ function BoardRow({ board, onOpen }: { board: Board; onOpen: (boardId: string) =
 export function BoardListPage() {
   const [boards, setBoards] = useState<Board[] | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<Board | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -132,14 +150,36 @@ export function BoardListPage() {
     }
   }
 
+  async function confirmDelete(board: Board): Promise<void> {
+    setPendingDelete(null);
+    try {
+      await deleteBoard(board.id);
+      setBoards((current) => current?.filter((item) => item.id !== board.id) ?? current);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
-    <BoardList
-      boards={boards}
-      isCreating={isCreating}
-      onCreate={() => {
-        void createAndOpenBoard();
-      }}
-      onOpen={(boardId) => navigate(`/b/${boardId}`)}
-    />
+    <>
+      <BoardList
+        boards={boards}
+        isCreating={isCreating}
+        onCreate={() => {
+          void createAndOpenBoard();
+        }}
+        onOpen={(boardId) => navigate(`/b/${boardId}`)}
+        onDelete={(board) => setPendingDelete(board)}
+      />
+      {pendingDelete !== null && (
+        <DeleteBoardDialog
+          board={pendingDelete}
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={() => {
+            void confirmDelete(pendingDelete);
+          }}
+        />
+      )}
+    </>
   );
 }

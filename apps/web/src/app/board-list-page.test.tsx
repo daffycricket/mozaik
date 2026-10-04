@@ -12,7 +12,13 @@ const board: Board = {
 
 function render(boards: Board[] | null): string {
   return renderToStaticMarkup(
-    <BoardList boards={boards} isCreating={false} onCreate={() => {}} onOpen={() => {}} />,
+    <BoardList
+      boards={boards}
+      isCreating={false}
+      onCreate={() => {}}
+      onOpen={() => {}}
+      onDelete={() => {}}
+    />,
   );
 }
 

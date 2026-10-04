@@ -216,3 +216,71 @@ describe('[F01-S2-AC3] board read API', () => {
     expect(await missing.json()).toMatchObject({ error: { code: 'NOT_FOUND' } });
   });
 });
+
+function count(db: TestServer['db'], table: string, column: string, value: string): number {
+  const row = db
+    .prepare(`SELECT COUNT(*) AS count FROM ${table} WHERE ${column} = ?`)
+    .get(value) as { count: number };
+  return row.count;
+}
+
+describe('[F01-S4-AC1] board deletion API', () => {
+  let server: TestServer;
+
+  beforeAll(async () => {
+    server = await startTestServer('test');
+  });
+
+  afterAll(async () => {
+    await server.close();
+  });
+
+  test('[F01-S4-AC1] deletes a board and makes it unavailable', async () => {
+    const created = await fetch(`${server.baseUrl}/api/boards`, {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({ name: 'À supprimer' }),
+    });
+    const board = (await created.json()) as BoardBody;
+
+    const deleted = await fetch(`${server.baseUrl}/api/boards/${board.id}`, {
+      method: 'DELETE',
+    });
+    expect(deleted.status).toBe(204);
+
+    const read = await fetch(`${server.baseUrl}/api/boards/${board.id}`);
+    expect(read.status).toBe(404);
+    expect(await read.json()).toMatchObject({ error: { code: 'NOT_FOUND' } });
+  });
+});
+
+describe('[F01-S4-AC3] board deletion removes its content', () => {
+  let server: TestServer;
+
+  beforeAll(async () => {
+    server = await startTestServer('test');
+  });
+
+  afterAll(async () => {
+    await server.close();
+  });
+
+  test('[F01-S4-AC3] deletes the Yjs document of a board containing elements', async () => {
+    const seeded = await fetch(`${server.baseUrl}/api/test/seed`, {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({ name: 'Avec contenu', elements: 3 }),
+    });
+    expect(seeded.status).toBe(201);
+    const board = (await seeded.json()) as BoardBody;
+    expect(count(server.db, 'documents', 'name', board.id)).toBe(1);
+
+    const deleted = await fetch(`${server.baseUrl}/api/boards/${board.id}`, {
+      method: 'DELETE',
+    });
+    expect(deleted.status).toBe(204);
+
+    expect(count(server.db, 'documents', 'name', board.id)).toBe(0);
+    expect(count(server.db, 'boards', 'id', board.id)).toBe(0);
+  });
+});

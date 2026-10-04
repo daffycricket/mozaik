@@ -89,6 +89,16 @@ export async function renameBoard(id: string, name: string): Promise<Board> {
 }
 
 /**
+ * Deletes a board through the REST API.
+ */
+export async function deleteBoard(id: string): Promise<void> {
+  const response = await fetch(`/api/boards/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  if (!response.ok) {
+    throw new Error(`Board deletion failed with status ${response.status}`);
+  }
+}
+
+/**
  * Creates a board through the REST API and returns the persisted board.
  */
 export async function createBoard(name: string): Promise<Board> {
