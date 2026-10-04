@@ -47,6 +47,8 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | T-002 | décision | Le mode e2e lance l'application complète par deux `webServer` Playwright : le serveur API (port 3001, `DATABASE_PATH=:memory:`) et le serveur Vite (port 5173, `VITE_E2E=1`, hôte `127.0.0.1`), le front relayant `/api` et `/collab` vers l'API. Le mode packagé sans Docker (STATIC_DIR) reste prévu par T-005. | playwright.config.ts | oui |
+| 2026-10-04 | T-002 | dépendance | Ajout de @playwright/test 1.63.0 (Apache-2.0) pour les tests e2e ; Chromium est installé à la demande par `test:e2e`. | package.json | non |
 | 2026-10-04 | T-002 | dépendance | Ajout de @vitest/coverage-v8 5.0.3 (MIT) pour la couverture fusionnée unitaire + intégration. | package.json | non |
 | 2026-10-04 | T-002 | décision | Les tests d'intégration ont leur propre configuration Vitest (`vitest.int.config.ts`) et écrivent leurs résultats dans `coverage/vitest-int-results.json`, distincts des unitaires ; l'outil de rapport fusionne les deux, ou lit le fichier fusionné de `test:cov`. | vitest.int.config.ts | non |
 | 2026-10-04 | T-002 | décision | Le serveur ouvre la base SQLite et expose les routes `POST /api/test/seed` et `POST /api/test/reset` uniquement quand `NODE_ENV=test`. À ce stade le modèle d'éléments n'existe pas : `seed` crée le board dans la table `boards` et renvoie `elementCount` ; le pré-remplissage réel des éléments sera branché quand le document Yjs existera (T-003). | apps/server/src/app.ts | oui |
