@@ -47,6 +47,10 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | T-004 | décision | Seuil FL-7 conservé à ≤ 1000 ms (board vide) : mesure de référence médiane de 78 ms sur la machine, aucun ajustement de F00 nécessaire. | docs/test-reports/T-004.md | oui |
+| 2026-10-04 | T-004 | décision | Les mesures de fluidité sont écrites par le projet Playwright `fluidity` dans `test-results/fluidity.json` (ignoré par Git) ; `pnpm report` les lit et produit le tableau exigence / scénario / mesure / seuil / vidéo. | tooling/report.ts, e2e/support/fluidity-report.ts | oui |
+| 2026-10-04 | T-004 | décision | La mesure distante de l'utilitaire action → effet est exercée sur un scénario contrôlé à deux pages (BroadcastChannel) car l'awareness (donc `getPeers`) n'est pas publiée avant F10-S2 ; la mesure locale est prise sur l'application réelle. | e2e/fluidity/utilities.spec.ts | oui |
+| 2026-10-04 | T-004 | décision | Les tâches longues sont produites par une tâche planifiée (`setTimeout`) dans la page : un busy-wait exécuté directement par `page.evaluate` n'est pas rapporté comme `longtask` par Chromium, alors qu'une tâche planifiée l'est. | e2e/fluidity/utilities.spec.ts | oui |
 | 2026-10-04 | RUN | run | Fin du run après 4 session(s) : nombre maximal de sessions atteint (4, dont 1 après la reprise). | RUN-SUMMARY.md | oui |
 | 2026-10-04 | T-003 | contrôle | Vérification indépendante de main @ ce0d7ba réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 93.58 %, branches 93.81 %). | logs/verify-004.log | non |
 | 2026-10-04 | T-003 | contrôle | Test hérité modifié : e2e/create-board.spec.ts, modification non justifiée (aucune spec modifiée dans la session). | session 004 (logs du run) | oui |

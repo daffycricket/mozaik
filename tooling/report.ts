@@ -22,6 +22,14 @@ export type AcceptanceRow = {
   status: string;
 };
 
+export type FluidityMeasure = {
+  requirement: string;
+  scenario: string;
+  measuredMs: number | null;
+  threshold: string;
+  video: string | null;
+};
+
 export type ReportInput = {
   ticketId: string;
   stepNumber: number;
@@ -37,6 +45,7 @@ export type ReportInput = {
   coverageModel: CoverageRow;
   acceptance: AcceptanceRow[];
   fluidity: string;
+  fluidityMeasures?: FluidityMeasure[];
   remarks: string;
 };
 
@@ -193,6 +202,45 @@ function formatPct(value: number | null): string {
   return value === null ? '—' : `${value.toFixed(1)} %`;
 }
 
+/**
+ * Reads the fluidity measures written by the e2e fluidity project.
+ */
+export function parseFluidityMeasures(path: string): FluidityMeasure[] {
+  if (!existsSync(path)) {
+    return [];
+  }
+  try {
+    const raw = JSON.parse(readFileSync(path, 'utf8')) as unknown;
+    if (!Array.isArray(raw)) {
+      return [];
+    }
+    const measures: FluidityMeasure[] = [];
+    for (const entry of raw) {
+      if (typeof entry !== 'object' || entry === null) {
+        continue;
+      }
+      const record = entry as Record<string, unknown>;
+      const { requirement, scenario, threshold, measuredMs, video } = record;
+      if (
+        typeof requirement === 'string' &&
+        typeof scenario === 'string' &&
+        typeof threshold === 'string'
+      ) {
+        measures.push({
+          requirement,
+          scenario,
+          measuredMs: typeof measuredMs === 'number' ? measuredMs : null,
+          threshold,
+          video: typeof video === 'string' ? video : null,
+        });
+      }
+    }
+    return measures;
+  } catch {
+    return [];
+  }
+}
+
 function formatDuration(ms: number): string {
   return ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(1)} s`;
 }
@@ -235,7 +283,21 @@ export function buildReportSection(input: ReportInput): string {
     lines.push(`| ${row.id} | ${row.tests} | ${row.status} |`);
   }
   lines.push('');
-  lines.push(`Fluidité : ${input.fluidity}`);
+  const measures = input.fluidityMeasures ?? [];
+  if (measures.length > 0) {
+    lines.push('Fluidité :');
+    lines.push('');
+    lines.push('| Exigence | Scénario | Mesure | Seuil | Vidéo |');
+    lines.push('|---|---|---|---|---|');
+    for (const measure of measures) {
+      const value = measure.measuredMs === null ? '—' : `${measure.measuredMs.toFixed(1)} ms`;
+      lines.push(
+        `| ${measure.requirement} | ${measure.scenario} | ${value} | ${measure.threshold} | ${measure.video ?? '—'} |`,
+      );
+    }
+  } else {
+    lines.push(`Fluidité : ${input.fluidity}`);
+  }
   lines.push('');
   lines.push(`Remarques : ${input.remarks}`);
   return `${lines.join('\n')}\n`;
@@ -335,6 +397,7 @@ export function runReport(repoRoot: string, ticketId: string, stepNumber: number
     coverageModel: coverage.model,
     acceptance: buildAcceptanceRows(repoRoot, ticketId),
     fluidity: 'aucune mesure de fluidité pour cette étape',
+    fluidityMeasures: parseFluidityMeasures(join(repoRoot, 'test-results/fluidity.json')),
     remarks: '—',
   };
   const section = buildReportSection(input);

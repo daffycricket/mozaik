@@ -14,7 +14,18 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${WEB_PORT}`,
     trace: 'on-first-retry',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    {
+      name: 'chromium',
+      testIgnore: /fluidity\//,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'fluidity',
+      testMatch: /fluidity\/.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], video: 'on' },
+    },
+  ],
   webServer: [
     {
       command: 'pnpm --filter @mozaik/server start',

@@ -7,6 +7,7 @@ import {
   buildTrailers,
   loadVitestCounts,
   parseCoverageSummary,
+  parseFluidityMeasures,
   parsePlaywrightResults,
   parseVitestResults,
   type ReportInput,
@@ -192,5 +193,47 @@ describe('[T-002-AC5] report tool', () => {
     const trailers = readFileSync(join(repo, '.git/TRAILERS'), 'utf8');
     expect(trailers).toContain('Report: docs/test-reports/T-002.md (step 1)');
     rmSync(repo, { recursive: true, force: true });
+  });
+});
+
+describe('[T-004-AC5] fluidity report table', () => {
+  test('[T-004-AC5] parses the fluidity measures written by the e2e project', () => {
+    const path = write('fluidity.json', [
+      {
+        requirement: 'FL-7',
+        scenario: 'Ouverture d’un board vide',
+        measuredMs: 420,
+        threshold: '≤ 1000 ms',
+        video: 'test-results/fluidity-empty-board/video.webm',
+      },
+    ]);
+    const measures = parseFluidityMeasures(path);
+    expect(measures).toHaveLength(1);
+    expect(measures[0]).toMatchObject({ requirement: 'FL-7', measuredMs: 420 });
+  });
+
+  test('[T-004-AC5] renders the measured values, thresholds and video paths', () => {
+    const section = buildReportSection({
+      ...baseInput,
+      fluidityMeasures: [
+        {
+          requirement: 'FL-7',
+          scenario: 'Ouverture d’un board vide',
+          measuredMs: 420.4,
+          threshold: '≤ 1000 ms',
+          video: 'test-results/fluidity-empty-board/video.webm',
+        },
+      ],
+    });
+    expect(section).toContain('| Exigence | Scénario | Mesure | Seuil | Vidéo |');
+    expect(section).toContain(
+      '| FL-7 | Ouverture d’un board vide | 420.4 ms | ≤ 1000 ms | test-results/fluidity-empty-board/video.webm |',
+    );
+  });
+
+  test('[T-004-AC5] ignores a missing or malformed fluidity report', () => {
+    expect(parseFluidityMeasures(join(dir, 'missing-fluidity.json'))).toEqual([]);
+    const path = write('bad-fluidity.json', { not: 'an array' });
+    expect(parseFluidityMeasures(path)).toEqual([]);
   });
 });
