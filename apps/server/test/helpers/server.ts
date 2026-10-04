@@ -12,18 +12,21 @@ export type TestServer = {
 };
 
 /**
- * Starts the real Fastify server on a free port with an in-memory SQLite database.
+ * Starts the real Fastify server on a free port with a SQLite database.
+ * The database path defaults to `:memory:` and may point to a file so a test
+ * can stop the server and start another one on the same data (F09-S2-AC2).
  */
 export async function startTestServer(
   nodeEnv: ServerConfig['nodeEnv'] = 'test',
+  databasePath = ':memory:',
 ): Promise<TestServer> {
   const config: ServerConfig = {
     port: 0,
-    databasePath: ':memory:',
+    databasePath,
     staticDir: undefined,
     nodeEnv,
   };
-  const db = openDatabase(':memory:');
+  const db = openDatabase(databasePath);
   const app = buildApp({ config, database: db });
   await app.listen({ port: 0, host: '127.0.0.1' });
   const address = app.server.address();
