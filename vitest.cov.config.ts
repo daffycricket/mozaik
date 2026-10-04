@@ -24,6 +24,8 @@ export default defineConfig({
         '**/*.test.tsx',
         '**/*.int.test.ts',
         'apps/web/src/main.tsx',
+        // Pure Konva rendering components, covered by the end-to-end tests.
+        'apps/web/src/canvas/**',
         'apps/server/src/index.ts',
         '**/*.d.ts',
       ],

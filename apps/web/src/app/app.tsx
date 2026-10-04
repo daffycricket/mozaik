@@ -8,7 +8,7 @@ const DEFAULT_ROUTE: Route = { kind: 'board-list' };
 
 export function App({ route = DEFAULT_ROUTE }: { route?: Route }) {
   if (route.kind === 'board') {
-    return <BoardPage />;
+    return <BoardPage boardId={route.boardId} />;
   }
   return <BoardListPage />;
 }

@@ -2,10 +2,12 @@ import type { AddressInfo } from 'node:net';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../../src/app';
 import type { ServerConfig } from '../../src/config';
+import { type BoardDatabase, openDatabase } from '../../src/db';
 
 export type TestServer = {
   app: FastifyInstance;
   baseUrl: string;
+  db: BoardDatabase;
   close: () => Promise<void>;
 };
 
@@ -21,7 +23,8 @@ export async function startTestServer(
     staticDir: undefined,
     nodeEnv,
   };
-  const app = buildApp({ config });
+  const db = openDatabase(':memory:');
+  const app = buildApp({ config, database: db });
   await app.listen({ port: 0, host: '127.0.0.1' });
   const address = app.server.address();
   if (address === null || typeof address === 'string') {
@@ -29,9 +32,11 @@ export async function startTestServer(
   }
   return {
     app,
+    db,
     baseUrl: `http://127.0.0.1:${(address as AddressInfo).port}`,
     close: async () => {
       await app.close();
+      db.close();
     },
   };
 }

@@ -1,4 +1,4 @@
-/**
- * Version of the shared board document schema.
- */
-export const MODEL_SCHEMA_VERSION = 1;
+export * from './doc';
+export * from './ops';
+export * from './schema';
+export * from './viewport';

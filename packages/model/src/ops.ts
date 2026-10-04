@@ -1,0 +1,218 @@
+import { generateKeyBetween } from 'fractional-indexing';
+import * as Y from 'yjs';
+import { type Element, elementSchema, type PaletteColor } from './schema';
+
+/**
+ * Marker of the transactions written by the local user, tracked by the undo manager.
+ */
+export const LOCAL_ORIGIN = Symbol('mozaik:local');
+
+export const ELEMENTS_KEY = 'elements';
+
+export type ElementInit =
+  | {
+      type: 'sticky';
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      text?: string;
+      color?: PaletteColor;
+    }
+  | { type: 'rect'; x: number; y: number; width: number; height: number }
+  | { type: 'ellipse'; x: number; y: number; width: number; height: number }
+  | {
+      type: 'text';
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      text?: string;
+      color?: PaletteColor;
+    }
+  | { type: 'arrow'; x1: number; y1: number; x2: number; y2: number };
+
+export type CreateElementOptions = {
+  id: string;
+  createdBy: string;
+  zIndex?: string;
+};
+
+export type ElementPatch = Partial<{
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  zIndex: string;
+  text: string;
+  color: PaletteColor;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}>;
+
+function elementsMap(doc: Y.Doc): Y.Map<Y.Map<unknown>> {
+  return doc.getMap<Y.Map<unknown>>(ELEMENTS_KEY);
+}
+
+/**
+ * Returns the valid elements of the document, ignoring the malformed ones.
+ */
+export function getElements(doc: Y.Doc): Element[] {
+  const result: Element[] = [];
+  elementsMap(doc).forEach((value, key) => {
+    const parsed = elementSchema.safeParse(value.toJSON());
+    if (!parsed.success) {
+      console.error(`Ignoring invalid board element "${key}"`, parsed.error);
+      return;
+    }
+    result.push(parsed.data);
+  });
+  return result;
+}
+
+/**
+ * Returns one element by id, or undefined when it is missing or invalid.
+ */
+export function getElement(doc: Y.Doc, id: string): Element | undefined {
+  const value = elementsMap(doc).get(id);
+  if (value === undefined) {
+    return undefined;
+  }
+  const parsed = elementSchema.safeParse(value.toJSON());
+  return parsed.success ? parsed.data : undefined;
+}
+
+function nextZIndex(doc: Y.Doc): string {
+  const keys = getElements(doc)
+    .map((element) => element.zIndex)
+    .sort();
+  return generateKeyBetween(keys.at(-1) ?? null, null);
+}
+
+function arrowBounds(x1: number, y1: number, x2: number, y2: number) {
+  return {
+    x: Math.min(x1, x2),
+    y: Math.min(y1, y2),
+    width: Math.abs(x2 - x1),
+    height: Math.abs(y2 - y1),
+  };
+}
+
+function buildElement(init: ElementInit, options: CreateElementOptions, zIndex: string): Element {
+  switch (init.type) {
+    case 'sticky':
+      return {
+        id: options.id,
+        type: 'sticky',
+        x: init.x,
+        y: init.y,
+        width: init.width,
+        height: init.height,
+        zIndex,
+        createdBy: options.createdBy,
+        text: init.text ?? '',
+        color: init.color ?? 'yellow',
+      };
+    case 'text':
+      return {
+        id: options.id,
+        type: 'text',
+        x: init.x,
+        y: init.y,
+        width: init.width,
+        height: init.height,
+        zIndex,
+        createdBy: options.createdBy,
+        text: init.text ?? '',
+        color: init.color ?? 'black',
+      };
+    case 'rect':
+    case 'ellipse':
+      return {
+        id: options.id,
+        type: init.type,
+        x: init.x,
+        y: init.y,
+        width: init.width,
+        height: init.height,
+        zIndex,
+        createdBy: options.createdBy,
+      };
+    case 'arrow':
+      return {
+        id: options.id,
+        type: 'arrow',
+        ...arrowBounds(init.x1, init.y1, init.x2, init.y2),
+        zIndex,
+        createdBy: options.createdBy,
+        x1: init.x1,
+        y1: init.y1,
+        x2: init.x2,
+        y2: init.y2,
+      };
+  }
+}
+
+/**
+ * Creates an element in a local transaction and returns it.
+ */
+export function createElement(
+  doc: Y.Doc,
+  init: ElementInit,
+  options: CreateElementOptions,
+): Element {
+  const element = elementSchema.parse(
+    buildElement(init, options, options.zIndex ?? nextZIndex(doc)),
+  );
+  doc.transact(() => {
+    const value = new Y.Map<unknown>();
+    for (const [key, field] of Object.entries(element)) {
+      value.set(key, field);
+    }
+    elementsMap(doc).set(element.id, value);
+  }, LOCAL_ORIGIN);
+  return element;
+}
+
+/**
+ * Updates the given properties of an element in a local transaction.
+ */
+export function updateElement(doc: Y.Doc, id: string, patch: ElementPatch): void {
+  const map = elementsMap(doc);
+  const value = map.get(id);
+  if (value === undefined) {
+    console.error(`Cannot update missing board element "${id}"`);
+    return;
+  }
+  const candidate: Record<string, unknown> = { ...value.toJSON(), ...patch };
+  if (candidate.type === 'arrow') {
+    const x1 = typeof patch.x1 === 'number' ? patch.x1 : Number(candidate.x1);
+    const y1 = typeof patch.y1 === 'number' ? patch.y1 : Number(candidate.y1);
+    const x2 = typeof patch.x2 === 'number' ? patch.x2 : Number(candidate.x2);
+    const y2 = typeof patch.y2 === 'number' ? patch.y2 : Number(candidate.y2);
+    Object.assign(candidate, arrowBounds(x1, y1, x2, y2));
+  }
+  const element = elementSchema.parse(candidate);
+  doc.transact(() => {
+    for (const [key, field] of Object.entries(element)) {
+      if (key === 'id' || key === 'type' || key === 'createdBy') {
+        continue;
+      }
+      value.set(key, field);
+    }
+  }, LOCAL_ORIGIN);
+}
+
+/**
+ * Deletes the given elements in a single local transaction.
+ */
+export function deleteElements(doc: Y.Doc, ids: string[]): void {
+  const map = elementsMap(doc);
+  doc.transact(() => {
+    for (const id of ids) {
+      map.delete(id);
+    }
+  }, LOCAL_ORIGIN);
+}

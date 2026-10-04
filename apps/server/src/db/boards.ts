@@ -24,8 +24,35 @@ export function createBoard(db: BoardDatabase, name: string): Board {
 }
 
 /**
- * Deletes every board. Used by the test-only reset route.
+ * Tells whether a board exists, used to guard collaboration connections.
+ */
+export function boardExists(db: BoardDatabase, id: string): boolean {
+  const row = db.prepare('SELECT 1 AS found FROM boards WHERE id = ?').get(id) as
+    | { found: number }
+    | undefined;
+  return row !== undefined;
+}
+
+/**
+ * Deletes a board and its Yjs document. Returns false when the board is unknown.
+ */
+export function deleteBoard(db: BoardDatabase, id: string): boolean {
+  if (!boardExists(db, id)) {
+    return false;
+  }
+  db.transaction(() => {
+    db.prepare('DELETE FROM documents WHERE name = ?').run(id);
+    db.prepare('DELETE FROM boards WHERE id = ?').run(id);
+  })();
+  return true;
+}
+
+/**
+ * Deletes every board and its document. Used by the test-only reset route.
  */
 export function resetBoards(db: BoardDatabase): void {
-  db.prepare('DELETE FROM boards').run();
+  db.transaction(() => {
+    db.prepare('DELETE FROM documents').run();
+    db.prepare('DELETE FROM boards').run();
+  })();
 }

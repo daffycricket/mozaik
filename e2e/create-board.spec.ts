@@ -14,5 +14,5 @@ test('[F01-S1-AC1] creates a board from the home page and opens it', async ({ pa
   expect(board.name).toBe('Board sans titre');
   await expect(page).toHaveURL(new RegExp(`/b/${board.id}$`));
   await expect(page.getByTestId('board-canvas')).toBeAttached();
-  await expect(page.getByTestId('board-canvas')).toBeEmpty();
+  await expect(page.getByTestId('board-canvas').locator('canvas')).toBeVisible();
 });

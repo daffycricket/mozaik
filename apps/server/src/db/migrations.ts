@@ -17,6 +17,16 @@ const MIGRATIONS: Migration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    statements: `
+      CREATE TABLE documents (
+        name TEXT PRIMARY KEY,
+        state BLOB NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+    `,
+  },
 ];
 
 /**

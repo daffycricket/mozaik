@@ -47,6 +47,19 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | T-003 | décision | Hocuspocus est monté sur le serveur HTTP de Fastify via l'adaptateur Node de `crossws` (classe `Hocuspocus`), pour tenir ADR-0005 (même port, WebSocket sur `/collab`) sans second serveur. | apps/server/src/collab/server.ts | oui |
+| 2026-10-04 | T-003 | décision | `DELETE /api/boards/:id` est ajouté dans T-003 (base serveur de F01-S4) car T-003-AC5 exige un chemin de suppression réel ; l'UI et `GET /api/boards/:id` restent à F01-S4. | apps/server/src/http/boards.ts | oui |
+| 2026-10-04 | T-003 | décision | Le seed de test (`POST /api/test/seed`) pré-remplit désormais le document Yjs avec N éléments, comme annoncé au journal de T-002. | apps/server/src/app.ts | oui |
+| 2026-10-04 | T-003 | décision | `storeDocumentState` ignore un document dont le board n'existe plus, pour qu'un enregistrement tardif après suppression ne ressuscite pas le board. | apps/server/src/db/documents.ts | oui |
+| 2026-10-04 | T-003 | décision | Les conversions monde ↔ écran et le viewport par défaut vivent dans `packages/model` (pur, testable) ; `window.__board.getViewport` renvoie le viewport par défaut tant que F02 n'ajoute pas pan/zoom. | packages/model/src/viewport.ts | oui |
+| 2026-10-04 | T-003 | décision | La palette des 10 couleurs des post-its et textes est définie dans `packages/model/src/schema.ts`, emplacement autorisé pour les couleurs par T-006-AC7. | packages/model/src/schema.ts | oui |
+| 2026-10-04 | T-003 | décision | `window.__board` est construit par `createBoardApi` et n'est posé que si `VITE_E2E=1` ; il est en lecture seule (getElements, getViewport, worldToScreen, screenToWorld, getSelection, getPeers). | apps/web/src/testing/board-api.ts | oui |
+| 2026-10-04 | T-003 | décision | `packages/model/tsconfig.json` inclut les types Node uniquement pour typer `console.error` (éléments invalides, `process/code.md`) ; le paquet reste sans import Node/DOM, contrôlé par Biome. | packages/model/tsconfig.json | oui |
+| 2026-10-04 | T-003 | test | Exclusion de couverture `apps/web/src/canvas/**` : composant de rendu Konva pur, couvert par les tests e2e (justifié dans le rapport T-003). | vitest.cov.config.ts | oui |
+| 2026-10-04 | T-003 | test | Test hérité modifié : `e2e/create-board.spec.ts`, l'assertion `toBeEmpty()` du conteneur `board-canvas` est remplacée par la présence du canvas, car T-003-AC3 fait arriver le stage Konva sur la page board. | e2e/create-board.spec.ts | oui |
+| 2026-10-04 | T-003 | dépendance | Ajout de yjs 13.6.33 (MIT), zod 4.6.5 (MIT) et fractional-indexing 4.0.0 (CC0) à `packages/model`. | packages/model/package.json | non |
+| 2026-10-04 | T-003 | dépendance | Ajout de @hocuspocus/server 4.7.0, @hocuspocus/extension-database 4.7.0 et crossws 0.4.12 (MIT) à `apps/server`, et de @hocuspocus/provider 4.7.0 (MIT) en dev. | apps/server/package.json | non |
+| 2026-10-04 | T-003 | dépendance | Ajout de @hocuspocus/provider 4.7.0, konva 10.7.0 et react-konva 19.3.0 (MIT) à `apps/web`. | apps/web/package.json | non |
 | 2026-10-04 | RUN | run | Fin du run après 3 session(s) : nombre maximal de sessions atteint (3). | RUN-SUMMARY.md | oui |
 | 2026-10-04 | F01-S1 | contrôle | Vérification indépendante de main @ 2842500 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 91 %, branches 89.65 %). | logs/verify-003.log | non |
 | 2026-10-04 | F01-S1 | décision | Le menu reste minimal pour F01-S1 : il conserve le titre « Mozaik » de T-001 (T-001-AC2) et ajoute le bouton « Nouveau board » ; le titre « Boards », la liste et les règles UI-MENU arrivent avec F01-S2. | apps/web/src/app/board-list-page.tsx | oui |

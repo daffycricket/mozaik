@@ -53,9 +53,8 @@ packages/
     src/
       schema.ts       Types et validation (zod) des éléments, palette de couleurs
       doc.ts          Création/accès au Y.Doc d'un board
-      ops/            Opérations : createElement, updateElement, deleteElements, reorder...
-      geometry/       Boîtes englobantes, hit-test, transformations
-      undo.ts         Fabrique de Y.UndoManager
+      ops.ts          Opérations : createElement, updateElement, deleteElements, LOCAL_ORIGIN
+      viewport.ts     Conversions coordonnées monde ↔ écran
   config/         Configs partagées (tsconfig, biome)
 tooling/          Outillage du dépôt (validateur de message de commit)
 e2e/              Tests Playwright
