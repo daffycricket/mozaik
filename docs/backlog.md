@@ -13,7 +13,7 @@ Liste ordonnée de tout le travail. L'agent prend toujours le **premier ticket `
 
 | # | ID | Titre | Type | Dépend de | Statut | Notes |
 |---|---|---|---|---|---|---|
-| 1 | T-001 | Bootstrap du monorepo et de l'outillage | tech |  | in-progress |  |
+| 1 | T-001 | Bootstrap du monorepo et de l'outillage | tech |  | done |  |
 | 2 | T-002 | Harnais de test, couverture, rapports, traçabilité | tech | T-001 | todo |  |
 | 3 | F01-S1 | Créer un board et l'ouvrir | story | T-002 | todo |  |
 | 4 | T-003 | Socle collaboratif : document Yjs, provider, persistance, `window.__board` | tech | F01-S1 | todo |  |

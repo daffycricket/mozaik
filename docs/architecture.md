@@ -56,6 +56,7 @@ packages/
       geometry/       Boîtes englobantes, hit-test, transformations
       undo.ts         Fabrique de Y.UndoManager
   config/         Configs partagées (tsconfig, biome)
+tooling/          Outillage du dépôt (validateur de message de commit)
 e2e/              Tests Playwright
 docs/             Documentation (voir AGENTS.md)
 ```
