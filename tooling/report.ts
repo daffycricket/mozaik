@@ -80,6 +80,34 @@ export function parseVitestResults(path: string): {
   return { unit, integration };
 }
 
+function addCounts(a: TestLevelCounts, b: TestLevelCounts): TestLevelCounts {
+  return {
+    passed: a.passed + b.passed,
+    failed: a.failed + b.failed,
+    skipped: a.skipped + b.skipped,
+    durationMs: a.durationMs + b.durationMs,
+  };
+}
+
+/**
+ * Loads unit and integration counts, preferring the merged coverage run when it exists.
+ */
+export function loadVitestCounts(repoRoot: string): {
+  unit: TestLevelCounts;
+  integration: TestLevelCounts;
+} {
+  const mergedPath = join(repoRoot, 'coverage/vitest-cov-results.json');
+  if (existsSync(mergedPath)) {
+    return parseVitestResults(mergedPath);
+  }
+  const unit = parseVitestResults(join(repoRoot, 'coverage/vitest-results.json'));
+  const integration = parseVitestResults(join(repoRoot, 'coverage/vitest-int-results.json'));
+  return {
+    unit: addCounts(unit.unit, integration.unit),
+    integration: addCounts(unit.integration, integration.integration),
+  };
+}
+
 /**
  * Reads the JSON report produced by the Playwright json reporter.
  */
@@ -290,7 +318,7 @@ function buildAcceptanceRows(repoRoot: string, ticketId: string): AcceptanceRow[
  * Writes the report section of a step and the commit trailers. Returns the section that was written.
  */
 export function runReport(repoRoot: string, ticketId: string, stepNumber: number): string {
-  const vitest = parseVitestResults(join(repoRoot, 'coverage/vitest-results.json'));
+  const vitest = loadVitestCounts(repoRoot);
   const coverage = parseCoverageSummary(join(repoRoot, 'coverage/coverage-summary.json'));
   const input: ReportInput = {
     ticketId,

@@ -1,10 +1,11 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import {
   buildReportSection,
   buildTrailers,
+  loadVitestCounts,
   parseCoverageSummary,
   parsePlaywrightResults,
   parseVitestResults,
@@ -77,6 +78,39 @@ describe('[T-002-AC5] report tool', () => {
     expect(result.integration.failed).toBe(1);
     expect(result.integration.skipped).toBe(1);
     expect(result.integration.durationMs).toBe(2500);
+  });
+
+  test('[T-002-AC5] merges the separate unit and integration result files', () => {
+    const repo = mkdtempSync(join(tmpdir(), 'mozaik-merge-'));
+    mkdirSync(join(repo, 'coverage'), { recursive: true });
+    writeFileSync(
+      join(repo, 'coverage/vitest-results.json'),
+      JSON.stringify({
+        testResults: [
+          {
+            name: '/repo/apps/web/src/app.test.tsx',
+            assertionResults: [{ status: 'passed' }],
+          },
+        ],
+      }),
+      'utf8',
+    );
+    writeFileSync(
+      join(repo, 'coverage/vitest-int-results.json'),
+      JSON.stringify({
+        testResults: [
+          {
+            name: '/repo/apps/server/test/health.int.test.ts',
+            assertionResults: [{ status: 'passed' }, { status: 'passed' }],
+          },
+        ],
+      }),
+      'utf8',
+    );
+    const counts = loadVitestCounts(repo);
+    expect(counts.unit.passed).toBe(1);
+    expect(counts.integration.passed).toBe(2);
+    rmSync(repo, { recursive: true, force: true });
   });
 
   test('[T-002-AC5] reads the Playwright json report', () => {

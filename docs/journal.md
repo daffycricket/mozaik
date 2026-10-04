@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | T-002 | décision | Les tests d'intégration ont leur propre configuration Vitest (`vitest.int.config.ts`) et écrivent leurs résultats dans `coverage/vitest-int-results.json`, distincts des unitaires ; l'outil de rapport fusionne les deux, ou lit le fichier fusionné de `test:cov`. | vitest.int.config.ts | non |
 | 2026-10-04 | T-002 | décision | Le serveur ouvre la base SQLite et expose les routes `POST /api/test/seed` et `POST /api/test/reset` uniquement quand `NODE_ENV=test`. À ce stade le modèle d'éléments n'existe pas : `seed` crée le board dans la table `boards` et renvoie `elementCount` ; le pré-remplissage réel des éléments sera branché quand le document Yjs existera (T-003). | apps/server/src/app.ts | oui |
 | 2026-10-04 | T-002 | décision | `buildApp` accepte une configuration optionnelle : sans configuration, il ne monte que la route de santé, ce qui évite d'ouvrir une base pendant les tests unitaires et préserve les tests de T-001. | apps/server/src/app.ts | non |
 | 2026-10-04 | T-002 | dépendance | Ajout de better-sqlite3 13.0.3 (MIT), zod 4.6.5 (MIT), nanoid 6.0.1 (MIT) et @types/better-sqlite3 9.6.0 (MIT) au serveur. | apps/server/package.json | non |
