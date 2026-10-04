@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
+import { createBoardDoc, createBoardHistory, createElement, getElement } from '@mozaik/model';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { HistoryContext } from '@/collab/history-context';
 import { useToolStore } from '@/state/tool-store';
 import { Toolbar } from './toolbar';
 
@@ -43,6 +45,18 @@ describe('[UI-BOARD-3] toolbar layout', () => {
     expect(hand).not.toBeNull();
     expect(select?.compareDocumentPosition(hand as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
+
+  test('[UI-BOARD-3] separates the tools from the undo and redo buttons', () => {
+    const sticky = item('tool-sticky');
+    const undo = item('undo');
+    const redo = item('redo');
+    expect(document.querySelector('[role="separator"]')).not.toBeNull();
+    expect(sticky).not.toBeNull();
+    expect(undo).not.toBeNull();
+    expect(redo).not.toBeNull();
+    expect(sticky?.compareDocumentPosition(undo as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(undo?.compareDocumentPosition(redo as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
 });
 
 describe('[UI-BOARD-4] active tool', () => {
@@ -64,5 +78,47 @@ describe('[UI-BOARD-4] active tool', () => {
       item('tool-hand')?.click();
     });
     expect(useToolStore.getState().tool).toBe('hand');
+  });
+});
+
+describe('[F08-S2-AC3] history buttons', () => {
+  test('[F08-S2-AC3] disables undo and redo without history and toggles them with actions', () => {
+    const doc = createBoardDoc();
+    const history = createBoardHistory(doc);
+    act(() => {
+      root.render(
+        <HistoryContext.Provider value={history}>
+          <Toolbar />
+        </HistoryContext.Provider>,
+      );
+    });
+
+    expect((item('undo') as HTMLButtonElement | null)?.disabled).toBe(true);
+    expect((item('redo') as HTMLButtonElement | null)?.disabled).toBe(true);
+
+    act(() => {
+      createElement(
+        doc,
+        { type: 'sticky', x: 0, y: 0, width: 100, height: 100 },
+        { id: 's1', createdBy: 'u' },
+      );
+    });
+    expect((item('undo') as HTMLButtonElement | null)?.disabled).toBe(false);
+    expect((item('redo') as HTMLButtonElement | null)?.disabled).toBe(true);
+
+    act(() => {
+      item('undo')?.click();
+    });
+    expect(getElement(doc, 's1')).toBeUndefined();
+    expect((item('undo') as HTMLButtonElement | null)?.disabled).toBe(true);
+    expect((item('redo') as HTMLButtonElement | null)?.disabled).toBe(false);
+
+    act(() => {
+      item('redo')?.click();
+    });
+    expect(getElement(doc, 's1')).toBeDefined();
+
+    history.destroy();
+    doc.destroy();
   });
 });

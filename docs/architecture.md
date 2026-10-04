@@ -32,15 +32,15 @@ apps/
     src/
       app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`)
       canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), sélection, déplacement et redimensionnement au pointeur (`use-select.ts`, cadre et poignées dans `selection-overlay.tsx`, positions dans `selection-handles.ts`), création et édition de post-its (`use-create.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
-      tools/      Raccourcis clavier (`shortcuts.ts` : outils, zoom, déplacement aux flèches, `Ctrl+Z`) ; les outils eux-mêmes arrivent avec leurs stories
+      tools/      Raccourcis clavier (`shortcuts.ts` : outils, zoom, déplacement aux flèches, `Ctrl+Z` / `Ctrl+Shift+Z`) ; les outils eux-mêmes arrivent avec leurs stories
       identity/   Identité locale (`identity.ts`, `localStorage`) et dialogue de nom
       components/
-        ui/       Composants shadcn/ui copiés dans le dépôt (ADR-0011) : `button`, `dialog`, `input`, `label`, `toggle-group`
-        board/    Composants du projet : `toolbar.tsx`, `zoom-controls.tsx`, `text-editor.tsx`, `context-bar.tsx` ; autres dialogues à venir
+        ui/       Composants shadcn/ui copiés dans le dépôt (ADR-0011) : `button`, `dialog`, `input`, `label`, `separator`, `toggle-group`
+        board/    Composants du projet : `toolbar.tsx` (outils puis Annuler/Rétablir), `zoom-controls.tsx`, `text-editor.tsx`, `context-bar.tsx` ; autres dialogues à venir
       lib/        `utils.ts` (`cn` de shadcn/ui), `theme-tokens.ts` (jetons de la charte exposés au canvas), client REST (`boards-api.ts`)
       index.css   Thème : import Tailwind, variables shadcn/ui `neutral`, jetons du projet
       state/      Stores Zustand (UI locale uniquement) : `viewport-store.ts` (viewport, pan et zoom), `tool-store.ts` (outil actif), `canvas-size-store.ts` (taille du canvas, ancre du zoom), `selection-store.ts` (sélection, ajout/retrait avec `toggle`), `editing-store.ts` (élément en édition)
-      collab/     Connexion Hocuspocus, awareness (curseurs), contexte du document (`board-doc-context.ts`), historique d'annulation (`history-context.ts`)
+      collab/     Connexion Hocuspocus, awareness (curseurs), contexte du document (`board-doc-context.ts`), historique d'annulation (`history-context.ts`, état d'activation dans `use-history-state.ts`)
       testing/    Exposition de window.__board en mode VITE_E2E, dont `getOverlayBoxes()`
   server/         Fastify + Hocuspocus
     src/
@@ -130,7 +130,7 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 
 **Sélection** (F07-S1) : la sélection est un état local (Zustand), jamais écrite dans le document Yjs. Avec l'outil Sélection, un clic sélectionne l'élément sous le pointeur (le plus haut), Shift+clic l'ajoute ou le retire, un glisser depuis une zone vide trace un rectangle qui sélectionne les éléments entièrement contenus (`elementsInBox`), `Ctrl+A` sélectionne tout et Échap ou un clic dans le vide désélectionne. Le cadre et ses huit poignées (`selectionHandles`, tailles divisées par le zoom) sont dessinés par `selection-overlay.tsx`.
 
-**Déplacement** (F07-S2) : un glisser sur un élément déjà sélectionné déplace toute la sélection de `(dx/zoom, dy/zoom)` en coordonnées monde, via `moveElements` (une transaction par écriture, `x`/`y` et les extrémités d'une flèche). Les positions intermédiaires sont écrites au plus toutes les 50 ms (FL-4) ; `stopCapturing()` encadre le glisser pour que le `Y.UndoManager` en fasse une seule entrée d'annulation. Les flèches du clavier déplacent la sélection de 1 unité monde, ou 10 avec Shift. `Ctrl+Z` annule la dernière modification locale (`useUndoShortcut`) ; le rétablissement, les boutons et l'isolation entre utilisateurs arrivent avec F08-S2.
+**Déplacement** (F07-S2) : un glisser sur un élément déjà sélectionné déplace toute la sélection de `(dx/zoom, dy/zoom)` en coordonnées monde, via `moveElements` (une transaction par écriture, `x`/`y` et les extrémités d'une flèche). Les positions intermédiaires sont écrites au plus toutes les 50 ms (FL-4) ; `stopCapturing()` encadre le glisser pour que le `Y.UndoManager` en fasse une seule entrée d'annulation. Les flèches du clavier déplacent la sélection de 1 unité monde, ou 10 avec Shift.
 
 **Redimensionnement** (F07-S3) : un appui sur une poignée du cadre, quand un seul élément redimensionnable (post-it, forme) est sélectionné, démarre un redimensionnement. `resizeBox` calcule la nouvelle boîte pure à partir de la boîte d'origine, de la poignée et du pointeur : le coin ou le côté opposé reste fixe (AC1), Shift conserve le rapport largeur/hauteur (AC2) et la taille est bornée à `MIN_ELEMENT_SIZE` (AC3). Le texte libre (taille liée au contenu) et les flèches (poignées d'extrémité, F06-S2) ne se redimensionnent pas. `updateElement` écrit `x`/`y`/`width`/`height` au plus toutes les 50 ms, `stopCapturing()` encadre le geste pour une seule entrée d'annulation.
 
@@ -141,6 +141,8 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 **Ordre de superposition** (F07-S4) : `]` ou le bouton « Avancer », `[` ou le bouton « Reculer » déplacent la sélection d'un plan. `reorderStep` trie les éléments par `zIndex` (`sortByZIndex`), fait glisser chaque élément sélectionné d'un cran sans lui faire dépasser un élément non sélectionné (l'ordre relatif d'une sélection multiple est conservé) et calcule les nouvelles clés `zIndex` avec `generateKeyBetween`. `bringForward`/`sendBackward` n'écrivent que les `zIndex` des éléments déplacés, en une transaction à origine locale : deux utilisateurs qui avancent deux éléments différents écrivent des clés distinctes et convergent (F07-S4-AC5). `canBringForward`/`canSendBackward` désactivent le bouton quand rien ne peut bouger (AC3). Les éléments sont rendus de bas en haut (`board-elements.tsx`), et la barre contextuelle apparaît pour toute sélection non vide, avec les pastilles de couleur seulement si elle contient un post-it ou un texte (UI-BOARD-8).
 
 **Suppression** (F08-S1) : `Suppr` ou `Retour arrière` supprime tous les éléments sélectionnés via `deleteElements` (une seule transaction à origine locale, donc une seule entrée d'annulation), puis vide la sélection locale. Le raccourci (`useDeleteShortcut`) est inactif pendant l'édition d'un texte, pour que `Retour arrière` continue d'effacer des caractères. L'effet est local et immédiat, sans attendre le serveur (FL-1).
+
+**Annuler/rétablir** (F08-S2) : `Ctrl+Z` annule la dernière action locale et `Ctrl+Shift+Z` la rétablit (`useHistoryShortcuts`), via le `Y.UndoManager` du board. La barre d'outils expose les boutons `undo`/`redo`, désactivés quand il n'y a rien à annuler ou rétablir (`useHistoryState` s'abonne aux événements du gestionnaire). Comme l'historique ne suit que `LOCAL_ORIGIN`, annuler ne touche jamais le travail des autres utilisateurs. Les raccourcis sont inactifs pendant l'édition d'un texte.
 
 **Modification distante** : serveur → provider → mise à jour appliquée au `Y.Doc` → observation → rendu. Le `Y.UndoManager` ne suit que `LOCAL_ORIGIN` : annuler n'annule jamais le travail d'un autre.
 

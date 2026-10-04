@@ -12,10 +12,10 @@ import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
 import {
   useDeleteShortcut,
+  useHistoryShortcuts,
   useMoveShortcuts,
   useOrderShortcuts,
   useStartEditingShortcut,
-  useUndoShortcut,
 } from '@/tools/shortcuts';
 import { BoardElements } from './board-elements';
 import { RemoteCursors } from './remote-cursors';
@@ -51,7 +51,7 @@ export function BoardCanvas() {
   useMoveShortcuts(doc);
   useOrderShortcuts(doc);
   useDeleteShortcut(doc);
-  useUndoShortcut(history);
+  useHistoryShortcuts(history);
   useLocalCursor(containerRef);
   useWheelZoom(containerRef);
 

@@ -217,24 +217,29 @@ export function useDeleteShortcut(doc: BoardDoc | null): void {
 }
 
 /**
- * Undoes the last local modification with `Ctrl+Z` (F07-S2-AC3). Redo, the
- * toolbar buttons and the isolation between users arrive with F08-S2. Inactive
- * while a text field has focus, so it does not steal the native undo.
+ * Undoes the last local modification with `Ctrl+Z` and redoes it with
+ * `Ctrl+Shift+Z` (F08-S2-AC1). The history only tracks local transactions, so
+ * undoing never reverts another user's work (F08-S2-AC2). Inactive while a text
+ * field has focus, so it does not steal the native undo.
  */
-export function useUndoShortcut(history: BoardHistory | null): void {
+export function useHistoryShortcuts(history: BoardHistory | null): void {
   useEffect(() => {
     if (history === null) {
       return;
     }
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (!(event.ctrlKey || event.metaKey) || event.altKey || event.shiftKey) {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) {
         return;
       }
       if (event.key.toLowerCase() !== 'z' || isTextEditingTarget(event.target)) {
         return;
       }
       event.preventDefault();
-      history.undo();
+      if (event.shiftKey) {
+        history.redo();
+      } else {
+        history.undo();
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
