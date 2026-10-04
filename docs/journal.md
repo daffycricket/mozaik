@@ -47,6 +47,12 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F01-S2 | contrôle | Vérification indépendante de main @ c801daf réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 84.66 %, branches 84.06 %). | logs/verify-008.log | non |
+| 2026-10-04 | F01-S2 | contrôle | Rejeu : l'ancienne version de e2e/home.spec.ts échoue sur le nouveau code sans changement de comportement justifié (ni ticket bug, ni spec modifiée, ni critère du ticket cité au journal). Régression probablement masquée en modifiant le test. | session 008 (logs du run) | oui |
+| 2026-10-04 | F01-S2 | contrôle | Rejeu : l'ancienne version de apps/web/src/app/pages.test.tsx échoue sur le nouveau code sans changement de comportement justifié (ni ticket bug, ni spec modifiée, ni critère du ticket cité au journal). Régression probablement masquée en modifiant le test. | session 008 (logs du run) | oui |
+| 2026-10-04 | F01-S2 | contrôle | Test hérité modifié : e2e/home.spec.ts, modification non justifiée (ni ticket bug, ni spec modifiée dans la session, ni critère F01-S2-ACn cité dans l'entrée test). | session 008 (logs du run) | oui |
+| 2026-10-04 | F01-S2 | contrôle | Test hérité modifié : apps/web/src/app/pages.test.tsx, modification non justifiée (ni ticket bug, ni spec modifiée dans la session, ni critère F01-S2-ACn cité dans l'entrée test). | session 008 (logs du run) | oui |
+| 2026-10-04 | RUN | run | Reprise du run : sessions 8 à 10, outillage @ b22dc98. | logs/loop.log | non |
 | 2026-10-04 | F01-S2 | décision | L'API expose `GET /api/boards` (tri par `updated_at` décroissant) et `GET /api/boards/:id` (404 sinon), nécessaires au menu et au nom affiché dans l'en-tête du board. | apps/server/src/http/boards.ts | oui |
 | 2026-10-04 | F01-S2 | décision | Le titre de l'en-tête du menu devient « Boards » (UI-MENU-1) et remplace « Mozaik » ; le nom de l'application n'est plus affiché dans l'interface, conformément à `design/ecrans.md`. | apps/web/src/app/board-list-page.tsx | oui |
 | 2026-10-04 | F01-S2 | test | Tests hérités modifiés : `e2e/home.spec.ts` et `apps/web/src/app/pages.test.tsx`, l'assertion sur le titre « Mozaik » devient « Boards » car UI-MENU-1 (F01-S2) fixe le titre du menu à « Boards » et remplace l'exigence d'affichage du nom de l'application de T-001-AC2 sur cet écran. | e2e/home.spec.ts, apps/web/src/app/pages.test.tsx | oui |
