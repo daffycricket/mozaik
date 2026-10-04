@@ -47,6 +47,8 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F01-S3 | contrôle | Vérification indépendante de main @ 25fb169 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 81.3 %, branches 81.48 %). | logs/verify-010.log | non |
+| 2026-10-04 | F01-S3 | contrôle | Test hérité modifié : apps/web/src/app/board-page.test.tsx, modification non justifiée (ni ticket bug, ni spec modifiée dans la session, ni critère F01-S3-ACn cité dans l'entrée test). | session 010 (logs du run) | oui |
 | 2026-10-04 | F01-S3 | décision | Le renommage met à jour `updated_at`, donc un board renommé remonte en tête du menu (tri par date de dernière modification). | apps/server/src/db/boards.ts | oui |
 | 2026-10-04 | F01-S3 | décision | La validation du nom se fait côté client avant tout `PATCH` : un nom vide ou inchangé quitte l'édition et conserve l'ancien nom, sans appel réseau (F01-S3-AC3). Perdre le focus annule aussi le renommage, par cohérence avec Échap. | apps/web/src/app/board-name.tsx, apps/web/src/lib/boards-api.ts | oui |
 | 2026-10-04 | F01-S3 | test | Test hérité modifié : `apps/web/src/app/board-page.test.tsx`, `BoardShell` et les props de `BoardScreen` reçoivent `onRename` : UI-BOARD-11 fait du nom du board un champ éditable, l'en-tête doit donc transmettre le renommage. | apps/web/src/app/board-page.test.tsx | oui |
