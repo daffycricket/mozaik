@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { BoardCanvas } from '@/canvas/board-canvas';
 import { BoardDocContext } from '@/collab/board-doc-context';
+import { HistoryContext } from '@/collab/history-context';
 import { PresenceContext } from '@/collab/presence-context';
 import { useBoardConnection } from '@/collab/use-board-connection';
 import { ContextBar } from '@/components/board/context-bar';
@@ -124,7 +125,7 @@ function BoardView({
   name: string;
   onRename: (name: string) => void;
 }) {
-  const { doc, provider, isDeleted } = useBoardConnection(boardId);
+  const { doc, provider, history, isDeleted } = useBoardConnection(boardId);
   const resetViewport = useViewportStore((state) => state.resetViewport);
   useToolShortcuts();
   useZoomShortcuts();
@@ -152,10 +153,12 @@ function BoardView({
 
   return (
     <BoardDocContext.Provider value={doc}>
-      <PresenceContext.Provider value={session}>
-        <BoardShell name={name} onRename={onRename} />
-        {isDeleted && <BoardDeleted />}
-      </PresenceContext.Provider>
+      <HistoryContext.Provider value={history}>
+        <PresenceContext.Provider value={session}>
+          <BoardShell name={name} onRename={onRename} />
+          {isDeleted && <BoardDeleted />}
+        </PresenceContext.Provider>
+      </HistoryContext.Provider>
     </BoardDocContext.Provider>
   );
 }

@@ -1,5 +1,10 @@
 import { HocuspocusProvider } from '@hocuspocus/provider';
-import { type BoardDoc, createBoardDoc } from '@mozaik/model';
+import {
+  type BoardDoc,
+  type BoardHistory,
+  createBoardDoc,
+  createBoardHistory,
+} from '@mozaik/model';
 import { useEffect, useMemo, useState } from 'react';
 import { BoardNotFoundError, getBoard } from '@/lib/boards-api';
 import { collabUrl } from './collab-url';
@@ -7,6 +12,7 @@ import { collabUrl } from './collab-url';
 export type BoardConnection = {
   doc: BoardDoc;
   provider: HocuspocusProvider | null;
+  history: BoardHistory | null;
   isSynced: boolean;
   isDeleted: boolean;
 };
@@ -19,10 +25,13 @@ export type BoardConnection = {
 export function useBoardConnection(boardId: string): BoardConnection {
   const doc = useMemo(() => createBoardDoc(), []);
   const [provider, setProvider] = useState<HocuspocusProvider | null>(null);
+  const [history, setHistory] = useState<BoardHistory | null>(null);
   const [isSynced, setIsSynced] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
 
   useEffect(() => {
+    const nextHistory = createBoardHistory(doc);
+    setHistory(nextHistory);
     const next = new HocuspocusProvider({
       name: boardId,
       url: collabUrl(window.location),
@@ -47,8 +56,10 @@ export function useBoardConnection(boardId: string): BoardConnection {
       next.off('synced', onSynced);
       next.off('close', onClose);
       next.destroy();
+      nextHistory.destroy();
+      setHistory(null);
     };
   }, [boardId, doc]);
 
-  return { doc, provider, isSynced, isDeleted };
+  return { doc, provider, history, isSynced, isDeleted };
 }

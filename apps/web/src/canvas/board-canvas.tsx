@@ -2,6 +2,7 @@ import { unionBounds } from '@mozaik/model';
 import { useEffect, useRef } from 'react';
 import { Layer, Stage } from 'react-konva';
 import { useBoardDoc } from '@/collab/board-doc-context';
+import { useBoardHistory } from '@/collab/history-context';
 import { usePresenceSession } from '@/collab/presence-context';
 import { useLocalCursor } from '@/collab/use-local-cursor';
 import { TextEditor } from '@/components/board/text-editor';
@@ -9,7 +10,7 @@ import { useCanvasSizeStore } from '@/state/canvas-size-store';
 import { useEditingStore } from '@/state/editing-store';
 import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
-import { useStartEditingShortcut } from '@/tools/shortcuts';
+import { useMoveShortcuts, useStartEditingShortcut, useUndoShortcut } from '@/tools/shortcuts';
 import { BoardElements } from './board-elements';
 import { RemoteCursors } from './remote-cursors';
 import { SelectionMarquee, SelectionOverlay } from './selection-overlay';
@@ -29,6 +30,7 @@ const GRID_STEP = 32;
 export function BoardCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const doc = useBoardDoc();
+  const history = useBoardHistory();
   const size = useCanvasSizeStore((state) => state.size);
   const setSize = useCanvasSizeStore((state) => state.setSize);
   const viewport = useViewportStore((state) => state.viewport);
@@ -37,9 +39,11 @@ export function BoardCanvas() {
   const elements = useElements(doc);
   const session = usePresenceSession();
   const pan = usePan(containerRef);
-  const marquee = useSelect(containerRef, doc);
+  const marquee = useSelect(containerRef, doc, history);
   useCreateSticky(containerRef, doc);
   useStartEditingShortcut(doc);
+  useMoveShortcuts(doc);
+  useUndoShortcut(history);
   useLocalCursor(containerRef);
   useWheelZoom(containerRef);
 

@@ -1,4 +1,11 @@
-import { type BoardDoc, getElement, ZOOM_STEP } from '@mozaik/model';
+import {
+  type BoardDoc,
+  type BoardHistory,
+  getElement,
+  moveElements,
+  type Point,
+  ZOOM_STEP,
+} from '@mozaik/model';
 import { useEffect, useState } from 'react';
 import { useCanvasSizeStore } from '@/state/canvas-size-store';
 import { useEditingStore } from '@/state/editing-store';
@@ -7,6 +14,16 @@ import { type Tool, useToolStore } from '@/state/tool-store';
 import { useViewportStore } from '@/state/viewport-store';
 
 const TOOL_KEYS: Record<string, Tool> = { v: 'select', h: 'hand', n: 'sticky' };
+
+const MOVE_STEP = 1;
+const MOVE_STEP_LARGE = 10;
+
+const ARROW_DELTAS: Record<string, Point> = {
+  ArrowLeft: { x: -1, y: 0 },
+  ArrowRight: { x: 1, y: 0 },
+  ArrowUp: { x: 0, y: -1 },
+  ArrowDown: { x: 0, y: 1 },
+};
 
 function isTextEditingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -97,6 +114,61 @@ export function useSpacePan(): boolean {
   }, []);
 
   return isSpaceHeld;
+}
+
+/**
+ * Moves the selection with the arrow keys: 1 world unit, or 10 with Shift
+ * (F07-S2-AC2). Inactive while a text field has focus or no element is selected.
+ */
+export function useMoveShortcuts(doc: BoardDoc | null): void {
+  useEffect(() => {
+    if (doc === null) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.ctrlKey || event.metaKey || event.altKey || isTextEditingTarget(event.target)) {
+        return;
+      }
+      const direction = ARROW_DELTAS[event.key];
+      if (direction === undefined) {
+        return;
+      }
+      const selection = useSelectionStore.getState().selection;
+      if (selection.length === 0) {
+        return;
+      }
+      event.preventDefault();
+      const step = event.shiftKey ? MOVE_STEP_LARGE : MOVE_STEP;
+      moveElements(doc, selection, { x: direction.x * step, y: direction.y * step });
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [doc]);
+}
+
+/**
+ * Undoes the last local modification with `Ctrl+Z` (F07-S2-AC3). Redo, the
+ * toolbar buttons and the isolation between users arrive with F08-S2. Inactive
+ * while a text field has focus, so it does not steal the native undo.
+ */
+export function useUndoShortcut(history: BoardHistory | null): void {
+  useEffect(() => {
+    if (history === null) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey || event.shiftKey) {
+        return;
+      }
+      if (event.key.toLowerCase() !== 'z' || isTextEditingTarget(event.target)) {
+        return;
+      }
+      event.preventDefault();
+      history.undo();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [history]);
 }
 
 /**

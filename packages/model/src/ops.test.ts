@@ -10,6 +10,7 @@ import {
   getElement,
   getElements,
   LOCAL_ORIGIN,
+  moveElements,
   setElementsColor,
   updateElement,
 } from './ops';
@@ -333,6 +334,57 @@ describe('[F07-S1-AC3] selection rectangle containment', () => {
     const selected = elementsInBox(getElements(doc), { x: 50, y: 50, width: 100, height: 100 });
 
     expect(selected).toEqual([]);
+    doc.destroy();
+  });
+});
+
+describe('[F07-S2-AC1] element movement', () => {
+  test('[F07-S2-AC1] moves every given element by the world delta in one transaction', () => {
+    const doc = createBoardDoc();
+    createElement(
+      doc,
+      { type: 'sticky', x: 10, y: 20, width: 100, height: 100 },
+      { id: 's1', createdBy: 'u' },
+    );
+    createElement(
+      doc,
+      { type: 'sticky', x: 200, y: 300, width: 100, height: 100 },
+      { id: 's2', createdBy: 'u' },
+    );
+
+    const origins: unknown[] = [];
+    doc.on('afterTransaction', (transaction) => {
+      origins.push(transaction.origin);
+    });
+
+    moveElements(doc, ['s1', 's2', 'missing'], { x: 12.5, y: -8 });
+
+    expect(getElement(doc, 's1')).toMatchObject({ x: 22.5, y: 12 });
+    expect(getElement(doc, 's2')).toMatchObject({ x: 212.5, y: 292 });
+    expect(origins).toEqual([LOCAL_ORIGIN]);
+    doc.destroy();
+  });
+
+  test('[F07-S2-AC1] moves the endpoints of an arrow with its bounding box', () => {
+    const doc = createBoardDoc();
+    createElement(
+      doc,
+      { type: 'arrow', x1: 10, y1: 20, x2: 110, y2: 20 },
+      { id: 'a1', createdBy: 'u' },
+    );
+
+    moveElements(doc, ['a1'], { x: 5, y: 15 });
+
+    expect(getElement(doc, 'a1')).toMatchObject({
+      x: 15,
+      y: 35,
+      width: 100,
+      height: 0,
+      x1: 15,
+      y1: 35,
+      x2: 115,
+      y2: 35,
+    });
     doc.destroy();
   });
 });

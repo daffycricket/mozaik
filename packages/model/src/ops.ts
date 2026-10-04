@@ -270,6 +270,38 @@ export function updateElement(doc: Y.Doc, id: string, patch: ElementPatch): void
 }
 
 /**
+ * Moves the given elements by a world-space delta in a single local
+ * transaction. The endpoints of an arrow follow its bounding box. Missing or
+ * invalid ids are ignored. A drag calls it several times (at most every 50 ms)
+ * and the undo manager merges those transactions into one entry (F07-S2).
+ */
+export function moveElements(doc: Y.Doc, ids: string[], delta: Point): void {
+  const map = elementsMap(doc);
+  doc.transact(() => {
+    for (const id of ids) {
+      const value = map.get(id);
+      if (value === undefined) {
+        continue;
+      }
+      const parsed = elementSchema.safeParse(value.toJSON());
+      if (!parsed.success) {
+        console.error(`Ignoring invalid board element "${id}"`, parsed.error);
+        continue;
+      }
+      const element = parsed.data;
+      value.set('x', element.x + delta.x);
+      value.set('y', element.y + delta.y);
+      if (element.type === 'arrow') {
+        value.set('x1', element.x1 + delta.x);
+        value.set('y1', element.y1 + delta.y);
+        value.set('x2', element.x2 + delta.x);
+        value.set('y2', element.y2 + delta.y);
+      }
+    }
+  }, LOCAL_ORIGIN);
+}
+
+/**
  * Sets the colour of the given sticky notes and free texts in a single local
  * transaction, so recolouring a multiple selection is one undo entry
  * (F03-S3-AC1). Elements of other types are ignored.

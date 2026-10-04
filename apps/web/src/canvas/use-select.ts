@@ -1,10 +1,12 @@
 import {
   type BoardDoc,
+  type BoardHistory,
   type Box,
   boxFromPoints,
   elementAtPoint,
   elementsInBox,
   getElements,
+  moveElements,
   type Point,
   screenToWorld,
 } from '@mozaik/model';
@@ -16,17 +18,22 @@ import { useViewportStore } from '@/state/viewport-store';
 import { useSpacePan } from '@/tools/shortcuts';
 
 const DRAG_THRESHOLD = 4;
+const MOVE_SEND_INTERVAL_MS = 50;
 
 /**
- * Selection interactions of the canvas (F07-S1): a click selects one element,
- * Shift+click toggles it (AC2), a drag from an empty area selects the elements
- * it fully contains (AC3), `Ctrl+A` selects everything and Escape or an empty
- * click clears the selection (AC4). Inactive while panning (hand tool or space).
- * Returns the rectangle being dragged, to render it.
+ * Selection and movement interactions of the canvas (F07-S1, F07-S2). A click
+ * selects one element, Shift+click toggles it (AC2), a drag from an empty area
+ * selects the elements it fully contains (AC3), `Ctrl+A` selects everything and
+ * Escape or an empty click clears the selection (AC4). A drag on a selected
+ * element moves the whole selection; intermediate positions are written at most
+ * every 50 ms and the drag is a single undo entry (F07-S2). Inactive while
+ * panning (hand tool or space). Returns the rectangle being dragged, to render
+ * it.
  */
 export function useSelect(
   containerRef: RefObject<HTMLElement | null>,
   doc: BoardDoc | null,
+  history: BoardHistory | null,
 ): Box | null {
   const [marquee, setMarquee] = useState<Box | null>(null);
   const isSpaceHeld = useSpacePan();
@@ -48,6 +55,29 @@ export function useSelect(
     let startLocal: Point | null = null;
     let isDragging = false;
 
+    let dragIds: string[] | null = null;
+    let lastFlushedWorld: Point | null = null;
+    let pendingWorld: Point | null = null;
+    let lastSent = 0;
+    let moveTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const flushMove = (): void => {
+      moveTimer = null;
+      if (dragIds === null || lastFlushedWorld === null || pendingWorld === null) {
+        return;
+      }
+      const delta = {
+        x: pendingWorld.x - lastFlushedWorld.x,
+        y: pendingWorld.y - lastFlushedWorld.y,
+      };
+      if (delta.x === 0 && delta.y === 0) {
+        return;
+      }
+      lastSent = performance.now();
+      moveElements(doc, dragIds, delta);
+      lastFlushedWorld = pendingWorld;
+    };
+
     const onPointerDown = (event: PointerEvent): void => {
       if (event.button !== 0 || !canSelect()) {
         return;
@@ -57,9 +87,17 @@ export function useSelect(
       if (hit !== undefined) {
         if (event.shiftKey) {
           selection.toggle(hit.id);
-        } else if (!selection.selection.includes(hit.id)) {
+          return;
+        }
+        if (!selection.selection.includes(hit.id)) {
           selection.setSelection([hit.id]);
         }
+        dragIds = [...useSelectionStore.getState().selection];
+        lastFlushedWorld = worldAt(event);
+        pendingWorld = lastFlushedWorld;
+        lastSent = 0;
+        history?.stopCapturing();
+        container.setPointerCapture?.(event.pointerId);
         return;
       }
       startWorld = worldAt(event);
@@ -69,6 +107,16 @@ export function useSelect(
     };
 
     const onPointerMove = (event: PointerEvent): void => {
+      if (dragIds !== null) {
+        pendingWorld = worldAt(event);
+        const elapsed = performance.now() - lastSent;
+        if (elapsed >= MOVE_SEND_INTERVAL_MS) {
+          flushMove();
+        } else if (moveTimer === null) {
+          moveTimer = setTimeout(flushMove, MOVE_SEND_INTERVAL_MS - elapsed);
+        }
+        return;
+      }
       if (startWorld === null || startLocal === null) {
         return;
       }
@@ -83,7 +131,26 @@ export function useSelect(
       setMarquee(boxFromPoints(startWorld, worldAt(event)));
     };
 
+    const endDrag = (event: PointerEvent): void => {
+      if (moveTimer !== null) {
+        clearTimeout(moveTimer);
+        moveTimer = null;
+      }
+      flushMove();
+      dragIds = null;
+      lastFlushedWorld = null;
+      pendingWorld = null;
+      history?.stopCapturing();
+      if (container.hasPointerCapture?.(event.pointerId)) {
+        container.releasePointerCapture(event.pointerId);
+      }
+    };
+
     const onPointerUp = (event: PointerEvent): void => {
+      if (dragIds !== null) {
+        endDrag(event);
+        return;
+      }
       if (startWorld === null) {
         return;
       }
@@ -127,13 +194,16 @@ export function useSelect(
     container.addEventListener('pointercancel', onPointerUp);
     window.addEventListener('keydown', onKeyDown);
     return () => {
+      if (moveTimer !== null) {
+        clearTimeout(moveTimer);
+      }
       container.removeEventListener('pointerdown', onPointerDown);
       container.removeEventListener('pointermove', onPointerMove);
       container.removeEventListener('pointerup', onPointerUp);
       container.removeEventListener('pointercancel', onPointerUp);
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [containerRef, doc, isSpaceHeld]);
+  }, [containerRef, doc, history, isSpaceHeld]);
 
   return marquee;
 }
