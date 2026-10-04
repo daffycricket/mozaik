@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F01-S1 | contrôle | Vérification indépendante de main @ 2842500 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 91 %, branches 89.65 %). | logs/verify-003.log | non |
 | 2026-10-04 | F01-S1 | décision | Le menu reste minimal pour F01-S1 : il conserve le titre « Mozaik » de T-001 (T-001-AC2) et ajoute le bouton « Nouveau board » ; le titre « Boards », la liste et les règles UI-MENU arrivent avec F01-S2. | apps/web/src/app/board-list-page.tsx | oui |
 | 2026-10-04 | F01-S1 | décision | La page board de F01-S1 n'affiche qu'un conteneur `board-canvas` vide : le stage Konva et la connexion Yjs arrivent avec T-003. | apps/web/src/app/board-page.tsx | oui |
 | 2026-10-04 | F01-S1 | adr | ADR-0012 : routage client minimal sans dépendance (`parsePath` pur, `navigate` sur l'API History, `useRoute` via `useSyncExternalStore`). | docs/adr/0012-routage-client-sans-dependance.md | oui |
