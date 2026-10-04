@@ -82,6 +82,8 @@ Un `Y.Doc` par board, contenant :
 - `elements : Y.Map<Y.Map<unknown>>` : clé = id de l'élément, valeur = `Y.Map` de ses propriétés (une propriété par clé, pour que deux utilisateurs modifiant deux propriétés différentes du même élément ne se gênent pas).
 - `meta : Y.Map` : version du schéma (`schemaVersion`).
 
+`updateElement` n'écrit que les propriétés présentes dans le patch (et les bornes dérivées d'une flèche quand ses extrémités changent) : deux utilisateurs qui déplacent et recolorient le même élément en même temps appliquent bien les deux modifications (F09-S1-AC2, ADR-0004).
+
 Propriétés communes à tous les éléments :
 
 | Propriété | Type | Notes |

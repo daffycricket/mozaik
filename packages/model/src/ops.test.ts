@@ -186,3 +186,41 @@ describe('[T-003-AC1] element operations', () => {
     doc.destroy();
   });
 });
+
+describe('[F09-S1-AC2] concurrent updates', () => {
+  test('[F09-S1-AC2] applies concurrent updates of two different properties', () => {
+    const docA = createBoardDoc();
+    const docB = createBoardDoc();
+    createElement(
+      docA,
+      { type: 'sticky', x: 0, y: 0, width: 200, height: 200 },
+      { id: 's1', createdBy: 'user-1' },
+    );
+    Y.applyUpdate(docB, Y.encodeStateAsUpdate(docA));
+
+    updateElement(docA, 's1', { x: 400 });
+    updateElement(docB, 's1', { color: 'red' });
+    Y.applyUpdate(docA, Y.encodeStateAsUpdate(docB));
+    Y.applyUpdate(docB, Y.encodeStateAsUpdate(docA));
+
+    expect(getElement(docA, 's1')).toMatchObject({ x: 400, color: 'red' });
+    expect(getElement(docB, 's1')).toMatchObject({ x: 400, color: 'red' });
+
+    docA.destroy();
+    docB.destroy();
+  });
+
+  test('[F09-S1-AC2] leaves untouched properties unchanged', () => {
+    const doc = createBoardDoc();
+    createElement(
+      doc,
+      { type: 'sticky', x: 0, y: 0, width: 200, height: 200, color: 'blue', text: 'idée' },
+      { id: 's1', createdBy: 'user-1' },
+    );
+
+    updateElement(doc, 's1', { x: 50 });
+
+    expect(getElement(doc, 's1')).toMatchObject({ x: 50, color: 'blue', text: 'idée' });
+    doc.destroy();
+  });
+});

@@ -196,7 +196,9 @@ export function createSticky(doc: Y.Doc, center: Point, options: CreateElementOp
 }
 
 /**
- * Updates the given properties of an element in a local transaction.
+ * Updates the given properties of an element in a local transaction. Only the
+ * patched properties are written, so two users editing two different properties
+ * of the same element concurrently both apply (F09-S1-AC2, ADR-0004).
  */
 export function updateElement(doc: Y.Doc, id: string, patch: ElementPatch): void {
   const map = elementsMap(doc);
@@ -206,17 +208,23 @@ export function updateElement(doc: Y.Doc, id: string, patch: ElementPatch): void
     return;
   }
   const candidate: Record<string, unknown> = { ...value.toJSON(), ...patch };
+  const keys = new Set(Object.keys(patch));
   if (candidate.type === 'arrow') {
     const x1 = typeof patch.x1 === 'number' ? patch.x1 : Number(candidate.x1);
     const y1 = typeof patch.y1 === 'number' ? patch.y1 : Number(candidate.y1);
     const x2 = typeof patch.x2 === 'number' ? patch.x2 : Number(candidate.x2);
     const y2 = typeof patch.y2 === 'number' ? patch.y2 : Number(candidate.y2);
     Object.assign(candidate, arrowBounds(x1, y1, x2, y2));
+    if (keys.has('x1') || keys.has('y1') || keys.has('x2') || keys.has('y2')) {
+      for (const derived of ['x', 'y', 'width', 'height']) {
+        keys.add(derived);
+      }
+    }
   }
   const element = elementSchema.parse(candidate);
   doc.transact(() => {
     for (const [key, field] of Object.entries(element)) {
-      if (key === 'id' || key === 'type' || key === 'createdBy') {
+      if (key === 'id' || key === 'type' || key === 'createdBy' || !keys.has(key)) {
         continue;
       }
       value.set(key, field);
