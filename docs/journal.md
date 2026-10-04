@@ -47,6 +47,9 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | T-006 | contrôle | Vérification indépendante de main @ 52ad014 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 93.47 %, branches 91.89 %). | logs/verify-006.log | non |
+| 2026-10-04 | T-006 | contrôle | Test hérité modifié : tooling/ac-check.test.ts, modification non justifiée (aucune entrée test au journal qui cite ce fichier ; ni ticket bug, ni spec modifiée dans la session, ni critère T-006-ACn cité dans l'entrée test). | session 006 (logs du run) | oui |
+| 2026-10-04 | T-006 | contrôle | Test hérité modifié : apps/web/src/testing/board-api.test.ts, modification non justifiée (aucune entrée test au journal qui cite ce fichier ; ni ticket bug, ni spec modifiée dans la session, ni critère T-006-ACn cité dans l'entrée test). | session 006 (logs du run) | oui |
 | 2026-10-04 | T-006 | décision | shadcn/ui sur Base UI : seul le composant `button` est ajouté, importé de `@base-ui/react/button`, et `cn` classique (`clsx` + `tailwind-merge`) vit dans `src/lib/utils.ts`. | apps/web/components.json, apps/web/src/components/ui/button.tsx | oui |
 | 2026-10-04 | T-006 | décision | Le thème shadcn/ui `neutral` est écrit explicitement dans `apps/web/src/index.css` (variables `:root` + `@theme inline`) au lieu d'être importé de `shadcn/tailwind.css`, car T-006-AC2 exige que ces variables soient déclarées dans ce fichier. | apps/web/src/index.css | oui |
 | 2026-10-04 | T-006 | décision | Le contrôle des couleurs en dur est un script maison (`tooling/check-colors.ts`) branché dans `pnpm lint` : il scanne `apps/web/src`, exempte `index.css`, `lib/theme-tokens.ts` et les fichiers de test ; la palette des éléments reste dans `packages/model`. | tooling/check-colors.ts, package.json | oui |
