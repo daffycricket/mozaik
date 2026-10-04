@@ -10,7 +10,7 @@ Position et dimensions de référence : `ecrans.md`. Apparence : shadcn/ui et je
 | Liste des boards | `board-list` | sur mesure | `role="list"`, bordure et coins du thème | |
 | Ligne de board | `board-item` | sur mesure | `role="listitem"` contenant un lien vers `/b/<id>` ; nom en gras, date relative en `text-muted-foreground` ; fond `bg-accent` au survol | Tab, Entrée |
 | Bouton Supprimer | `board-delete` | `button` (variante `ghost`, taille icône) | Icône `trash-2`, `text-destructive` au survol | Entrée, Espace |
-| État vide | `board-empty` | sur mesure | Message + bouton `board-create` | |
+| État vide | `board-empty` | sur mesure | Message + bouton `board-empty-create` | |
 | Dialogue de suppression | `delete-dialog` | `alert-dialog` | Boutons `delete-cancel` et `delete-confirm` (variante `destructive`) | focus piégé ; Échap = Annuler |
 
 ## Board

@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { CollabServer } from '../collab/server';
 import type { BoardDatabase } from '../db';
-import { createBoard, deleteBoard } from '../db/boards';
+import { createBoard, deleteBoard, getBoard, listBoards } from '../db/boards';
 import { notFoundError, validationError } from './errors';
 
 const createBoardSchema = z.object({
@@ -21,6 +21,20 @@ export function registerBoardRoutes(
   db: BoardDatabase,
   collab: CollabServer,
 ): void {
+  app.get('/api/boards', async () => listBoards(db));
+
+  app.get('/api/boards/:id', async (request, reply) => {
+    const parsed = boardParamsSchema.safeParse(request.params);
+    if (!parsed.success) {
+      return reply.code(404).send(notFoundError('Board not found'));
+    }
+    const board = getBoard(db, parsed.data.id);
+    if (board === null) {
+      return reply.code(404).send(notFoundError('Board not found'));
+    }
+    return board;
+  });
+
   app.post('/api/boards', async (request, reply) => {
     const parsed = createBoardSchema.safeParse(request.body);
     if (!parsed.success) {

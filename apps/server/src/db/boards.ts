@@ -24,6 +24,33 @@ export function createBoard(db: BoardDatabase, name: string): Board {
 }
 
 /**
+ * Lists every board, most recently modified first.
+ */
+export function listBoards(db: BoardDatabase): Board[] {
+  return db
+    .prepare(
+      `SELECT id, name, created_at AS createdAt, updated_at AS updatedAt
+       FROM boards
+       ORDER BY updated_at DESC`,
+    )
+    .all() as Board[];
+}
+
+/**
+ * Reads a board by id, or null when it does not exist.
+ */
+export function getBoard(db: BoardDatabase, id: string): Board | null {
+  const row = db
+    .prepare(
+      `SELECT id, name, created_at AS createdAt, updated_at AS updatedAt
+       FROM boards
+       WHERE id = ?`,
+    )
+    .get(id) as Board | undefined;
+  return row ?? null;
+}
+
+/**
  * Tells whether a board exists, used to guard collaboration connections.
  */
 export function boardExists(db: BoardDatabase, id: string): boolean {

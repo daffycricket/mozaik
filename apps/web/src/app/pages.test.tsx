@@ -55,6 +55,6 @@ describe('App routing', () => {
   test('defaults to the board list', () => {
     const html = renderToStaticMarkup(<App />);
 
-    expect(html).toContain('Mozaik');
+    expect(html).toContain('Boards');
   });
 });
