@@ -47,6 +47,8 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F02-S2 | contrôle | Vérification indépendante de main @ 9f7b2a0 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 86.79 %, branches 82.24 %). | logs/verify-013.log | non |
+| 2026-10-04 | F02-S2 | contrôle | Commit(s) non conforme(s) à process/git.md : 5708e57 « docs(plan): F02-S2#0 plan 1 step » (trailer Refs absent, trailer Plan-Step absent). | session 013 (logs du run) | oui |
 | 2026-10-04 | F02-S2 | décision | Zoom borné à 10 %–400 % (`MIN_ZOOM`/`MAX_ZOOM`) et par paliers géométriques (`ZOOM_STEP` = 1,2) ; `Ctrl`/`Cmd` + molette ancre le zoom sur le pointeur (`zoomViewport`), les boutons et raccourcis l'ancrent au centre du canvas. La molette sans modificateur reste le pan de F02-S1. | packages/model/src/viewport.ts, apps/web/src/canvas/use-zoom.ts | oui |
 | 2026-10-04 | F02-S2 | décision | La taille du canvas est publiée dans un store Zustand (`canvas-size-store`) par le `ResizeObserver` de `board-canvas.tsx`, pour ancrer le zoom des boutons et du clavier au centre du canvas sans requête DOM. | apps/web/src/state/canvas-size-store.ts | oui |
 | 2026-10-04 | F02-S2 | décision | Le zoom à la molette utilise `Math.exp(-deltaY × 0,002)` pour un zoom continu (pavé tactile et molette), et non un facteur fixe par cran. | apps/web/src/canvas/use-zoom.ts | oui |
