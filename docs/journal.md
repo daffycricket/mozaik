@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | RUN | run | Fin du run après 7 session(s) : nombre maximal de sessions atteint (7, dont 3 après la reprise). | RUN-SUMMARY.md | oui |
 | 2026-10-04 | F10-S1 | contrôle | Vérification indépendante de main @ e7b33c3 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 87.74 %, branches 85.43 %). | logs/verify-007.log | non |
 | 2026-10-04 | F10-S1 | contrôle | Rejeu : l'ancienne version de tooling/design-system.test.ts échoue sur le nouveau code sans changement de comportement justifié (ni ticket bug, ni spec modifiée, ni critère du ticket cité au journal). Régression probablement masquée en modifiant le test. | session 007 (logs du run) | oui |
 | 2026-10-04 | F10-S1 | contrôle | Rejeu : l'ancienne version de apps/web/src/app/pages.test.tsx échoue sur le nouveau code ; changement de comportement justifié (critère F10-S1-ACn cité). | session 007 (logs du run) | oui |

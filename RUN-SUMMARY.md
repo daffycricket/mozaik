@@ -15,6 +15,12 @@
 - end=2026-10-04T11:14:20+00:00
 - sessions=4
 - stop_reason=nombre maximal de sessions atteint (4, dont 1 après la reprise)
+- resumed=2026-10-04T12:11:52Z
+- runner_commit=95d021c
+- resume_sessions=3
+- end=2026-10-04T13:16:13+00:00
+- sessions=7
+- stop_reason=nombre maximal de sessions atteint (7, dont 3 après la reprise)
 
 ## Consommation
 
@@ -24,7 +30,10 @@
 | 2 | 2026-10-04T08:28:15+00:00 | 2280 | 0 | T-002 | 167823 | 37387 | 49736 | 16933230 | 0 | 0.5516 |
 | 3 | 2026-10-04T09:06:26+00:00 | 1140 | 0 | F01-S1 | 109766 | 14568 | 29382 | 6186050 | 0 | 0.216 |
 | 4 | 2026-10-04T10:39:10+00:00 | 2101 | 0 | T-003 | 245710 | 33750 | 60926 | 23115834 | 0 | 0.7409 |
-| **Total** | | 6871 | | | 647889 | 106180 | 182181 | 52877346 | 0 | 1.7507 |
+| 5 | 2026-10-04T12:11:56+00:00 | 1380 | 0 | T-004 | 125243 | 15800 | 33706 | 6206258 | 0 | 0.2223 |
+| 6 | 2026-10-04T12:35:10+00:00 | 1290 | 0 | T-006 | 163820 | 27571 | 42444 | 11218328 | 0 | 0.3807 |
+| 7 | 2026-10-04T12:56:54+00:00 | 1140 | 0 | F10-S1 | 146547 | 17102 | 36157 | 8980942 | 0 | 0.3054 |
+| **Total** | | 10681 | | | 1083499 | 166653 | 294488 | 79282874 | 0 | 2.6591 |
 
 Coûts calculés par OpenCode à partir des tarifs connus du modèle (0 si le tarif n'est pas renseigné dans `opencode.json`).
 
@@ -45,21 +54,33 @@ Coûts calculés par OpenCode à partir des tarifs connus du modèle (0 si le ta
 | contrôle | T-003 | Test hérité modifié : e2e/create-board.spec.ts, modification non justifiée (aucune spec modifiée dans la session). | oui |
 | contrôle | T-003 | Vérification indépendante de main @ ce0d7ba réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 93.58 %, branches 93.81 %). | non |
 | run | RUN | Fin du run après 4 session(s) : nombre maximal de sessions atteint (4, dont 1 après la reprise). | oui |
+| run | RUN | Reprise du run : sessions 5 à 7, outillage @ 95d021c. | non |
+| contrôle | T-004 | Test hérité modifié : tooling/report.test.ts, modification non justifiée (aucune entrée test au journal qui cite ce fichier ; ni ticket bug, ni spec modifiée dans la session, ni critère T-004-ACn cité dans l'entrée test). | oui |
+| contrôle | T-004 | Vérification indépendante de main @ 85b9384 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 93.58 %, branches 93.81 %). | non |
+| contrôle | T-006 | Test hérité modifié : apps/web/src/testing/board-api.test.ts, modification non justifiée (aucune entrée test au journal qui cite ce fichier ; ni ticket bug, ni spec modifiée dans la session, ni critère T-006-ACn cité dans l'entrée test). | oui |
+| contrôle | T-006 | Test hérité modifié : tooling/ac-check.test.ts, modification non justifiée (aucune entrée test au journal qui cite ce fichier ; ni ticket bug, ni spec modifiée dans la session, ni critère T-006-ACn cité dans l'entrée test). | oui |
+| contrôle | T-006 | Vérification indépendante de main @ 52ad014 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 93.47 %, branches 91.89 %). | non |
+| contrôle | F10-S1 | Test hérité modifié : apps/web/src/app/pages.test.tsx, modification justifiée (entrée test au journal, critère F10-S1-ACn cité) ; 1 test(s) disparu(s) : « renders the board canvas on a board route ». | oui |
+| contrôle | F10-S1 | Test hérité modifié : tooling/design-system.test.ts, modification non justifiée (ni ticket bug, ni spec modifiée dans la session, ni critère F10-S1-ACn cité dans l'entrée test) ; 1 test(s) disparu(s) : « [T-006-AC1] adds only the button component, built  ». | oui |
+| contrôle | F10-S1 | Rejeu : l'ancienne version de apps/web/src/app/pages.test.tsx échoue sur le nouveau code ; changement de comportement justifié (critère F10-S1-ACn cité). | oui |
+| contrôle | F10-S1 | Rejeu : l'ancienne version de tooling/design-system.test.ts échoue sur le nouveau code sans changement de comportement justifié (ni ticket bug, ni spec modifiée, ni critère du ticket cité au journal). Régression probablement masquée en modifiant le test. | oui |
+| contrôle | F10-S1 | Vérification indépendante de main @ e7b33c3 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 87.74 %, branches 85.43 %). | non |
+| run | RUN | Fin du run après 7 session(s) : nombre maximal de sessions atteint (7, dont 3 après la reprise). | oui |
 
-Totaux : contrôle 10, run 3.
+Totaux : contrôle 20, run 5.
 
 ## Tickets (backlog de main)
-- done : 4
+- done : 7
 - in-progress : 0
 - blocked : 0
-- todo : 29
+- todo : 26
 
 ## Journal
-- entrées à revoir : 25
+- entrées à revoir : 49
 
 ## Git
-- commits sur main : 28
-- branche publiée : main @ 3194d7b
+- commits sur main : 38
+- branche publiée : main @ 4fc5651
 
 ## Sessions
 ```
@@ -90,6 +111,26 @@ Fin du run. Synthèse : RUN-SUMMARY.md
    publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 3194d7b
 Arrêt : nombre maximal de sessions atteint (4, dont 1 après la reprise)
    journal : 1 événement(s) (run)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 35f299d
+Fin du run. Synthèse : RUN-SUMMARY.md
+== reprise 2026-10-04T12:11:56+00:00 : sessions 5 à 7, outillage @ 95d021c, branche main, main=35f299d
+== session 5 2026-10-04T12:11:56+00:00 main=35f299d
+   exit=0 durée=1380s ticket=T-004 tokens in=125243 out=15800 reasoning=33706 cache_read=6206258 cache_write=0 coût=0.2223 USD
+   vérification indépendante : réussie
+   journal : 3 événement(s) (run, contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 12c7618
+== session 6 2026-10-04T12:35:10+00:00 main=12c7618
+   exit=0 durée=1290s ticket=T-006 tokens in=163820 out=27571 reasoning=42444 cache_read=11218328 cache_write=0 coût=0.3807 USD
+   vérification indépendante : réussie
+   journal : 3 événement(s) (contrôle, contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 8541135
+== session 7 2026-10-04T12:56:54+00:00 main=8541135
+   exit=0 durée=1140s ticket=F10-S1 tokens in=146547 out=17102 reasoning=36157 cache_read=8980942 cache_write=0 coût=0.3054 USD
+   vérification indépendante : réussie
+   journal : 5 événement(s) (contrôle, contrôle, contrôle, contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 4fc5651
+Arrêt : nombre maximal de sessions atteint (7, dont 3 après la reprise)
+   journal : 1 événement(s) (run)
 ```
 
 ## opencode stats
@@ -97,21 +138,21 @@ Arrêt : nombre maximal de sessions atteint (4, dont 1 après la reprise)
 ┌────────────────────────────────────────────────────────┐
 │                       OVERVIEW                         │
 ├────────────────────────────────────────────────────────┤
-│Sessions                                              4 │
-│Messages                                            461 │
+│Sessions                                              7 │
+│Messages                                            726 │
 │Days                                                  1 │
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
 │                    COST & TOKENS                       │
 ├────────────────────────────────────────────────────────┤
-│Total Cost                                        $1.75 │
-│Avg Cost/Day                                      $1.75 │
-│Avg Tokens/Session                                13.5M │
-│Median Tokens/Session                             12.0M │
-│Input                                            647.9K │
-│Output                                           106.2K │
-│Cache Read                                        52.9M │
+│Total Cost                                        $2.66 │
+│Avg Cost/Day                                      $2.66 │
+│Avg Tokens/Session                                11.5M │
+│Median Tokens/Session                              9.2M │
+│Input                                              1.1M │
+│Output                                           166.7K │
+│Cache Read                                        79.3M │
 │Cache Write                                           0 │
 └────────────────────────────────────────────────────────┘
 
@@ -119,23 +160,23 @@ Arrêt : nombre maximal de sessions atteint (4, dont 1 après la reprise)
 │                      MODEL USAGE                       │
 ├────────────────────────────────────────────────────────┤
 │ umans/umans-deepseek-v4.1-flash                        │
-│  Messages                                          457 │
-│  Input Tokens                                   647.9K │
-│  Output Tokens                                  288.4K │
-│  Cache Read                                      52.9M │
+│  Messages                                          719 │
+│  Input Tokens                                     1.1M │
+│  Output Tokens                                  461.1K │
+│  Cache Read                                      79.3M │
 │  Cache Write                                         0 │
-│  Cost                                          $1.7508 │
+│  Cost                                          $2.6591 │
 ├────────────────────────────────────────────────────────┤
 [1A└────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
 │                      TOOL USAGE                        │
 ├────────────────────────────────────────────────────────┤
-│ bash               ████████████████████ 226 (34.9%)    │
-│ read               ██████████████████   205 (31.6%)    │
-│ write              ██████████           120 (18.5%)    │
-│ edit               ████████              95 (14.7%)    │
-│ todowrite          █                      2 ( 0.3%)    │
+│ read               ████████████████████ 364 (35.4%)    │
+│ bash               ██████████████████   345 (33.6%)    │
+│ edit               ████████             158 (15.4%)    │
+│ write              ████████             153 (14.9%)    │
+│ todowrite          █                      8 ( 0.8%)    │
 └────────────────────────────────────────────────────────┘
 
 ```
