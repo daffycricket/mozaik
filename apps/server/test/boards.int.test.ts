@@ -111,6 +111,83 @@ describe('[F01-S2-AC1] board list API', () => {
   });
 });
 
+describe('[F01-S3-AC1] board rename API', () => {
+  let server: TestServer;
+
+  beforeAll(async () => {
+    server = await startTestServer('test');
+  });
+
+  afterAll(async () => {
+    await server.close();
+  });
+
+  async function createNamedBoard(name: string): Promise<BoardBody> {
+    const response = await fetch(`${server.baseUrl}/api/boards`, {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({ name }),
+    });
+    return (await response.json()) as BoardBody;
+  }
+
+  test('[F01-S3-AC1] renames a board and returns its updated metadata', async () => {
+    const board = await createNamedBoard('Rétro S12');
+
+    const response = await fetch(`${server.baseUrl}/api/boards/${board.id}`, {
+      method: 'PATCH',
+      headers: jsonHeaders,
+      body: JSON.stringify({ name: 'Atelier vision' }),
+    });
+
+    expect(response.status).toBe(200);
+    const renamed = (await response.json()) as BoardBody;
+    expect(renamed.id).toBe(board.id);
+    expect(renamed.name).toBe('Atelier vision');
+    expect(renamed.updatedAt >= board.updatedAt).toBe(true);
+  });
+
+  test('[F01-S3-AC1] trims the surrounding spaces of the new name', async () => {
+    const board = await createNamedBoard('Rétro S12');
+
+    const response = await fetch(`${server.baseUrl}/api/boards/${board.id}`, {
+      method: 'PATCH',
+      headers: jsonHeaders,
+      body: JSON.stringify({ name: '  Atelier vision  ' }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(((await response.json()) as BoardBody).name).toBe('Atelier vision');
+  });
+
+  test('[F01-S3-AC3] rejects an empty name and keeps the previous one', async () => {
+    const board = await createNamedBoard('Rétro S12');
+
+    const response = await fetch(`${server.baseUrl}/api/boards/${board.id}`, {
+      method: 'PATCH',
+      headers: jsonHeaders,
+      body: JSON.stringify({ name: '   ' }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({ error: { code: 'VALIDATION_ERROR' } });
+
+    const read = await fetch(`${server.baseUrl}/api/boards/${board.id}`);
+    expect(((await read.json()) as BoardBody).name).toBe('Rétro S12');
+  });
+
+  test('returns 404 for an unknown board', async () => {
+    const response = await fetch(`${server.baseUrl}/api/boards/inexistant`, {
+      method: 'PATCH',
+      headers: jsonHeaders,
+      body: JSON.stringify({ name: 'Atelier vision' }),
+    });
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toMatchObject({ error: { code: 'NOT_FOUND' } });
+  });
+});
+
 describe('[F01-S2-AC3] board read API', () => {
   let server: TestServer;
 

@@ -14,11 +14,11 @@ const board: Board = {
   updatedAt: '2026-10-04T00:00:00.000Z',
 };
 
-const handlers = { onEnter: () => {}, onBack: () => {} };
+const handlers = { onEnter: () => {}, onBack: () => {}, onRename: () => {} };
 
 describe('BoardShell', () => {
   test('renders the boards link and the board name above the canvas', () => {
-    const html = renderToStaticMarkup(<BoardShell name="Rétro S12" />);
+    const html = renderToStaticMarkup(<BoardShell name="Rétro S12" onRename={() => {}} />);
 
     expect(html).toContain('data-testid="board-header"');
     expect(html).toContain('data-testid="nav-boards"');

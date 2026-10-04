@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { createBoard, getBoard, listBoards, resetBoards } from './boards';
+import { createBoard, getBoard, listBoards, renameBoard, resetBoards } from './boards';
 import { openDatabase } from './index';
 
 function insertBoard(
@@ -61,6 +61,27 @@ describe('[F01-S2-AC1] board list store', () => {
       updatedAt: '2026-10-04T10:00:00.000Z',
     });
     expect(getBoard(db, 'missing')).toBeNull();
+    db.close();
+  });
+});
+
+describe('[F01-S3-AC1] board rename store', () => {
+  test('[F01-S3-AC1] renames a board and refreshes its modification date', () => {
+    const db = openDatabase(':memory:');
+    insertBoard(db, 'board-1', 'Rétro S12', '2026-10-01T10:00:00.000Z');
+
+    const renamed = renameBoard(db, 'board-1', 'Atelier vision');
+
+    expect(renamed?.name).toBe('Atelier vision');
+    expect(renamed?.updatedAt).not.toBe('2026-10-01T10:00:00.000Z');
+    expect(getBoard(db, 'board-1')?.name).toBe('Atelier vision');
+    db.close();
+  });
+
+  test('returns null when the board does not exist', () => {
+    const db = openDatabase(':memory:');
+
+    expect(renameBoard(db, 'missing', 'Atelier vision')).toBeNull();
     db.close();
   });
 });

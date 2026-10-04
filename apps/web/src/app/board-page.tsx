@@ -11,7 +11,9 @@ import {
 } from '@/identity/identity';
 import { NameDialog } from '@/identity/name-dialog';
 import { type BoardRead, readBoard } from '@/lib/board-read';
+import { renameBoard } from '@/lib/boards-api';
 import { createBoardApi, exposeBoardApi } from '@/testing/board-api';
+import { BoardName } from './board-name';
 import { BoardNotFound } from './board-not-found';
 import { navigate } from './routes';
 
@@ -21,6 +23,7 @@ type BoardScreenProps = {
   boardId: string;
   onEnter: (name: string) => void;
   onBack: () => void;
+  onRename: (name: string) => void;
 };
 
 /**
@@ -34,6 +37,7 @@ export function BoardScreen({
   boardId,
   onEnter,
   onBack,
+  onRename,
 }: BoardScreenProps): ReactNode {
   if (read.status === 'missing') {
     return <BoardNotFound />;
@@ -44,7 +48,7 @@ export function BoardScreen({
   if (identity === null) {
     return <NameDialog onSubmit={onEnter} onBack={onBack} />;
   }
-  return <BoardView boardId={boardId} name={read.board.name} />;
+  return <BoardView boardId={boardId} name={read.board.name} onRename={onRename} />;
 }
 
 /**
@@ -75,6 +79,16 @@ export function BoardPage({ boardId }: { boardId: string }) {
     setIdentity(next);
   }
 
+  function rename(name: string): void {
+    void renameBoard(boardId, name)
+      .then((board) => {
+        setRead({ status: 'found', board });
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+      });
+  }
+
   return (
     <BoardScreen
       read={read}
@@ -82,24 +96,33 @@ export function BoardPage({ boardId }: { boardId: string }) {
       boardId={boardId}
       onEnter={enter}
       onBack={() => navigate('/')}
+      onRename={rename}
     />
   );
 }
 
-function BoardView({ boardId, name }: { boardId: string; name: string }) {
+function BoardView({
+  boardId,
+  name,
+  onRename,
+}: {
+  boardId: string;
+  name: string;
+  onRename: (name: string) => void;
+}) {
   const { doc, provider } = useBoardConnection(boardId);
 
   useEffect(() => {
     exposeBoardApi(createBoardApi({ doc, provider }));
   }, [doc, provider]);
 
-  return <BoardShell name={name} />;
+  return <BoardShell name={name} onRename={onRename} />;
 }
 
 /**
  * Board chrome: the header with the boards link and the board name, above the canvas.
  */
-export function BoardShell({ name }: { name: string }) {
+export function BoardShell({ name, onRename }: { name: string; onRename: (name: string) => void }) {
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <header
@@ -115,9 +138,7 @@ export function BoardShell({ name }: { name: string }) {
           <ArrowLeft aria-hidden="true" />
           Boards
         </Button>
-        <span data-testid="board-name" className="truncate font-semibold">
-          {name}
-        </span>
+        <BoardName name={name} onRename={onRename} />
       </header>
       <div className="relative min-h-0 flex-1">
         <BoardCanvas />

@@ -51,6 +51,20 @@ export function getBoard(db: BoardDatabase, id: string): Board | null {
 }
 
 /**
+ * Renames a board and refreshes its modification date. Returns null when the
+ * board does not exist.
+ */
+export function renameBoard(db: BoardDatabase, id: string, name: string): Board | null {
+  const result = db
+    .prepare('UPDATE boards SET name = ?, updated_at = ? WHERE id = ?')
+    .run(name, new Date().toISOString(), id);
+  if (result.changes === 0) {
+    return null;
+  }
+  return getBoard(db, id);
+}
+
+/**
  * Tells whether a board exists, used to guard collaboration connections.
  */
 export function boardExists(db: BoardDatabase, id: string): boolean {

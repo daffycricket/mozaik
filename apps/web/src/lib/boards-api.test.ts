@@ -5,6 +5,9 @@ import {
   DEFAULT_BOARD_NAME,
   getBoard,
   listBoards,
+  nextBoardName,
+  renameBoard,
+  validateBoardName,
 } from './boards-api';
 
 const board = {
@@ -68,6 +71,66 @@ describe('listBoards', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 500 })));
 
     await expect(listBoards()).rejects.toThrow('500');
+  });
+});
+
+describe('validateBoardName', () => {
+  test('accepts a trimmed name and returns the trimmed value', () => {
+    expect(validateBoardName('  Atelier vision  ')).toEqual({ ok: true, name: 'Atelier vision' });
+  });
+
+  test('rejects an empty or whitespace-only name', () => {
+    expect(validateBoardName('')).toEqual({ ok: false });
+    expect(validateBoardName('   ')).toEqual({ ok: false });
+  });
+
+  test('rejects a name longer than 100 characters', () => {
+    expect(validateBoardName('a'.repeat(101))).toEqual({ ok: false });
+  });
+});
+
+describe('nextBoardName', () => {
+  test('returns the trimmed name when it is valid and different', () => {
+    expect(nextBoardName('Rétro S12', '  Atelier vision ')).toBe('Atelier vision');
+  });
+
+  test('ignores an invalid name', () => {
+    expect(nextBoardName('Rétro S12', '   ')).toBeNull();
+  });
+
+  test('ignores a name identical to the current one', () => {
+    expect(nextBoardName('Rétro S12', ' Rétro S12 ')).toBeNull();
+  });
+});
+
+describe('renameBoard', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test('[F01-S3-AC1] patches the name and returns the updated board', async () => {
+    const renamed = { ...board, name: 'Atelier vision' };
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(renamed), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await renameBoard(board.id, 'Atelier vision');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/boards/${board.id}`,
+      expect.objectContaining({ method: 'PATCH' }),
+    );
+    expect(result).toEqual(renamed);
+  });
+
+  test('throws when the server rejects the rename', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 400 })));
+
+    await expect(renameBoard(board.id, '')).rejects.toThrow('400');
   });
 });
 
