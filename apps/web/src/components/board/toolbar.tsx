@@ -1,10 +1,11 @@
-import { Hand, MousePointer2 } from 'lucide-react';
+import { Hand, MousePointer2, StickyNote } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { type Tool, useToolStore } from '@/state/tool-store';
 
 const TOOLS: Array<{ tool: Tool; label: string; Icon: typeof MousePointer2 }> = [
   { tool: 'select', label: 'Sélection (V)', Icon: MousePointer2 },
   { tool: 'hand', label: 'Main (H)', Icon: Hand },
+  { tool: 'sticky', label: 'Post-it (N)', Icon: StickyNote },
 ];
 
 /**

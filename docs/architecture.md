@@ -31,16 +31,16 @@ apps/
   web/            Front React + Vite + Konva
     src/
       app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`)
-      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
+      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), cadre de sélection (`selection-overlay.tsx`), création de post-its (`use-create.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
       tools/      Raccourcis clavier (`shortcuts.ts`) ; les outils eux-mêmes arrivent avec leurs stories
       identity/   Identité locale (`identity.ts`, `localStorage`) et dialogue de nom
       components/
         ui/       Composants shadcn/ui copiés dans le dépôt (ADR-0011) : `button`, `dialog`, `input`, `label`, `toggle-group`
-        board/    Composants du projet : `toolbar.tsx`, `zoom-controls.tsx` ; barre contextuelle et dialogues à venir
+        board/    Composants du projet : `toolbar.tsx`, `zoom-controls.tsx`, `text-editor.tsx` ; barre contextuelle et dialogues à venir
       lib/        `utils.ts` (`cn` de shadcn/ui), `theme-tokens.ts` (jetons de la charte exposés au canvas), client REST (`boards-api.ts`)
       index.css   Thème : import Tailwind, variables shadcn/ui `neutral`, jetons du projet
-      state/      Stores Zustand (UI locale uniquement) : `viewport-store.ts` (viewport, pan et zoom), `tool-store.ts` (outil actif), `canvas-size-store.ts` (taille du canvas, ancre du zoom)
-      collab/     Connexion Hocuspocus, awareness (curseurs)
+      state/      Stores Zustand (UI locale uniquement) : `viewport-store.ts` (viewport, pan et zoom), `tool-store.ts` (outil actif), `canvas-size-store.ts` (taille du canvas, ancre du zoom), `selection-store.ts` (sélection), `editing-store.ts` (élément en édition)
+      collab/     Connexion Hocuspocus, awareness (curseurs), contexte du document (`board-doc-context.ts`)
       testing/    Exposition de window.__board en mode VITE_E2E, dont `getOverlayBoxes()`
   server/         Fastify + Hocuspocus
     src/
@@ -54,7 +54,8 @@ packages/
     src/
       schema.ts       Types et validation (zod) des éléments, palette de couleurs
       doc.ts          Création/accès au Y.Doc d'un board
-      ops.ts          Opérations : createElement, updateElement, deleteElements, LOCAL_ORIGIN
+      ops.ts          Opérations : createElement, createSticky, updateElement, deleteElements, LOCAL_ORIGIN
+      geometry.ts     Boîte englobante (`unionBounds`)
       viewport.ts     Conversions coordonnées monde ↔ écran
   config/         Configs partagées (tsconfig, biome)
 tooling/          Outillage du dépôt (validateur de message de commit)

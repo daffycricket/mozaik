@@ -1,7 +1,16 @@
+import { unionBounds } from '@mozaik/model';
 import { useEffect, useRef } from 'react';
 import { Layer, Stage } from 'react-konva';
+import { useBoardDoc } from '@/collab/board-doc-context';
+import { TextEditor } from '@/components/board/text-editor';
 import { useCanvasSizeStore } from '@/state/canvas-size-store';
+import { useEditingStore } from '@/state/editing-store';
+import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
+import { BoardElements } from './board-elements';
+import { SelectionOverlay } from './selection-overlay';
+import { useCreateSticky } from './use-create';
+import { useElements } from './use-elements';
 import { usePan } from './use-pan';
 import { useWheelZoom } from './use-zoom';
 
@@ -9,15 +18,20 @@ const GRID_STEP = 32;
 
 /**
  * Konva stage of the board, sized to fill its container. The dot grid follows
- * the local viewport (pan and zoom); the element rendering itself lands with
- * the element stories.
+ * the local viewport (pan and zoom); the elements are rendered in world
+ * coordinates inside a layer scaled by the zoom.
  */
 export function BoardCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const doc = useBoardDoc();
   const size = useCanvasSizeStore((state) => state.size);
   const setSize = useCanvasSizeStore((state) => state.setSize);
   const viewport = useViewportStore((state) => state.viewport);
+  const selection = useSelectionStore((state) => state.selection);
+  const editingId = useEditingStore((state) => state.editingId);
+  const elements = useElements(doc);
   const pan = usePan(containerRef);
+  useCreateSticky(containerRef, doc);
   useWheelZoom(containerRef);
 
   useEffect(() => {
@@ -36,6 +50,21 @@ export function BoardCanvas() {
     };
   }, [setSize]);
 
+  const selected = elements.filter((element) => selection.includes(element.id));
+  const selectionBox = unionBounds(
+    selected.map((element) => ({
+      x: element.x,
+      y: element.y,
+      width: element.width,
+      height: element.height,
+    })),
+  );
+  const edited = elements.find((element) => element.id === editingId);
+  const editable =
+    doc !== null && edited !== undefined && (edited.type === 'sticky' || edited.type === 'text')
+      ? edited
+      : null;
+
   const gridSize = GRID_STEP * viewport.zoom;
   const gridStyle = {
     backgroundColor: 'var(--canvas-bg)',
@@ -48,7 +77,7 @@ export function BoardCanvas() {
     <div
       ref={containerRef}
       data-testid="board-canvas"
-      className="h-full w-full overflow-hidden"
+      className="relative h-full w-full overflow-hidden"
       style={gridStyle}
       onPointerDown={pan.onPointerDown}
       onPointerMove={pan.onPointerMove}
@@ -56,8 +85,17 @@ export function BoardCanvas() {
       onPointerCancel={pan.onPointerUp}
     >
       <Stage width={size.width} height={size.height}>
-        <Layer />
+        <Layer
+          x={-viewport.x * viewport.zoom}
+          y={-viewport.y * viewport.zoom}
+          scaleX={viewport.zoom}
+          scaleY={viewport.zoom}
+        >
+          <BoardElements elements={elements} />
+          {selectionBox !== null && <SelectionOverlay box={selectionBox} zoom={viewport.zoom} />}
+        </Layer>
       </Stage>
+      {doc !== null && editable !== null && <TextEditor doc={doc} element={editable} />}
     </div>
   );
 }

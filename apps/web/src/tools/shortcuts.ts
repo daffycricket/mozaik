@@ -4,7 +4,7 @@ import { useCanvasSizeStore } from '@/state/canvas-size-store';
 import { type Tool, useToolStore } from '@/state/tool-store';
 import { useViewportStore } from '@/state/viewport-store';
 
-const TOOL_KEYS: Record<string, Tool> = { v: 'select', h: 'hand' };
+const TOOL_KEYS: Record<string, Tool> = { v: 'select', h: 'hand', n: 'sticky' };
 
 function isTextEditingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {

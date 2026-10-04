@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { BoardCanvas } from '@/canvas/board-canvas';
+import { BoardDocContext } from '@/collab/board-doc-context';
 import { useBoardConnection } from '@/collab/use-board-connection';
 import { Toolbar } from '@/components/board/toolbar';
 import { ZoomControls } from '@/components/board/zoom-controls';
@@ -14,6 +15,7 @@ import {
 import { NameDialog } from '@/identity/name-dialog';
 import { type BoardRead, readBoard } from '@/lib/board-read';
 import { renameBoard } from '@/lib/boards-api';
+import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
 import { createBoardApi, exposeBoardApi } from '@/testing/board-api';
 import { useToolShortcuts, useZoomShortcuts } from '@/tools/shortcuts';
@@ -130,15 +132,16 @@ function BoardView({
         doc,
         provider,
         getViewport: () => useViewportStore.getState().viewport,
+        getSelection: () => useSelectionStore.getState().selection,
       }),
     );
   }, [doc, provider]);
 
   return (
-    <>
+    <BoardDocContext.Provider value={doc}>
       <BoardShell name={name} onRename={onRename} />
       {isDeleted && <BoardDeleted />}
-    </>
+    </BoardDocContext.Provider>
   );
 }
 

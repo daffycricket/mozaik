@@ -37,6 +37,27 @@ export const PALETTE_COLORS = [
 export const paletteColorSchema = z.enum(PALETTE_COLORS);
 export type PaletteColor = z.infer<typeof paletteColorSchema>;
 
+/**
+ * Default size of a sticky note, in world units (F03).
+ */
+export const STICKY_DEFAULT_SIZE = 200;
+
+/**
+ * Default font size of a sticky note at 100 % zoom (F03).
+ */
+export const STICKY_FONT_SIZE = 20;
+
+const STICKY_TEXT_COLOR = '#111827';
+const STICKY_TEXT_COLOR_ON_BLACK = '#FFFFFF';
+
+/**
+ * Text colour of a sticky note: dark by default, white on a black note so the
+ * contrast stays readable (F03).
+ */
+export function stickyTextColor(color: PaletteColor): string {
+  return color === 'black' ? STICKY_TEXT_COLOR_ON_BLACK : STICKY_TEXT_COLOR;
+}
+
 export const ELEMENT_TYPES = ['sticky', 'rect', 'ellipse', 'text', 'arrow'] as const;
 export const elementTypeSchema = z.enum(ELEMENT_TYPES);
 export type ElementType = z.infer<typeof elementTypeSchema>;

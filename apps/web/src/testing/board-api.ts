@@ -2,9 +2,11 @@ import type { HocuspocusProvider } from '@hocuspocus/provider';
 import {
   type BoardDoc,
   DEFAULT_VIEWPORT,
+  getElement,
   getElements,
   type Point,
   screenToWorld,
+  unionBounds,
   type Viewport,
   worldToScreen,
 } from '@mozaik/model';
@@ -80,6 +82,7 @@ export type BoardApiDependencies = {
   doc: BoardDoc;
   provider: HocuspocusProvider | null;
   getViewport?: () => Viewport;
+  getSelection?: () => string[];
 };
 
 /**
@@ -96,15 +99,30 @@ export function createBoardApi({
   doc,
   provider,
   getViewport = () => DEFAULT_VIEWPORT,
+  getSelection = () => [],
 }: BoardApiDependencies): BoardApi {
   return {
     getElements: () => getElements(doc),
     getViewport,
     worldToScreen: (point) => worldToScreen(getViewport(), point),
     screenToWorld: (point) => screenToWorld(getViewport(), point),
-    getSelection: () => [],
-    getOverlayBoxes: () =>
-      computeOverlayBoxes({ viewport: getViewport(), selection: null, cursors: [] }),
+    getSelection: () => [...getSelection()],
+    getOverlayBoxes: () => {
+      const boxes = getSelection()
+        .map((id) => getElement(doc, id))
+        .filter((element) => element !== undefined)
+        .map((element) => ({
+          x: element.x,
+          y: element.y,
+          width: element.width,
+          height: element.height,
+        }));
+      return computeOverlayBoxes({
+        viewport: getViewport(),
+        selection: unionBounds(boxes),
+        cursors: [],
+      });
+    },
     getPeers: () => {
       const awareness = provider?.awareness;
       if (awareness == null) {
