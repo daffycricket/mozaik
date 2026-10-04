@@ -26,3 +26,15 @@ export function screenToWorld(viewport: Viewport, point: Point): Point {
     y: point.y / viewport.zoom + viewport.y,
   };
 }
+
+/**
+ * Moves the viewport by a screen-space delta so the content follows the pointer:
+ * a positive delta (drag to the right) decreases the world origin of the screen.
+ */
+export function panViewport(viewport: Viewport, screenDelta: Point): Viewport {
+  return {
+    x: viewport.x - screenDelta.x / viewport.zoom,
+    y: viewport.y - screenDelta.y / viewport.zoom,
+    zoom: viewport.zoom,
+  };
+}

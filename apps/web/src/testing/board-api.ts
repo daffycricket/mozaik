@@ -79,6 +79,7 @@ export function computeOverlayBoxes(input: {
 export type BoardApiDependencies = {
   doc: BoardDoc;
   provider: HocuspocusProvider | null;
+  getViewport?: () => Viewport;
 };
 
 /**
@@ -91,15 +92,19 @@ export function isE2E(): boolean {
 /**
  * Builds the read-only board API exposed to end-to-end tests.
  */
-export function createBoardApi({ doc, provider }: BoardApiDependencies): BoardApi {
+export function createBoardApi({
+  doc,
+  provider,
+  getViewport = () => DEFAULT_VIEWPORT,
+}: BoardApiDependencies): BoardApi {
   return {
     getElements: () => getElements(doc),
-    getViewport: () => DEFAULT_VIEWPORT,
-    worldToScreen: (point) => worldToScreen(DEFAULT_VIEWPORT, point),
-    screenToWorld: (point) => screenToWorld(DEFAULT_VIEWPORT, point),
+    getViewport,
+    worldToScreen: (point) => worldToScreen(getViewport(), point),
+    screenToWorld: (point) => screenToWorld(getViewport(), point),
     getSelection: () => [],
     getOverlayBoxes: () =>
-      computeOverlayBoxes({ viewport: DEFAULT_VIEWPORT, selection: null, cursors: [] }),
+      computeOverlayBoxes({ viewport: getViewport(), selection: null, cursors: [] }),
     getPeers: () => {
       const awareness = provider?.awareness;
       if (awareness == null) {

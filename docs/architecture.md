@@ -31,15 +31,15 @@ apps/
   web/            Front React + Vite + Konva
     src/
       app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`)
-      canvas/     Composants Konva, gestion des événements pointeur
-      tools/      Outils (select, hand, sticky, rect, ellipse, text, arrow)
+      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), pan (`use-pan.ts`)
+      tools/      Raccourcis clavier (`shortcuts.ts`) ; les outils eux-mêmes arrivent avec leurs stories
       identity/   Identité locale (`identity.ts`, `localStorage`) et dialogue de nom
       components/
-        ui/       Composants shadcn/ui copiés dans le dépôt (ADR-0011) : `button`, `dialog`, `input`, `label`
-        board/    Composants du projet : en-tête, barre d'outils, barre contextuelle, zoom, dialogues
+        ui/       Composants shadcn/ui copiés dans le dépôt (ADR-0011) : `button`, `dialog`, `input`, `label`, `toggle-group`
+        board/    Composants du projet : `toolbar.tsx` ; barre contextuelle, zoom et dialogues à venir
       lib/        `utils.ts` (`cn` de shadcn/ui), `theme-tokens.ts` (jetons de la charte exposés au canvas), client REST (`boards-api.ts`)
       index.css   Thème : import Tailwind, variables shadcn/ui `neutral`, jetons du projet
-      state/      Stores Zustand (UI locale uniquement)
+      state/      Stores Zustand (UI locale uniquement) : `viewport-store.ts` (viewport), `tool-store.ts` (outil actif)
       collab/     Connexion Hocuspocus, awareness (curseurs)
       testing/    Exposition de window.__board en mode VITE_E2E, dont `getOverlayBoxes()`
   server/         Fastify + Hocuspocus

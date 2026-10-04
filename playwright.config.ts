@@ -40,7 +40,7 @@ export default defineConfig({
       env: {
         PORT: String(API_PORT),
         DATABASE_PATH: ':memory:',
-        NODE_ENV: 'development',
+        NODE_ENV: 'test',
       },
       reuseExistingServer: process.env.CI !== 'true',
       timeout: 60_000,

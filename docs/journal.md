@@ -47,6 +47,11 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F02-S1 | décision | Le serveur e2e passe en `NODE_ENV=test` (playwright.config.ts) pour exposer `POST /api/test/seed`, seule source d'un board de 300 éléments pour F02-S1-AC4 ; aucun autre comportement serveur n'en dépend. | playwright.config.ts | non |
+| 2026-10-04 | F02-S1 | décision | Les critères de pan (F02-S1-AC1 à AC3) sont vérifiés via `window.__board.getViewport()` et `worldToScreen` plutôt que sur un élément rendu : le rendu des éléments arrive avec F03-S1, mais c'est bien le viewport qui détermine leur position à l'écran. | e2e/board-pan.spec.ts | non |
+| 2026-10-04 | F02-S1 | décision | La grille de points est dessinée en CSS (`background-image` radial-gradient + `background-position`) sur le conteneur du canvas, pas en Konva : elle suit le pan sans recréer de nœud ni peser sur FL-2. | apps/web/src/canvas/board-canvas.tsx | non |
+| 2026-10-04 | F02-S1 | décision | Seul le composant shadcn/ui `toggle-group` est ajouté (primitives Base UI `toggle`/`toggle-group`) ; `separator` et `tooltip` arriveront avec les stories qui en ont besoin (historique de F08-S2, infobulles des outils suivants), conformément à T-006-AC1. | apps/web/src/components/ui/toggle-group.tsx | non |
+| 2026-10-04 | F02-S1 | dépendance | Ajout de zustand 5.0.15 (MIT) à `apps/web` pour les stores d'état local (viewport, outil actif), conformément à ADR-0003 et à `architecture.md`. | apps/web/package.json, pnpm-lock.yaml | non |
 | 2026-10-04 | F01-S4 | contrôle | Vérification indépendante de main @ 8926365 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 84.93 %, branches 81.03 %). | logs/verify-011.log | non |
 | 2026-10-04 | F01-S4 | contrôle | Test hérité modifié : apps/web/src/app/board-list-page.test.tsx, modification non justifiée (ni ticket bug, ni spec modifiée dans la session, ni critère F01-S4-ACn ou règle UI-* du ticket citée dans l'entrée test). | session 011 (logs du run) | oui |
 | 2026-10-04 | RUN | run | Reprise du run : sessions 11 à 20, outillage @ 34dec3f. | logs/loop.log | non |

@@ -1,13 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { Layer, Stage } from 'react-konva';
+import { useViewportStore } from '@/state/viewport-store';
+import { usePan } from './use-pan';
+
+const GRID_STEP = 32;
 
 /**
- * Konva stage of the board, sized to fill its container. The element rendering
- * itself lands with the element stories.
+ * Konva stage of the board, sized to fill its container. The dot grid follows
+ * the local viewport; the element rendering itself lands with the element stories.
  */
 export function BoardCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
+  const viewport = useViewportStore((state) => state.viewport);
+  const pan = usePan(containerRef);
 
   useEffect(() => {
     const element = containerRef.current;
@@ -25,8 +31,25 @@ export function BoardCanvas() {
     };
   }, []);
 
+  const gridSize = GRID_STEP * viewport.zoom;
+  const gridStyle = {
+    backgroundColor: 'var(--canvas-bg)',
+    backgroundImage: 'radial-gradient(circle, var(--canvas-dot) 1px, transparent 1px)',
+    backgroundSize: `${gridSize}px ${gridSize}px`,
+    backgroundPosition: `${-viewport.x * viewport.zoom}px ${-viewport.y * viewport.zoom}px`,
+  };
+
   return (
-    <div ref={containerRef} data-testid="board-canvas" className="h-full w-full overflow-hidden">
+    <div
+      ref={containerRef}
+      data-testid="board-canvas"
+      className="h-full w-full overflow-hidden"
+      style={gridStyle}
+      onPointerDown={pan.onPointerDown}
+      onPointerMove={pan.onPointerMove}
+      onPointerUp={pan.onPointerUp}
+      onPointerCancel={pan.onPointerUp}
+    >
       <Stage width={size.width} height={size.height}>
         <Layer />
       </Stage>
