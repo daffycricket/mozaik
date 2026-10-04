@@ -47,4 +47,6 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
-| | | | | | |
+| 2026-10-04 | T-001 | dépendance | Ajout des dépendances d'outillage : TypeScript 7.0.2 (Apache-2.0), @biomejs/biome 2.5.15 (MIT), vitest 5.0.3 (MIT), tsx 4.23.15 (MIT), @types/node 26.6.4 (MIT). | package.json | non |
+| 2026-10-04 | T-001 | dépendance | Ajout de Fastify 5.12.5 (MIT) au serveur. | apps/server/package.json | non |
+| 2026-10-04 | T-001 | dépendance | Ajout de React et React-DOM 19.3.0 (MIT), Vite 8.3.2 (MIT), @vitejs/plugin-react 6.1.1 (MIT), @types/react et @types/react-dom 19.3.0 (MIT) au front. | apps/web/package.json | non |

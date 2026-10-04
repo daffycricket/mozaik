@@ -1,0 +1,87 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "extends": ["./packages/config/biome.base.json"],
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "overrides": [
+    {
+      "includes": ["packages/model/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "packages/model must stay framework-free",
+                  "react-dom": "packages/model must stay framework-free",
+                  "konva": "packages/model must stay framework-free",
+                  "react-konva": "packages/model must stay framework-free",
+                  "node:fs": "packages/model must stay runtime-free",
+                  "node:path": "packages/model must stay runtime-free",
+                  "node:crypto": "packages/model must stay runtime-free",
+                  "node:os": "packages/model must stay runtime-free",
+                  "fs": "packages/model must stay runtime-free",
+                  "path": "packages/model must stay runtime-free",
+                  "crypto": "packages/model must stay runtime-free",
+                  "os": "packages/model must stay runtime-free"
+                }
+              }
+            },
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "window": "packages/model must not use the DOM",
+                  "document": "packages/model must not use the DOM",
+                  "localStorage": "packages/model must not use the DOM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@mozaik/server": "apps must not import each other"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/server/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@mozaik/web": "apps must not import each other",
+                  "react": "the server is not a React application",
+                  "react-dom": "the server is not a React application",
+                  "konva": "the server is not a React application",
+                  "react-konva": "the server is not a React application"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

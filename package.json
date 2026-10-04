@@ -1,0 +1,25 @@
+{
+  "name": "mozaik",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.8.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --if-present run dev",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p packages/config/tsconfig.json && tsc --noEmit -p packages/model/tsconfig.json && tsc --noEmit -p apps/server/tsconfig.json && tsc --noEmit -p apps/web/tsconfig.json",
+    "test:unit": "vitest run",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test:unit"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@types/node": "26.6.4",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  }
+}

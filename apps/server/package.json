@@ -1,0 +1,14 @@
+{
+  "name": "@mozaik/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mozaik/model": "workspace:*",
+    "fastify": "5.12.5"
+  }
+}
