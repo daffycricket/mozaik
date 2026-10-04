@@ -1,6 +1,6 @@
 import { createBoardDoc, createElement } from '@mozaik/model';
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { createBoardApi, exposeBoardApi, isE2E } from './board-api';
+import { computeOverlayBoxes, createBoardApi, exposeBoardApi, isE2E } from './board-api';
 
 function fakeProvider(states: Array<[number, unknown]>) {
   return {
@@ -58,5 +58,27 @@ describe('[T-003-AC4] board testing API', () => {
     expect(isE2E()).toBe(true);
     exposeBoardApi(api);
     expect((window as unknown as { __board?: unknown }).__board).toBe(api);
+  });
+});
+
+describe('[T-006-AC6] overlay boxes', () => {
+  test('[T-006-AC6] converts the selection, its eight handles and the cursors to screen boxes', () => {
+    const boxes = computeOverlayBoxes({
+      viewport: { x: 0, y: 0, zoom: 2 },
+      selection: { x: 10, y: 20, width: 100, height: 50 },
+      cursors: [{ x: 5, y: 5 }],
+    });
+
+    expect(boxes.selection).toEqual({ x: 20, y: 40, width: 200, height: 100 });
+    expect(boxes.handles).toHaveLength(8);
+    expect(boxes.handles[0]).toEqual({ x: 16, y: 36, width: 8, height: 8 });
+    expect(boxes.cursors).toEqual([{ x: 10, y: 10 }]);
+  });
+
+  test('[T-006-AC6] returns empty overlay boxes without a selection', () => {
+    const doc = createBoardDoc();
+    const api = createBoardApi({ doc, provider: null });
+    expect(api.getOverlayBoxes()).toEqual({ selection: null, handles: [], cursors: [] });
+    doc.destroy();
   });
 });

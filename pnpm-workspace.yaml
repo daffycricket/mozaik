@@ -6,3 +6,6 @@ allowBuilds:
   better-sqlite3: true
   esbuild: true
   simple-git-hooks: true
+
+minimumReleaseAgeExclude:
+  - lucide-react@1.52.0

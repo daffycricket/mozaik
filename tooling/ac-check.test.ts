@@ -1,9 +1,12 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, test } from 'vitest';
 import { runAcCheck } from './ac-check';
+import { collectCriteria } from './acceptance';
 
+const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const tempDirs: string[] = [];
 
 afterEach(() => {
@@ -92,5 +95,33 @@ describe('[T-002-AC4] acceptance criteria check', () => {
     const result = runAcCheck(repo);
     expect(result.blocking.map((criterion) => criterion.id)).toEqual(['UI-MENU-1']);
     expect(result.informational.map((criterion) => criterion.id)).toEqual(['UI-NAME-1']);
+  });
+});
+
+describe('[T-006-AC5] UI rule coverage check', () => {
+  test('[T-006-AC5] collects the UI rules of the design screens and maps them to their story', () => {
+    const uiRules = collectCriteria(repoRoot).filter((criterion) => criterion.source === 'ui');
+    expect(uiRules.length).toBeGreaterThan(0);
+    for (const rule of uiRules) {
+      expect(rule.id).toMatch(/^UI-[A-Z]+-\d+$/);
+      expect(rule.ticketId).toMatch(/^F\d{2}-S\d+$/);
+    }
+    expect(uiRules.some((rule) => rule.id === 'UI-MENU-1' && rule.ticketId === 'F01-S2')).toBe(
+      true,
+    );
+  });
+
+  test('[T-006-AC5] treats an uncovered UI rule as blocking like any other criterion', () => {
+    const repo = setup({
+      'docs/design/ecrans.md': [
+        '| ID | Règle | Story |',
+        '|---|---|---|',
+        '| UI-TEST-1 | rule | F99-S1 |',
+        '',
+      ].join('\n'),
+      'docs/backlog.md': backlogTable({ 'F99-S1': 'in-progress' }),
+    });
+    const result = runAcCheck(repo);
+    expect(result.blocking.map((criterion) => criterion.id)).toEqual(['UI-TEST-1']);
   });
 });

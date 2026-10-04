@@ -34,13 +34,13 @@ apps/
       canvas/     Composants Konva, gestion des événements pointeur
       tools/      Outils (select, hand, sticky, rect, ellipse, text, arrow)
       components/
-        ui/       Composants shadcn/ui ajoutés par la CLI (ADR-0011)
+        ui/       Composants shadcn/ui copiés dans le dépôt (ADR-0011) ; seul `button` existe à ce stade
         board/    Composants du projet : en-tête, barre d'outils, barre contextuelle, zoom, dialogues
-      lib/        Utilitaires (dont `cn` de shadcn/ui), client REST (`boards-api.ts`) et jetons du projet exposés au canvas
-      index.css   Thème : import Tailwind, variables shadcn/ui, jetons du projet
+      lib/        `utils.ts` (`cn` de shadcn/ui), `theme-tokens.ts` (jetons de la charte exposés au canvas), client REST (`boards-api.ts`)
+      index.css   Thème : import Tailwind, variables shadcn/ui `neutral`, jetons du projet
       state/      Stores Zustand (UI locale uniquement)
       collab/     Connexion Hocuspocus, awareness (curseurs)
-      testing/    Exposition de window.__board en mode VITE_E2E
+      testing/    Exposition de window.__board en mode VITE_E2E, dont `getOverlayBoxes()`
   server/         Fastify + Hocuspocus
     src/
       config.ts   Configuration d'environnement validée au démarrage

@@ -9,6 +9,16 @@ import {
   worldToScreen,
 } from '@mozaik/model';
 
+export type OverlayBox = { x: number; y: number; width: number; height: number };
+
+export type WorldBox = { x: number; y: number; width: number; height: number };
+
+export type OverlayBoxes = {
+  selection: OverlayBox | null;
+  handles: OverlayBox[];
+  cursors: Point[];
+};
+
 export type BoardApi = {
   getElements: () => unknown[];
   getViewport: () => Viewport;
@@ -16,7 +26,55 @@ export type BoardApi = {
   screenToWorld: (point: Point) => Point;
   getSelection: () => string[];
   getPeers: () => unknown[];
+  getOverlayBoxes: () => OverlayBoxes;
 };
+
+const HANDLE_SIZE = 8;
+
+function toScreenBox(viewport: Viewport, box: WorldBox): OverlayBox {
+  const topLeft = worldToScreen(viewport, { x: box.x, y: box.y });
+  return {
+    x: topLeft.x,
+    y: topLeft.y,
+    width: box.width * viewport.zoom,
+    height: box.height * viewport.zoom,
+  };
+}
+
+/**
+ * Builds the eight square handles (corners and side midpoints) of a selection box.
+ */
+export function selectionHandles(selection: OverlayBox): OverlayBox[] {
+  const half = HANDLE_SIZE / 2;
+  const handles: OverlayBox[] = [];
+  for (let row = 0; row < 3; row += 1) {
+    for (let column = 0; column < 3; column += 1) {
+      if (row === 1 && column === 1) {
+        continue;
+      }
+      const x = selection.x + (selection.width * column) / 2;
+      const y = selection.y + (selection.height * row) / 2;
+      handles.push({ x: x - half, y: y - half, width: HANDLE_SIZE, height: HANDLE_SIZE });
+    }
+  }
+  return handles;
+}
+
+/**
+ * Converts the selection box and remote cursors from world to screen coordinates.
+ */
+export function computeOverlayBoxes(input: {
+  viewport: Viewport;
+  selection: WorldBox | null;
+  cursors: Point[];
+}): OverlayBoxes {
+  const selection = input.selection === null ? null : toScreenBox(input.viewport, input.selection);
+  return {
+    selection,
+    handles: selection === null ? [] : selectionHandles(selection),
+    cursors: input.cursors.map((cursor) => worldToScreen(input.viewport, cursor)),
+  };
+}
 
 export type BoardApiDependencies = {
   doc: BoardDoc;
@@ -40,6 +98,8 @@ export function createBoardApi({ doc, provider }: BoardApiDependencies): BoardAp
     worldToScreen: (point) => worldToScreen(DEFAULT_VIEWPORT, point),
     screenToWorld: (point) => screenToWorld(DEFAULT_VIEWPORT, point),
     getSelection: () => [],
+    getOverlayBoxes: () =>
+      computeOverlayBoxes({ viewport: DEFAULT_VIEWPORT, selection: null, cursors: [] }),
     getPeers: () => {
       const awareness = provider?.awareness;
       if (awareness == null) {

@@ -18,7 +18,7 @@ Liste ordonnée de tout le travail. L'agent prend toujours le **premier ticket `
 | 3 | F01-S1 | Créer un board et l'ouvrir | story | T-002 | done |  |
 | 4 | T-003 | Socle collaboratif : document Yjs, provider, persistance, `window.__board` | tech | F01-S1 | done |  |
 | 5 | T-004 | Harnais de mesure de la fluidité (F00) | tech | T-003 | done |  |
-| 6 | T-006 | Design system et harnais de conformité aux maquettes | tech | T-003 | in-progress |  |
+| 6 | T-006 | Design system et harnais de conformité aux maquettes | tech | T-003 | done |  |
 | 7 | F10-S1 | Saisir son nom avant d'entrer dans un board | story | T-003, T-006 | todo |  |
 | 8 | F01-S2 | Lister les boards, naviguer, URL partagée | story | F10-S1, T-004, T-006 | todo |  |
 | 9 | F01-S5 | Board inexistant | story | T-003, T-006 | todo |  |

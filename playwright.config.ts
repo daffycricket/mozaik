@@ -17,13 +17,18 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      testIgnore: /fluidity\//,
+      testIgnore: /(?:fluidity|layout)\//,
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'fluidity',
       testMatch: /fluidity\/.*\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], video: 'on' },
+    },
+    {
+      name: 'layout',
+      testMatch: /layout\/.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
   webServer: [
