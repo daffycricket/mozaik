@@ -95,6 +95,9 @@ export const RunGuard = async ({ directory }) => {
         return;
       }
 
+      // Outils en lecture seule : rien à contrôler (lire RUN.md est permis)
+      if (["read", "grep", "glob", "list", "webfetch", "todoread"].includes(tool)) return;
+
       // Outils d'édition de fichiers : tout argument qui ressemble à un chemin
       const paths = Object.entries(args)
         .filter(([k, v]) => typeof v === "string" && /path|file/i.test(k))

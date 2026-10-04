@@ -239,9 +239,12 @@ function verify() {
   const logLine = (t) => { try { appendFileSync(logFile, `${t}\n`); } catch { /* journal local facultatif */ } };
   const run = (name, args) => {
     logLine(`\n=== ${name} : pnpm ${args.join(" ")}`);
+    // Sortie sans couleur : NO_COLOR, et surtout pas FORCE_COLOR (TypeScript 7
+    // force la couleur dès que FORCE_COLOR est défini, même à "0").
+    const env = { ...process.env, CI: "true", NO_COLOR: "1" };
+    delete env.FORCE_COLOR;
     const r = spawnSync("pnpm", args, {
-      cwd: dir, timeout: VERIFY_TIMEOUT_MS, encoding: "utf8", maxBuffer: 64 * 1024 * 1024,
-      env: { ...process.env, CI: "true", FORCE_COLOR: "0" },
+      cwd: dir, timeout: VERIFY_TIMEOUT_MS, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, env,
     });
     logLine(`${r.stdout || ""}${r.stderr || ""}`.split("\n").slice(-200).join("\n"));
     if (r.error) return `${name} : ${r.error.code === "ETIMEDOUT" ? "délai dépassé" : r.error.message}`;
