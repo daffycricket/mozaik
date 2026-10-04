@@ -1,4 +1,5 @@
 import {
+  type ArrowPoints,
   type Box,
   type Element,
   fitStickyFontSize,
@@ -14,7 +15,7 @@ import {
   type TextElement,
 } from '@mozaik/model';
 import { memo } from 'react';
-import { Ellipse, Group, Rect, Text } from 'react-konva';
+import { Arrow, Ellipse, Group, Rect, Text } from 'react-konva';
 
 function StickyNote({ element, isEditing }: { element: StickyElement; isEditing: boolean }) {
   const fontSize = fitStickyFontSize(element.text, {
@@ -93,6 +94,22 @@ export function ShapeNode({ type, box }: { type: ShapeType; box: Box }) {
   );
 }
 
+/**
+ * Konva rendering of a free arrow between two points, with the fixed stroke
+ * style shared with the shapes (F06). Shared by the persisted arrows and the
+ * drag preview.
+ */
+export function ArrowNode({ x1, y1, x2, y2 }: ArrowPoints) {
+  return (
+    <Arrow
+      points={[x1, y1, x2, y2]}
+      stroke={SHAPE_STROKE}
+      strokeWidth={SHAPE_STROKE_WIDTH}
+      fill={SHAPE_STROKE}
+    />
+  );
+}
+
 function BoardElementsView({
   elements,
   editingId,
@@ -115,6 +132,16 @@ function BoardElementsView({
             return (
               <TextNode key={element.id} element={element} isEditing={element.id === editingId} />
             );
+          case 'arrow':
+            return (
+              <ArrowNode
+                key={element.id}
+                x1={element.x1}
+                y1={element.y1}
+                x2={element.x2}
+                y2={element.y2}
+              />
+            );
           default:
             return null;
         }
@@ -125,9 +152,8 @@ function BoardElementsView({
 
 /**
  * Konva rendering of the board elements, in world coordinates, from the bottom
- * to the top of the stacking order (`zIndex`, F07-S4). Only the sticky notes,
- * the shapes and the free texts exist at this stage; the other element types
- * land with their stories. The text of the element being edited is hidden behind
+ * to the top of the stacking order (`zIndex`, F07-S4): sticky notes, shapes,
+ * free texts and arrows. The text of the element being edited is hidden behind
  * its HTML input.
  * Memoized so a draft preview or a selection change does not re-render every
  * element (FL-2).

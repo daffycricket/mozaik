@@ -254,6 +254,24 @@ export function createShape(
 }
 
 /**
+ * Creates a free arrow from `start` to `end` (F06-S1-AC1) in a local
+ * transaction. The arrow is not attached to the elements it visually links, so
+ * moving one of them leaves the arrow in place (F06-S1-AC3).
+ */
+export function createArrow(
+  doc: Y.Doc,
+  start: Point,
+  end: Point,
+  options: CreateElementOptions,
+): Element {
+  return createElement(
+    doc,
+    { type: 'arrow', x1: start.x, y1: start.y, x2: end.x, y2: end.y },
+    options,
+  );
+}
+
+/**
  * Creates an empty free text whose top-left corner is at `point` (F05-S1-AC1)
  * in a local transaction.
  */

@@ -23,6 +23,7 @@ const TOOL_KEYS: Record<string, Tool> = {
   r: 'rect',
   o: 'ellipse',
   t: 'text',
+  a: 'arrow',
 };
 
 const MOVE_STEP = 1;
@@ -44,8 +45,8 @@ function isTextEditingTarget(target: EventTarget | null): boolean {
 
 /**
  * Switches the active tool with the shortcuts of `features/README.md` (`V`
- * selection, `H` hand, `N` sticky, `R` rectangle, `O` ellipse, `T` text).
- * Inactive while a text field or an editable area has focus.
+ * selection, `H` hand, `N` sticky, `R` rectangle, `O` ellipse, `T` text,
+ * `A` arrow). Inactive while a text field or an editable area has focus.
  */
 export function useToolShortcuts(): void {
   const setTool = useToolStore((state) => state.setTool);

@@ -101,10 +101,16 @@ export const SHAPE_MIN_SIZE = 10;
 
 /**
  * Fixed outline style of the shapes: the fill stays transparent and the style is
- * not user-modifiable (F04).
+ * not user-modifiable (F04). The arrows reuse the same stroke (F06).
  */
 export const SHAPE_STROKE = '#1f2937';
 export const SHAPE_STROKE_WIDTH = 2;
+
+/**
+ * Smallest length of an arrow, in world units: a shorter drag creates nothing
+ * (F06-S1-AC2).
+ */
+export const ARROW_MIN_LENGTH = 10;
 
 export const ELEMENT_TYPES = ['sticky', 'rect', 'ellipse', 'text', 'arrow'] as const;
 export const elementTypeSchema = z.enum(ELEMENT_TYPES);

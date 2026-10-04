@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type Tool = 'select' | 'hand' | 'sticky' | 'rect' | 'ellipse' | 'text';
+export type Tool = 'select' | 'hand' | 'sticky' | 'rect' | 'ellipse' | 'text' | 'arrow';
 
 type ToolStore = {
   tool: Tool;

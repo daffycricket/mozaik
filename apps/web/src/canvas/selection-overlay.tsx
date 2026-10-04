@@ -1,5 +1,5 @@
-import type { Box } from '@mozaik/model';
-import { Group, Rect } from 'react-konva';
+import type { ArrowElement, Box } from '@mozaik/model';
+import { Circle, Group, Rect } from 'react-konva';
 import { readProjectToken } from '@/lib/theme-tokens';
 import { HANDLE_SIZE, selectionHandles } from './selection-handles';
 
@@ -31,6 +31,36 @@ export function SelectionOverlay({ box, zoom }: { box: Box; zoom: number }) {
           width={handleSize}
           height={handleSize}
           fill={readProjectToken('--handle-fill')}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+        />
+      ))}
+    </Group>
+  );
+}
+
+/**
+ * Selection overlay of a single arrow: two round handles at its endpoints, with
+ * no frame (UI-BOARD-10). Sizes and stroke are divided by the zoom to stay
+ * constant on screen.
+ */
+export function ArrowSelectionOverlay({ element, zoom }: { element: ArrowElement; zoom: number }) {
+  const stroke = readProjectToken('--selection');
+  const fill = readProjectToken('--handle-fill');
+  const strokeWidth = 1 / zoom;
+  const radius = HANDLE_SIZE / 2 / zoom;
+  return (
+    <Group listening={false}>
+      {[
+        { x: element.x1, y: element.y1 },
+        { x: element.x2, y: element.y2 },
+      ].map((point) => (
+        <Circle
+          key={`${point.x}:${point.y}`}
+          x={point.x}
+          y={point.y}
+          radius={radius}
+          fill={fill}
           stroke={stroke}
           strokeWidth={strokeWidth}
         />

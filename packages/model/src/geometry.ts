@@ -1,7 +1,25 @@
-import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH, SHAPE_MIN_SIZE } from './schema';
+import {
+  ARROW_MIN_LENGTH,
+  SHAPE_DEFAULT_HEIGHT,
+  SHAPE_DEFAULT_WIDTH,
+  SHAPE_MIN_SIZE,
+} from './schema';
 import type { Point } from './viewport';
 
 export type Box = { x: number; y: number; width: number; height: number };
+
+export type ArrowPoints = { x1: number; y1: number; x2: number; y2: number };
+
+/**
+ * Endpoints of an arrow dragged from `start` to `end`, or `null` when the drag
+ * is shorter than `ARROW_MIN_LENGTH` (F06-S1-AC1, AC2).
+ */
+export function arrowFromDrag(start: Point, end: Point): ArrowPoints | null {
+  if (Math.hypot(end.x - start.x, end.y - start.y) < ARROW_MIN_LENGTH) {
+    return null;
+  }
+  return { x1: start.x, y1: start.y, x2: end.x, y2: end.y };
+}
 
 /**
  * Normalized box spanning two points, used for the selection rectangle dragged

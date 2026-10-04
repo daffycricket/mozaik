@@ -145,7 +145,12 @@ function BoardView({
         getCanvasSize: () => useCanvasSizeStore.getState().size,
         getDraftShape: () => {
           const draft = useDraftStore.getState().draft;
-          return draft === null ? null : { type: draft.type, ...draft.box };
+          if (draft === null) {
+            return null;
+          }
+          return draft.type === 'arrow'
+            ? { type: 'arrow', x1: draft.x1, y1: draft.y1, x2: draft.x2, y2: draft.y2 }
+            : { type: draft.type, ...draft.box };
         },
       }),
     );

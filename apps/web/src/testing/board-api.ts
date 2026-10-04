@@ -25,13 +25,15 @@ export type OverlayBoxes = {
   cursors: Point[];
 };
 
-export type DraftShape = {
-  type: ShapeType;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
+export type DraftShape =
+  | {
+      type: ShapeType;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }
+  | { type: 'arrow'; x1: number; y1: number; x2: number; y2: number };
 
 export type BoardApi = {
   getElements: () => unknown[];
@@ -71,12 +73,22 @@ export function computeOverlayBoxes(input: {
   viewport: Viewport;
   selection: WorldBox | null;
   cursors: Point[];
+  arrow?: { from: Point; to: Point } | null;
 }): OverlayBoxes {
+  const cursors = input.cursors.map((cursor) => worldToScreen(input.viewport, cursor));
+  if (input.arrow != null) {
+    const half = HANDLE_SIZE / 2;
+    const handles = [input.arrow.from, input.arrow.to].map((point) => {
+      const screen = worldToScreen(input.viewport, point);
+      return { x: screen.x - half, y: screen.y - half, width: HANDLE_SIZE, height: HANDLE_SIZE };
+    });
+    return { selection: null, handles, cursors };
+  }
   const selection = input.selection === null ? null : toScreenBox(input.viewport, input.selection);
   return {
     selection,
     handles: selection === null ? [] : handleBoxes(selection),
-    cursors: input.cursors.map((cursor) => worldToScreen(input.viewport, cursor)),
+    cursors,
   };
 }
 
@@ -140,19 +152,25 @@ export function createBoardApi({
       const cursors = readRemoteCursors(provider, doc.clientID).filter((cursor) =>
         isPointVisible(worldToScreen(viewport, cursor), size),
       );
-      const boxes = getSelection()
+      const selected = getSelection()
         .map((id) => getElement(doc, id))
-        .filter((element) => element !== undefined)
-        .map((element) => ({
-          x: element.x,
-          y: element.y,
-          width: element.width,
-          height: element.height,
-        }));
+        .filter((element) => element !== undefined);
+      const single = selected.length === 1 ? selected[0] : undefined;
+      const arrow =
+        single !== undefined && single.type === 'arrow'
+          ? { from: { x: single.x1, y: single.y1 }, to: { x: single.x2, y: single.y2 } }
+          : null;
+      const boxes = selected.map((element) => ({
+        x: element.x,
+        y: element.y,
+        width: element.width,
+        height: element.height,
+      }));
       return computeOverlayBoxes({
         viewport,
         selection: unionBounds(boxes),
         cursors,
+        arrow,
       });
     },
     getPeers: () => {

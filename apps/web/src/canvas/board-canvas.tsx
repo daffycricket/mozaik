@@ -18,10 +18,11 @@ import {
   useOrderShortcuts,
   useStartEditingShortcut,
 } from '@/tools/shortcuts';
-import { BoardElements, ShapeNode } from './board-elements';
+import { ArrowNode, BoardElements, ShapeNode } from './board-elements';
 import { RemoteCursors } from './remote-cursors';
-import { SelectionMarquee, SelectionOverlay } from './selection-overlay';
+import { ArrowSelectionOverlay, SelectionMarquee, SelectionOverlay } from './selection-overlay';
 import { useCreateSticky } from './use-create';
+import { useDrawArrow } from './use-draw-arrow';
 import { useDrawShape } from './use-draw-shape';
 import { useElements } from './use-elements';
 import { usePan } from './use-pan';
@@ -51,6 +52,7 @@ export function BoardCanvas() {
   const marquee = useSelect(containerRef, doc, history);
   useCreateSticky(containerRef, doc);
   useDrawShape(containerRef, doc);
+  useDrawArrow(containerRef, doc);
   useStartEditingShortcut(doc);
   useMoveShortcuts(doc);
   useOrderShortcuts(doc);
@@ -76,6 +78,7 @@ export function BoardCanvas() {
   }, [setSize]);
 
   const selected = elements.filter((element) => selection.includes(element.id));
+  const selectedArrow = selected.length === 1 && selected[0]?.type === 'arrow' ? selected[0] : null;
   const selectionBox = unionBounds(
     selected.map((element) => ({
       x: element.x,
@@ -117,8 +120,17 @@ export function BoardCanvas() {
           scaleY={viewport.zoom}
         >
           <BoardElements elements={elements} editingId={editingId} />
-          {draft !== null && <ShapeNode type={draft.type} box={draft.box} />}
-          {selectionBox !== null && <SelectionOverlay box={selectionBox} zoom={viewport.zoom} />}
+          {draft !== null &&
+            (draft.type === 'arrow' ? (
+              <ArrowNode x1={draft.x1} y1={draft.y1} x2={draft.x2} y2={draft.y2} />
+            ) : (
+              <ShapeNode type={draft.type} box={draft.box} />
+            ))}
+          {selectedArrow !== null ? (
+            <ArrowSelectionOverlay element={selectedArrow} zoom={viewport.zoom} />
+          ) : (
+            selectionBox !== null && <SelectionOverlay box={selectionBox} zoom={viewport.zoom} />
+          )}
           {marquee !== null && <SelectionMarquee box={marquee} zoom={viewport.zoom} />}
           {session !== null && (
             <RemoteCursors provider={session.provider} viewport={viewport} size={size} />
