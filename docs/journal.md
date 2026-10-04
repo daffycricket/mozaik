@@ -47,6 +47,9 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | T-004 | contrôle | Vérification indépendante de main @ 85b9384 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 93.58 %, branches 93.81 %). | logs/verify-005.log | non |
+| 2026-10-04 | T-004 | contrôle | Test hérité modifié : tooling/report.test.ts, modification non justifiée (aucune entrée test au journal qui cite ce fichier ; ni ticket bug, ni spec modifiée dans la session, ni critère T-004-ACn cité dans l'entrée test). | session 005 (logs du run) | oui |
+| 2026-10-04 | RUN | run | Reprise du run : sessions 5 à 7, outillage @ 95d021c. | logs/loop.log | non |
 | 2026-10-04 | T-004 | décision | Seuil FL-7 conservé à ≤ 1000 ms (board vide) : mesure de référence médiane de 78 ms sur la machine, aucun ajustement de F00 nécessaire. | docs/test-reports/T-004.md | oui |
 | 2026-10-04 | T-004 | décision | Les mesures de fluidité sont écrites par le projet Playwright `fluidity` dans `test-results/fluidity.json` (ignoré par Git) ; `pnpm report` les lit et produit le tableau exigence / scénario / mesure / seuil / vidéo. | tooling/report.ts, e2e/support/fluidity-report.ts | oui |
 | 2026-10-04 | T-004 | décision | La mesure distante de l'utilitaire action → effet est exercée sur un scénario contrôlé à deux pages (BroadcastChannel) car l'awareness (donc `getPeers`) n'est pas publiée avant F10-S2 ; la mesure locale est prise sur l'application réelle. | e2e/fluidity/utilities.spec.ts | oui |
