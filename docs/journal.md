@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F08-S2 | contrôle | Vérification indépendante de main @ 2746ddc réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.14 %, branches 83.42 %). | logs/verify-026.log | non |
 | 2026-10-04 | F08-S2 | décision | Le rétablissement se fait par `Ctrl+Shift+Z` (la story ne nomme que l'annulation) ; le hook `useUndoShortcut` devient `useHistoryShortcuts` et reste inactif pendant l'édition d'un texte. | apps/web/src/tools/shortcuts.ts | oui |
 | 2026-10-04 | F08-S2 | décision | Les boutons `undo`/`redo` de la barre d'outils s'appuient sur `useHistoryState`, abonné aux événements `stack-item-added`, `stack-item-popped`, `stack-item-updated` et `stack-cleared` du `Y.UndoManager`, pour se désactiver sans historique (F08-S2-AC3). | apps/web/src/collab/use-history-state.ts, apps/web/src/components/board/toolbar.tsx | oui |
 | 2026-10-04 | F08-S2 | décision | Ajout du composant shadcn/ui `separator` sur la primitive Base UI, seul composant manquant pour la séparation outils / Annuler-Rétablir de `UI-BOARD-3` (T-006-AC1 : les autres composants arrivent avec les stories qui en ont besoin). | apps/web/src/components/ui/separator.tsx | oui |
