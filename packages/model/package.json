@@ -10,5 +10,10 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "fractional-indexing": "4.0.0",
+    "yjs": "13.6.33",
+    "zod": "4.6.5"
   }
 }

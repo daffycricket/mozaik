@@ -9,9 +9,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@hocuspocus/provider": "4.7.0",
     "@mozaik/model": "workspace:*",
+    "konva": "10.7.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-konva": "19.3.0",
+    "yjs": "13.6.33",
     "zod": "4.6.5"
   },
   "devDependencies": {
