@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | RUN | run | Fin du run après 20 session(s) : nombre maximal de sessions atteint (20, dont 10 après la reprise). | RUN-SUMMARY.md | oui |
 | 2026-10-04 | F07-S1 | contrôle | Vérification indépendante de main @ 12912cb réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 88.67 %, branches 82.83 %). | logs/verify-020.log | non |
 | 2026-10-04 | F07-S1 | décision | Sémantique de sélection : un clic sur un élément non sélectionné remplace la sélection ; sur un élément déjà sélectionné, il la conserve (nécessaire au glisser multiple de F07-S2) ; Shift+clic ajoute ou retire ; un appui dans le vide démarre un rectangle et un relâchement sans mouvement désélectionne ; `Ctrl+A` sélectionne tout et Échap désélectionne. Les raccourcis sont ignorés pendant l'édition d'un texte. | apps/web/src/canvas/use-select.ts | oui |
 | 2026-10-04 | F07-S1 | décision | Le fond des poignées de sélection est exposé par un nouveau jeton de projet `--handle-fill` (`#FFFFFF`) déclaré dans `charte.md`, `index.css` et `theme-tokens.ts`, pour ne pas coder une couleur en dur (process/code.md). | docs/design/charte.md, apps/web/src/index.css, apps/web/src/lib/theme-tokens.ts | oui |
