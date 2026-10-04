@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F08-S1 | contrôle | Vérification indépendante de main @ 539b3f9 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 89.09 %, branches 81.65 %). | logs/verify-025.log | non |
 | 2026-10-04 | F08-S1 | décision | Le raccourci de suppression (`useDeleteShortcut`) traite `Suppr` et `Retour arrière`, ignore l'événement pendant l'édition d'un texte (champ focalisé ou `editingId`) pour que `Retour arrière` efface un caractère (F08-S1-AC2), et vide la sélection locale après suppression. Aucun bouton de suppression n'est ajouté à la barre contextuelle : la story ne décrit que le clavier. | apps/web/src/tools/shortcuts.ts, apps/web/src/canvas/board-canvas.tsx | oui |
 | 2026-10-04 | F08-S1 | test | Nouveaux tests ajoutés sans modifier les tests hérités : `apps/web/src/tools/delete-shortcut.test.tsx`, `e2e/delete.spec.ts`, `e2e/fluidity/delete.spec.ts`. `deleteElements` existait déjà et reste couvert par `packages/model/src/ops.test.ts` (T-003-AC1). Aucun cas ni assertion retiré. | voir fichiers | oui |
 | 2026-10-04 | F07-S4 | contrôle | Vérification indépendante de main @ b150040 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 89.19 %, branches 81.63 %). | logs/verify-024.log | non |
