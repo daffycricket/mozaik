@@ -27,6 +27,9 @@ export function usePan(containerRef: RefObject<HTMLElement | null>): PanHandlers
       return;
     }
     const onWheel = (event: WheelEvent): void => {
+      if (event.ctrlKey || event.metaKey) {
+        return;
+      }
       event.preventDefault();
       panByScreen({ x: -event.deltaX, y: -event.deltaY });
     };

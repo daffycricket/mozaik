@@ -3,6 +3,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { BoardCanvas } from '@/canvas/board-canvas';
 import { useBoardConnection } from '@/collab/use-board-connection';
 import { Toolbar } from '@/components/board/toolbar';
+import { ZoomControls } from '@/components/board/zoom-controls';
 import { Button } from '@/components/ui/button';
 import {
   createIdentity,
@@ -15,7 +16,7 @@ import { type BoardRead, readBoard } from '@/lib/board-read';
 import { renameBoard } from '@/lib/boards-api';
 import { useViewportStore } from '@/state/viewport-store';
 import { createBoardApi, exposeBoardApi } from '@/testing/board-api';
-import { useToolShortcuts } from '@/tools/shortcuts';
+import { useToolShortcuts, useZoomShortcuts } from '@/tools/shortcuts';
 import { BoardDeleted } from './board-deleted';
 import { BoardName } from './board-name';
 import { BoardNotFound } from './board-not-found';
@@ -117,6 +118,7 @@ function BoardView({
   const { doc, provider, isDeleted } = useBoardConnection(boardId);
   const resetViewport = useViewportStore((state) => state.resetViewport);
   useToolShortcuts();
+  useZoomShortcuts();
 
   useEffect(() => {
     resetViewport();
@@ -164,6 +166,7 @@ export function BoardShell({ name, onRename }: { name: string; onRename: (name: 
       <div className="relative min-h-0 flex-1">
         <BoardCanvas />
         <Toolbar />
+        <ZoomControls />
       </div>
     </div>
   );

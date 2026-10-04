@@ -25,7 +25,7 @@ Liste ordonnée de tout le travail. L'agent prend toujours le **premier ticket `
 | 10 | F01-S3 | Renommer un board | story | F01-S2 | done |  |
 | 11 | F01-S4 | Supprimer un board | story | F01-S2 | done |  |
 | 12 | F02-S1 | Se déplacer (pan) | story | T-004, T-006 | done |  |
-| 13 | F02-S2 | Zoomer | story | F02-S1 | in-progress |  |
+| 13 | F02-S2 | Zoomer | story | F02-S1 | done |  |
 | 14 | F03-S1 | Créer un post-it | story | F02-S2 | todo |  |
 | 15 | F09-S1 | Synchroniser les modifications | story | F03-S1 | todo |  |
 | 16 | F09-S2 | Persister | story | F09-S1 | todo |  |

@@ -1,5 +1,8 @@
+import { ZOOM_STEP } from '@mozaik/model';
 import { useEffect, useState } from 'react';
+import { useCanvasSizeStore } from '@/state/canvas-size-store';
 import { type Tool, useToolStore } from '@/state/tool-store';
+import { useViewportStore } from '@/state/viewport-store';
 
 const TOOL_KEYS: Record<string, Tool> = { v: 'select', h: 'hand' };
 
@@ -30,6 +33,37 @@ export function useToolShortcuts(): void {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [setTool]);
+}
+
+/**
+ * Changes the zoom by steps with `Ctrl+=` / `Ctrl+-`, and resets it to 100 %
+ * with `Ctrl+0` (F02-S2-AC3). The zoom is anchored on the center of the canvas.
+ */
+export function useZoomShortcuts(): void {
+  const zoomBy = useViewportStore((state) => state.zoomBy);
+  const zoomTo = useViewportStore((state) => state.zoomTo);
+  const size = useCanvasSizeStore((state) => state.size);
+
+  useEffect(() => {
+    const center = { x: size.width / 2, y: size.height / 2 };
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey || isTextEditingTarget(event.target)) {
+        return;
+      }
+      if (event.key === '=' || event.key === '+') {
+        event.preventDefault();
+        zoomBy(ZOOM_STEP, center);
+      } else if (event.key === '-') {
+        event.preventDefault();
+        zoomBy(1 / ZOOM_STEP, center);
+      } else if (event.key === '0') {
+        event.preventDefault();
+        zoomTo(1, center);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [zoomBy, zoomTo, size]);
 }
 
 /**

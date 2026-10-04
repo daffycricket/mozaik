@@ -1,19 +1,24 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Layer, Stage } from 'react-konva';
+import { useCanvasSizeStore } from '@/state/canvas-size-store';
 import { useViewportStore } from '@/state/viewport-store';
 import { usePan } from './use-pan';
+import { useWheelZoom } from './use-zoom';
 
 const GRID_STEP = 32;
 
 /**
  * Konva stage of the board, sized to fill its container. The dot grid follows
- * the local viewport; the element rendering itself lands with the element stories.
+ * the local viewport (pan and zoom); the element rendering itself lands with
+ * the element stories.
  */
 export function BoardCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
+  const size = useCanvasSizeStore((state) => state.size);
+  const setSize = useCanvasSizeStore((state) => state.setSize);
   const viewport = useViewportStore((state) => state.viewport);
   const pan = usePan(containerRef);
+  useWheelZoom(containerRef);
 
   useEffect(() => {
     const element = containerRef.current;
@@ -29,7 +34,7 @@ export function BoardCanvas() {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [setSize]);
 
   const gridSize = GRID_STEP * viewport.zoom;
   const gridStyle = {

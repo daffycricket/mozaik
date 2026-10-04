@@ -7,6 +7,10 @@ export type Viewport = { x: number; y: number; zoom: number };
 
 export const DEFAULT_VIEWPORT: Viewport = { x: 0, y: 0, zoom: 1 };
 
+export const MIN_ZOOM = 0.1;
+export const MAX_ZOOM = 4;
+export const ZOOM_STEP = 1.2;
+
 /**
  * Converts a world coordinate into a screen coordinate for the given viewport.
  */
@@ -36,5 +40,25 @@ export function panViewport(viewport: Viewport, screenDelta: Point): Viewport {
     x: viewport.x - screenDelta.x / viewport.zoom,
     y: viewport.y - screenDelta.y / viewport.zoom,
     zoom: viewport.zoom,
+  };
+}
+
+/**
+ * Constrains a zoom factor to the allowed range.
+ */
+export function clampZoom(zoom: number): number {
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
+}
+
+/**
+ * Sets the zoom while keeping the world point under `screenPoint` fixed on screen.
+ */
+export function zoomViewport(viewport: Viewport, zoom: number, screenPoint: Point): Viewport {
+  const nextZoom = clampZoom(zoom);
+  const world = screenToWorld(viewport, screenPoint);
+  return {
+    x: world.x - screenPoint.x / nextZoom,
+    y: world.y - screenPoint.y / nextZoom,
+    zoom: nextZoom,
   };
 }
