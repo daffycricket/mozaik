@@ -47,6 +47,8 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | T-001 | contrôle | Vérification indépendante de main @ eaddd6b réussie : lint, typecheck, test:unit. Scripts absents, non vérifiés : test:int, test:e2e, ac:check. | logs/verify-001.log | non |
+| 2026-10-04 | T-001 | contrôle | Commit(s) non conforme(s) à process/git.md : ba8832c « docs(plan): T-001#0 plan 3 steps » (trailer Refs absent, trailer Plan-Step absent). | session 001 (logs du run) | oui |
 | 2026-10-04 | T-001 | dépendance | Ajout de simple-git-hooks 2.14.0 (MIT) pour installer le hook `commit-msg`. | package.json | non |
 | 2026-10-04 | T-001 | décision | Le validateur de message de commit est un module TypeScript testable (`tooling/commit-msg.ts`) exécuté par `tsx` ; l'étape 0 et les reverts sont exemptés des trailers de test, conformément à `process/git.md`. | tooling/commit-msg.ts | oui |
 | 2026-10-04 | T-001 | décision | pnpm 12 bloque les scripts de build par défaut : `esbuild` et `simple-git-hooks` sont autorisés via `allowBuilds` dans `pnpm-workspace.yaml`. | pnpm-workspace.yaml | non |
