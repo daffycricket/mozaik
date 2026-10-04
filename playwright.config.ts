@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import { E2E_WEB_PORT, storedIdentityState } from './e2e/support/identity';
 
 const API_PORT = 3001;
-const WEB_PORT = 5173;
+const WEB_PORT = E2E_WEB_PORT;
 
 export default defineConfig({
   testDir: './e2e',
@@ -13,6 +14,7 @@ export default defineConfig({
   use: {
     baseURL: `http://127.0.0.1:${WEB_PORT}`,
     trace: 'on-first-retry',
+    storageState: storedIdentityState(),
   },
   projects: [
     {

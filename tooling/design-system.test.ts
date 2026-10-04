@@ -50,9 +50,11 @@ describe('[T-006-AC1] shadcn/ui design system', () => {
     expect(config).toContain('tailwindcss()');
   });
 
-  test('[T-006-AC1] adds only the button component, built on the Base UI primitive', () => {
+  test('[T-006-AC1] adds the button component, built on the Base UI primitive', () => {
     const uiDir = join(webRoot, 'src/components/ui');
-    expect(readdirSync(uiDir).sort()).toEqual(['button.test.tsx', 'button.tsx']);
+    const entries = readdirSync(uiDir);
+    expect(entries).toContain('button.tsx');
+    expect(entries).toContain('button.test.tsx');
     const button = readFileSync(join(uiDir, 'button.tsx'), 'utf8');
     expect(button).toContain('@base-ui/react/button');
   });

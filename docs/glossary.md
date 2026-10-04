@@ -17,6 +17,7 @@ Terme métier (documentation, français) → identifiant dans le code (anglais).
 | Coordonnées monde | `world` | Repère du board, indépendant du zoom |
 | Coordonnées écran | `screen` | Pixels dans la fenêtre du navigateur |
 | Présence | `presence`, `awareness` | État éphémère partagé : utilisateur et position de son curseur |
+| Identité | `UserIdentity` | Nom et identifiant aléatoires d'un utilisateur, mémorisés dans le navigateur (`localStorage`) |
 | Pair | `peer` | Autre utilisateur connecté au même board |
 | Origine locale | `LOCAL_ORIGIN` | Marqueur des transactions Yjs faites par l'utilisateur local, suivies par l'annulation |
 | Jeton de design | `PROJECT_TOKENS` | Valeur visuelle propre au projet (canvas, sélection, mise en page), déclarée dans `index.css` et exposée au canvas par `theme-tokens.ts` |

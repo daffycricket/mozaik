@@ -30,11 +30,12 @@ Document vivant : il décrit l'état **actuel** du code. Toute évolution de str
 apps/
   web/            Front React + Vite + Konva
     src/
-      app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`), dialogue de nom
+      app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`)
       canvas/     Composants Konva, gestion des événements pointeur
       tools/      Outils (select, hand, sticky, rect, ellipse, text, arrow)
+      identity/   Identité locale (`identity.ts`, `localStorage`) et dialogue de nom
       components/
-        ui/       Composants shadcn/ui copiés dans le dépôt (ADR-0011) ; seul `button` existe à ce stade
+        ui/       Composants shadcn/ui copiés dans le dépôt (ADR-0011) : `button`, `dialog`, `input`, `label`
         board/    Composants du projet : en-tête, barre d'outils, barre contextuelle, zoom, dialogues
       lib/        `utils.ts` (`cn` de shadcn/ui), `theme-tokens.ts` (jetons de la charte exposés au canvas), client REST (`boards-api.ts`)
       index.css   Thème : import Tailwind, variables shadcn/ui `neutral`, jetons du projet
