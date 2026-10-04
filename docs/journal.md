@@ -47,6 +47,11 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F10-S1 | contrôle | Vérification indépendante de main @ e7b33c3 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 87.74 %, branches 85.43 %). | logs/verify-007.log | non |
+| 2026-10-04 | F10-S1 | contrôle | Rejeu : l'ancienne version de tooling/design-system.test.ts échoue sur le nouveau code sans changement de comportement justifié (ni ticket bug, ni spec modifiée, ni critère du ticket cité au journal). Régression probablement masquée en modifiant le test. | session 007 (logs du run) | oui |
+| 2026-10-04 | F10-S1 | contrôle | Rejeu : l'ancienne version de apps/web/src/app/pages.test.tsx échoue sur le nouveau code ; changement de comportement justifié (critère F10-S1-ACn cité). | session 007 (logs du run) | oui |
+| 2026-10-04 | F10-S1 | contrôle | Test hérité modifié : tooling/design-system.test.ts, modification non justifiée (ni ticket bug, ni spec modifiée dans la session, ni critère F10-S1-ACn cité dans l'entrée test) ; 1 test(s) disparu(s) : « [T-006-AC1] adds only the button component, built ». | session 007 (logs du run) | oui |
+| 2026-10-04 | F10-S1 | contrôle | Test hérité modifié : apps/web/src/app/pages.test.tsx, modification justifiée (entrée test au journal, critère F10-S1-ACn cité) ; 1 test(s) disparu(s) : « renders the board canvas on a board route ». | session 007 (logs du run) | oui |
 | 2026-10-04 | F10-S1 | décision | L'identité est mémorisée dans `localStorage` sous la clé `mozaik.identity` au format `{ id, name }` (id aléatoire via `crypto.randomUUID`), validée par un schéma zod au chargement. | apps/web/src/identity/identity.ts | oui |
 | 2026-10-04 | F10-S1 | décision | La page board affiche le dialogue de nom tant qu'aucune identité n'est mémorisée : la connexion Hocuspocus (donc la présence) n'est créée qu'après validation, ce qui couvre F10-S1-AC1. | apps/web/src/app/board-page.tsx | oui |
 | 2026-10-04 | F10-S1 | décision | F10-S1-AC2 (« depuis le menu ») est vérifié via « Nouveau board », seule entrée du menu vers un board à ce stade : la liste cliquable arrive avec F01-S2 et passera par la même garde. | e2e/name-dialog.spec.ts | oui |
