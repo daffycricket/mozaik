@@ -33,13 +33,14 @@ describe('App routing', () => {
     expect(html).toContain('data-testid="board-create"');
   });
 
-  test('gates a board route without a stored identity behind the name dialog', () => {
+  test('does not render the board nor ask for the name before the board is read', () => {
     const html = renderToStaticMarkup(<App route={{ kind: 'board', boardId: 'abc123' }} />);
 
     expect(html).not.toContain('data-testid="board-canvas"');
+    expect(html).not.toContain('data-testid="name-dialog"');
   });
 
-  test('renders the board canvas on a board route with a stored identity', () => {
+  test('does not render the board canvas before the board is read with a stored identity', () => {
     vi.stubGlobal(
       'localStorage',
       memoryStorage({
@@ -49,7 +50,8 @@ describe('App routing', () => {
 
     const html = renderToStaticMarkup(<App route={{ kind: 'board', boardId: 'abc123' }} />);
 
-    expect(html).toContain('data-testid="board-canvas"');
+    expect(html).not.toContain('data-testid="board-canvas"');
+    expect(html).not.toContain('data-testid="name-dialog"');
   });
 
   test('defaults to the board list', () => {

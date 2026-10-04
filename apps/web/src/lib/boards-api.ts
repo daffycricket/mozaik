@@ -12,6 +12,16 @@ export type Board = z.infer<typeof boardSchema>;
 export const DEFAULT_BOARD_NAME = 'Board sans titre';
 
 /**
+ * Raised by getBoard when the requested board does not exist.
+ */
+export class BoardNotFoundError extends Error {
+  constructor(id: string) {
+    super(`Board ${id} read failed with status 404`);
+    this.name = 'BoardNotFoundError';
+  }
+}
+
+/**
  * Lists every board, most recently modified first.
  */
 export async function listBoards(): Promise<Board[]> {
@@ -27,6 +37,9 @@ export async function listBoards(): Promise<Board[]> {
  */
 export async function getBoard(id: string): Promise<Board> {
   const response = await fetch(`/api/boards/${encodeURIComponent(id)}`);
+  if (response.status === 404) {
+    throw new BoardNotFoundError(id);
+  }
   if (!response.ok) {
     throw new Error(`Board read failed with status ${response.status}`);
   }

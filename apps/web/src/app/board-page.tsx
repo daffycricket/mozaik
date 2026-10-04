@@ -1,5 +1,5 @@
 import { ArrowLeft } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { BoardCanvas } from '@/canvas/board-canvas';
 import { useBoardConnection } from '@/collab/use-board-connection';
 import { Button } from '@/components/ui/button';
@@ -10,16 +10,64 @@ import {
   type UserIdentity,
 } from '@/identity/identity';
 import { NameDialog } from '@/identity/name-dialog';
-import { getBoard } from '@/lib/boards-api';
+import { type BoardRead, readBoard } from '@/lib/board-read';
 import { createBoardApi, exposeBoardApi } from '@/testing/board-api';
+import { BoardNotFound } from './board-not-found';
 import { navigate } from './routes';
 
+type BoardScreenProps = {
+  read: BoardRead;
+  identity: UserIdentity | null;
+  boardId: string;
+  onEnter: (name: string) => void;
+  onBack: () => void;
+};
+
 /**
- * Board page: asks for the user name before connecting to the collaboration
- * document, so an unidentified visitor does not appear to the other peers.
+ * Renders the screen matching the board read and the stored identity: the error
+ * page for a missing board, the name dialog for an unidentified visitor, and
+ * the board otherwise.
+ */
+export function BoardScreen({
+  read,
+  identity,
+  boardId,
+  onEnter,
+  onBack,
+}: BoardScreenProps): ReactNode {
+  if (read.status === 'missing') {
+    return <BoardNotFound />;
+  }
+  if (read.status === 'loading') {
+    return null;
+  }
+  if (identity === null) {
+    return <NameDialog onSubmit={onEnter} onBack={onBack} />;
+  }
+  return <BoardView boardId={boardId} name={read.board.name} />;
+}
+
+/**
+ * Board page: reads the board before asking for the user name and before
+ * connecting, so a missing board shows an error page without a name prompt
+ * or a collaboration socket.
  */
 export function BoardPage({ boardId }: { boardId: string }) {
   const [identity, setIdentity] = useState<UserIdentity | null>(() => loadStoredIdentity());
+  const [read, setRead] = useState<BoardRead>({ status: 'loading' });
+
+  useEffect(() => {
+    let cancelled = false;
+    setRead({ status: 'loading' });
+    readBoard(boardId).then((result) => {
+      if (!cancelled) {
+        setRead(result);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [boardId]);
 
   function enter(name: string): void {
     const next = createIdentity(name, crypto.randomUUID());
@@ -27,36 +75,23 @@ export function BoardPage({ boardId }: { boardId: string }) {
     setIdentity(next);
   }
 
-  if (identity === null) {
-    return <NameDialog onSubmit={enter} onBack={() => navigate('/')} />;
-  }
-
-  return <BoardView boardId={boardId} />;
+  return (
+    <BoardScreen
+      read={read}
+      identity={identity}
+      boardId={boardId}
+      onEnter={enter}
+      onBack={() => navigate('/')}
+    />
+  );
 }
 
-function BoardView({ boardId }: { boardId: string }) {
+function BoardView({ boardId, name }: { boardId: string; name: string }) {
   const { doc, provider } = useBoardConnection(boardId);
-  const [name, setName] = useState('');
 
   useEffect(() => {
     exposeBoardApi(createBoardApi({ doc, provider }));
   }, [doc, provider]);
-
-  useEffect(() => {
-    let cancelled = false;
-    getBoard(boardId)
-      .then((board) => {
-        if (!cancelled) {
-          setName(board.name);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [boardId]);
 
   return <BoardShell name={name} />;
 }

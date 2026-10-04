@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { createBoard, DEFAULT_BOARD_NAME, getBoard, listBoards } from './boards-api';
+import {
+  BoardNotFoundError,
+  createBoard,
+  DEFAULT_BOARD_NAME,
+  getBoard,
+  listBoards,
+} from './boards-api';
 
 const board = {
   id: 'abc123456789',
@@ -89,5 +95,11 @@ describe('getBoard', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 404 })));
 
     await expect(getBoard('missing')).rejects.toThrow('404');
+  });
+
+  test('[F01-S5-AC1] throws a typed not found error on a missing board', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 404 })));
+
+    await expect(getBoard('missing')).rejects.toBeInstanceOf(BoardNotFoundError);
   });
 });
