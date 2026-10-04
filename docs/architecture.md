@@ -43,6 +43,7 @@ apps/
       testing/    Exposition de window.__board en mode VITE_E2E
   server/         Fastify + Hocuspocus
     src/
+      config.ts   Configuration d'environnement validée au démarrage
       http/       Routes REST
       collab/     Configuration Hocuspocus, extension de persistance
       db/         Accès SQLite, migrations

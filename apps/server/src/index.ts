@@ -1,24 +1,31 @@
 import { buildApp } from './app';
+import { loadConfig, type ServerConfig } from './config';
 
-const DEFAULT_PORT = 3001;
-
-function readPort(): number {
-  const rawPort = process.env.PORT;
-  if (rawPort === undefined) {
-    return DEFAULT_PORT;
-  }
-  const port = Number(rawPort);
-  if (!Number.isInteger(port) || port <= 0) {
-    throw new Error(`Invalid PORT: ${rawPort}`);
-  }
-  return port;
+let config: ServerConfig;
+try {
+  config = loadConfig();
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
 }
 
-const app = buildApp({ logger: true });
+const app = buildApp({ config, logger: true });
 
 try {
-  await app.listen({ port: readPort(), host: '0.0.0.0' });
+  await app.listen({ port: config.port, host: '0.0.0.0' });
 } catch (error) {
   app.log.error(error);
   process.exit(1);
 }
+
+async function shutdown(): Promise<void> {
+  await app.close();
+  process.exit(0);
+}
+
+process.on('SIGTERM', () => {
+  void shutdown();
+});
+process.on('SIGINT', () => {
+  void shutdown();
+});
