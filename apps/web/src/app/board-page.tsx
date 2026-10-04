@@ -19,6 +19,7 @@ import { NameDialog } from '@/identity/name-dialog';
 import { type BoardRead, readBoard } from '@/lib/board-read';
 import { renameBoard } from '@/lib/boards-api';
 import { useCanvasSizeStore } from '@/state/canvas-size-store';
+import { useDraftStore } from '@/state/draft-store';
 import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
 import { createBoardApi, exposeBoardApi } from '@/testing/board-api';
@@ -142,6 +143,10 @@ function BoardView({
         getViewport: () => useViewportStore.getState().viewport,
         getSelection: () => useSelectionStore.getState().selection,
         getCanvasSize: () => useCanvasSizeStore.getState().size,
+        getDraftShape: () => {
+          const draft = useDraftStore.getState().draft;
+          return draft === null ? null : { type: draft.type, ...draft.box };
+        },
       }),
     );
   }, [doc, provider]);

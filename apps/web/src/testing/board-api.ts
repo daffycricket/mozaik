@@ -7,6 +7,7 @@ import {
   isPointVisible,
   type Point,
   parsePresenceState,
+  type ShapeType,
   screenToWorld,
   unionBounds,
   type Viewport,
@@ -24,6 +25,14 @@ export type OverlayBoxes = {
   cursors: Point[];
 };
 
+export type DraftShape = {
+  type: ShapeType;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 export type BoardApi = {
   getElements: () => unknown[];
   getViewport: () => Viewport;
@@ -32,6 +41,7 @@ export type BoardApi = {
   getSelection: () => string[];
   getPeers: () => unknown[];
   getOverlayBoxes: () => OverlayBoxes;
+  getDraftShape: () => DraftShape | null;
 };
 
 function toScreenBox(viewport: Viewport, box: WorldBox): OverlayBox {
@@ -76,6 +86,7 @@ export type BoardApiDependencies = {
   getViewport?: () => Viewport;
   getSelection?: () => string[];
   getCanvasSize?: () => { width: number; height: number };
+  getDraftShape?: () => DraftShape | null;
 };
 
 /**
@@ -115,6 +126,7 @@ export function createBoardApi({
   getViewport = () => DEFAULT_VIEWPORT,
   getSelection = () => [],
   getCanvasSize = () => ({ width: Number.POSITIVE_INFINITY, height: Number.POSITIVE_INFINITY }),
+  getDraftShape = () => null,
 }: BoardApiDependencies): BoardApi {
   return {
     getElements: () => getElements(doc),
@@ -156,6 +168,7 @@ export function createBoardApi({
       }
       return peers;
     },
+    getDraftShape: () => getDraftShape(),
   };
 }
 

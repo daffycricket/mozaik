@@ -2,7 +2,13 @@ import { generateKeyBetween } from 'fractional-indexing';
 import * as Y from 'yjs';
 import type { Box } from './geometry';
 import { canReorder, type ReorderDirection, reorderStep } from './order';
-import { type Element, elementSchema, type PaletteColor, STICKY_DEFAULT_SIZE } from './schema';
+import {
+  type Element,
+  elementSchema,
+  type PaletteColor,
+  type ShapeType,
+  STICKY_DEFAULT_SIZE,
+} from './schema';
 import type { Point } from './viewport';
 
 /**
@@ -231,6 +237,19 @@ export function createSticky(doc: Y.Doc, center: Point, options: CreateElementOp
     },
     options,
   );
+}
+
+/**
+ * Creates a rectangle or an ellipse covering `box` (F04-S1-AC1) in a local
+ * transaction.
+ */
+export function createShape(
+  doc: Y.Doc,
+  type: ShapeType,
+  box: Box,
+  options: CreateElementOptions,
+): Element {
+  return createElement(doc, { type, ...box }, options);
 }
 
 /**

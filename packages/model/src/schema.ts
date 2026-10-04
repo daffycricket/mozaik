@@ -68,9 +68,31 @@ export function stickyTextColor(color: PaletteColor): string {
   return color === 'black' ? STICKY_TEXT_COLOR_ON_BLACK : STICKY_TEXT_COLOR;
 }
 
+/**
+ * Default size of a shape created by a simple click (F04-S1-AC3).
+ */
+export const SHAPE_DEFAULT_WIDTH = 160;
+export const SHAPE_DEFAULT_HEIGHT = 100;
+
+/**
+ * Smallest width and height of a shape, in world units (F04).
+ */
+export const SHAPE_MIN_SIZE = 10;
+
+/**
+ * Fixed outline style of the shapes: the fill stays transparent and the style is
+ * not user-modifiable (F04).
+ */
+export const SHAPE_STROKE = '#1f2937';
+export const SHAPE_STROKE_WIDTH = 2;
+
 export const ELEMENT_TYPES = ['sticky', 'rect', 'ellipse', 'text', 'arrow'] as const;
 export const elementTypeSchema = z.enum(ELEMENT_TYPES);
 export type ElementType = z.infer<typeof elementTypeSchema>;
+
+export const SHAPE_TYPES = ['rect', 'ellipse'] as const;
+export const shapeTypeSchema = z.enum(SHAPE_TYPES);
+export type ShapeType = z.infer<typeof shapeTypeSchema>;
 
 const baseElementShape = {
   id: z.string().min(1),

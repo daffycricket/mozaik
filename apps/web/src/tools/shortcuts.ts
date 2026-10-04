@@ -16,7 +16,13 @@ import { useSelectionStore } from '@/state/selection-store';
 import { type Tool, useToolStore } from '@/state/tool-store';
 import { useViewportStore } from '@/state/viewport-store';
 
-const TOOL_KEYS: Record<string, Tool> = { v: 'select', h: 'hand', n: 'sticky' };
+const TOOL_KEYS: Record<string, Tool> = {
+  v: 'select',
+  h: 'hand',
+  n: 'sticky',
+  r: 'rect',
+  o: 'ellipse',
+};
 
 const MOVE_STEP = 1;
 const MOVE_STEP_LARGE = 10;
@@ -36,8 +42,9 @@ function isTextEditingTarget(target: EventTarget | null): boolean {
 }
 
 /**
- * Switches the active tool with the `V` (selection) and `H` (hand) shortcuts.
- * Inactive while a text field or an editable area has focus.
+ * Switches the active tool with the shortcuts of `features/README.md` (`V`
+ * selection, `H` hand, `N` sticky, `R` rectangle, `O` ellipse). Inactive while a
+ * text field or an editable area has focus.
  */
 export function useToolShortcuts(): void {
   const setTool = useToolStore((state) => state.setTool);

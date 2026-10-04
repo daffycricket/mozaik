@@ -1,4 +1,4 @@
-import { Hand, MousePointer2, Redo2, StickyNote, Undo2 } from 'lucide-react';
+import { Circle, Hand, MousePointer2, Redo2, Square, StickyNote, Undo2 } from 'lucide-react';
 import { useBoardHistory } from '@/collab/history-context';
 import { useHistoryState } from '@/collab/use-history-state';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ const TOOLS: Array<{ tool: Tool; label: string; Icon: typeof MousePointer2 }> = 
   { tool: 'select', label: 'Sélection (V)', Icon: MousePointer2 },
   { tool: 'hand', label: 'Main (H)', Icon: Hand },
   { tool: 'sticky', label: 'Post-it (N)', Icon: StickyNote },
+  { tool: 'rect', label: 'Rectangle (R)', Icon: Square },
+  { tool: 'ellipse', label: 'Ellipse (O)', Icon: Circle },
 ];
 
 /**

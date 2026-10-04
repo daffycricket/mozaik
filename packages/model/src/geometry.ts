@@ -1,3 +1,6 @@
+import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH, SHAPE_MIN_SIZE } from './schema';
+import type { Point } from './viewport';
+
 export type Box = { x: number; y: number; width: number; height: number };
 
 /**
@@ -10,6 +13,47 @@ export function boxFromPoints(a: { x: number; y: number }, b: { x: number; y: nu
     y: Math.min(a.y, b.y),
     width: Math.abs(b.x - a.x),
     height: Math.abs(b.y - a.y),
+  };
+}
+
+/**
+ * Box of a shape dragged from `start` to `end`. The box is normalized to a
+ * positive width and height so it covers the dragged area in every direction
+ * (F04-S1-AC1, AC2), never smaller than `SHAPE_MIN_SIZE`, and squared when
+ * `square` is set, to draw a circle from an ellipse drag (F04-S1-AC4).
+ */
+export function shapeBoxFromDrag(
+  start: Point,
+  end: Point,
+  options: { square?: boolean } = {},
+): Box {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  let width = Math.max(Math.abs(dx), SHAPE_MIN_SIZE);
+  let height = Math.max(Math.abs(dy), SHAPE_MIN_SIZE);
+  if (options.square === true) {
+    const side = Math.max(width, height);
+    width = side;
+    height = side;
+  }
+  return {
+    x: dx < 0 ? start.x - width : start.x,
+    y: dy < 0 ? start.y - height : start.y,
+    width,
+    height,
+  };
+}
+
+/**
+ * Box of a shape created by a simple click, centered on `center`
+ * (F04-S1-AC3).
+ */
+export function defaultShapeBox(center: Point): Box {
+  return {
+    x: center.x - SHAPE_DEFAULT_WIDTH / 2,
+    y: center.y - SHAPE_DEFAULT_HEIGHT / 2,
+    width: SHAPE_DEFAULT_WIDTH,
+    height: SHAPE_DEFAULT_HEIGHT,
   };
 }
 

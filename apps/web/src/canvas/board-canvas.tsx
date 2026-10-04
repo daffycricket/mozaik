@@ -7,6 +7,7 @@ import { usePresenceSession } from '@/collab/presence-context';
 import { useLocalCursor } from '@/collab/use-local-cursor';
 import { TextEditor } from '@/components/board/text-editor';
 import { useCanvasSizeStore } from '@/state/canvas-size-store';
+import { useDraftStore } from '@/state/draft-store';
 import { useEditingStore } from '@/state/editing-store';
 import { useSelectionStore } from '@/state/selection-store';
 import { useViewportStore } from '@/state/viewport-store';
@@ -17,10 +18,11 @@ import {
   useOrderShortcuts,
   useStartEditingShortcut,
 } from '@/tools/shortcuts';
-import { BoardElements } from './board-elements';
+import { BoardElements, ShapeNode } from './board-elements';
 import { RemoteCursors } from './remote-cursors';
 import { SelectionMarquee, SelectionOverlay } from './selection-overlay';
 import { useCreateSticky } from './use-create';
+import { useDrawShape } from './use-draw-shape';
 import { useElements } from './use-elements';
 import { usePan } from './use-pan';
 import { useSelect } from './use-select';
@@ -42,11 +44,13 @@ export function BoardCanvas() {
   const viewport = useViewportStore((state) => state.viewport);
   const selection = useSelectionStore((state) => state.selection);
   const editingId = useEditingStore((state) => state.editingId);
+  const draft = useDraftStore((state) => state.draft);
   const elements = useElements(doc);
   const session = usePresenceSession();
   const pan = usePan(containerRef);
   const marquee = useSelect(containerRef, doc, history);
   useCreateSticky(containerRef, doc);
+  useDrawShape(containerRef, doc);
   useStartEditingShortcut(doc);
   useMoveShortcuts(doc);
   useOrderShortcuts(doc);
@@ -113,6 +117,7 @@ export function BoardCanvas() {
           scaleY={viewport.zoom}
         >
           <BoardElements elements={elements} editingId={editingId} />
+          {draft !== null && <ShapeNode type={draft.type} box={draft.box} />}
           {selectionBox !== null && <SelectionOverlay box={selectionBox} zoom={viewport.zoom} />}
           {marquee !== null && <SelectionMarquee box={marquee} zoom={viewport.zoom} />}
           {session !== null && (

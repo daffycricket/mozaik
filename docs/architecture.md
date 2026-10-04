@@ -31,7 +31,7 @@ apps/
   web/            Front React + Vite + Konva
     src/
       app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`)
-      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), sélection, déplacement et redimensionnement au pointeur (`use-select.ts`, cadre et poignées dans `selection-overlay.tsx`, positions dans `selection-handles.ts`), création et édition de post-its (`use-create.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
+      canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), sélection, déplacement et redimensionnement au pointeur (`use-select.ts`, cadre et poignées dans `selection-overlay.tsx`, positions dans `selection-handles.ts`), création et édition de post-its (`use-create.ts`), tracé de formes (`use-draw-shape.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
       tools/      Raccourcis clavier (`shortcuts.ts` : outils, zoom, déplacement aux flèches, `Ctrl+Z` / `Ctrl+Shift+Z`) ; les outils eux-mêmes arrivent avec leurs stories
       identity/   Identité locale (`identity.ts`, `localStorage`) et dialogue de nom
       components/
@@ -39,9 +39,9 @@ apps/
         board/    Composants du projet : `toolbar.tsx` (outils puis Annuler/Rétablir), `zoom-controls.tsx`, `text-editor.tsx`, `context-bar.tsx` ; autres dialogues à venir
       lib/        `utils.ts` (`cn` de shadcn/ui), `theme-tokens.ts` (jetons de la charte exposés au canvas), client REST (`boards-api.ts`)
       index.css   Thème : import Tailwind, variables shadcn/ui `neutral`, jetons du projet
-      state/      Stores Zustand (UI locale uniquement) : `viewport-store.ts` (viewport, pan et zoom), `tool-store.ts` (outil actif), `canvas-size-store.ts` (taille du canvas, ancre du zoom), `selection-store.ts` (sélection, ajout/retrait avec `toggle`), `editing-store.ts` (élément en édition)
+      state/      Stores Zustand (UI locale uniquement) : `viewport-store.ts` (viewport, pan et zoom), `tool-store.ts` (outil actif), `canvas-size-store.ts` (taille du canvas, ancre du zoom), `selection-store.ts` (sélection, ajout/retrait avec `toggle`), `editing-store.ts` (élément en édition), `draft-store.ts` (aperçu de la forme en cours de tracé)
       collab/     Connexion Hocuspocus, awareness (curseurs), contexte du document (`board-doc-context.ts`), historique d'annulation (`history-context.ts`, état d'activation dans `use-history-state.ts`)
-      testing/    Exposition de window.__board en mode VITE_E2E, dont `getOverlayBoxes()`
+      testing/    Exposition de window.__board en mode VITE_E2E, dont `getOverlayBoxes()` et `getDraftShape()`
   server/         Fastify + Hocuspocus
     src/
       config.ts   Configuration d'environnement validée au démarrage
@@ -55,11 +55,11 @@ packages/
       schema.ts       Types et validation (zod) des éléments, palette de couleurs
       doc.ts          Création/accès au Y.Doc d'un board
       history.ts      Historique d'annulation (`createBoardHistory`, limité à LOCAL_ORIGIN)
-      ops.ts          Opérations : createElement, createSticky, updateElement, moveElements, setElementsColor, bringForward, sendBackward, deleteElements, elementAtPoint, elementsInBox, LOCAL_ORIGIN
+      ops.ts          Opérations : createElement, createSticky, createShape, updateElement, moveElements, setElementsColor, bringForward, sendBackward, deleteElements, elementAtPoint, elementsInBox, LOCAL_ORIGIN
       order.ts        Ordre de superposition : `sortByZIndex`, `reorderStep`, `canReorder` (avancer/reculer d'un plan, F07-S4)
       resize.ts       Redimensionnement : `MIN_ELEMENT_SIZE`, `RESIZE_HANDLE_ORDER`, `isResizable`, `resizeHandlePoint`, `resizeHandleAtPoint`, `resizeBox`
       text-fit.ts     Taille de police d'un post-it qui fait tenir son texte (`fitStickyFontSize`)
-      geometry.ts     Boîte englobante (`unionBounds`), rectangle de sélection (`boxFromPoints`)
+      geometry.ts     Boîte englobante (`unionBounds`), rectangle de sélection (`boxFromPoints`), boîte d'une forme tracée (`shapeBoxFromDrag`) ou créée au clic (`defaultShapeBox`)
       viewport.ts     Conversions coordonnées monde ↔ écran
   config/         Configs partagées (tsconfig, biome)
 tooling/          Outillage du dépôt (validateur de message de commit, orchestration Docker)
@@ -133,6 +133,8 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 **Déplacement** (F07-S2) : un glisser sur un élément déjà sélectionné déplace toute la sélection de `(dx/zoom, dy/zoom)` en coordonnées monde, via `moveElements` (une transaction par écriture, `x`/`y` et les extrémités d'une flèche). Les positions intermédiaires sont écrites au plus toutes les 50 ms (FL-4) ; `stopCapturing()` encadre le glisser pour que le `Y.UndoManager` en fasse une seule entrée d'annulation. Les flèches du clavier déplacent la sélection de 1 unité monde, ou 10 avec Shift.
 
 **Redimensionnement** (F07-S3) : un appui sur une poignée du cadre, quand un seul élément redimensionnable (post-it, forme) est sélectionné, démarre un redimensionnement. `resizeBox` calcule la nouvelle boîte pure à partir de la boîte d'origine, de la poignée et du pointeur : le coin ou le côté opposé reste fixe (AC1), Shift conserve le rapport largeur/hauteur (AC2) et la taille est bornée à `MIN_ELEMENT_SIZE` (AC3). Le texte libre (taille liée au contenu) et les flèches (poignées d'extrémité, F06-S2) ne se redimensionnent pas. `updateElement` écrit `x`/`y`/`width`/`height` au plus toutes les 50 ms, `stopCapturing()` encadre le geste pour une seule entrée d'annulation.
+
+**Tracé d'une forme** (F04-S1) : avec l'outil Rectangle (`R`) ou Ellipse (`O`), un glisser dessine la forme ; `shapeBoxFromDrag` normalise la boîte entre les deux coins (positive dans tous les sens, minimum `SHAPE_MIN_SIZE`, carrée avec Shift pour l'ellipse), un clic simple utilise `defaultShapeBox` (160 × 100 centrée). Pendant le glisser, l'aperçu vit dans `draft-store.ts` et est rendu par `ShapeNode` : il suit le pointeur sans écrire dans le document (FL-1, FL-2). Au relâchement, `createShape` écrit la forme en une transaction à origine locale, la sélectionne et l'outil revient à Sélection. Le style est fixe (contour `SHAPE_STROKE`, épaisseur `SHAPE_STROKE_WIDTH`, remplissage transparent).
 
 **Édition de texte** : un double-clic sur un post-it existant, ou Entrée sur un post-it seul sélectionné, ouvre l'éditeur HTML superposé à l'élément. La saisie reste locale (état React de l'éditeur) et n'est écrite dans Yjs qu'à la validation (Entrée, Échap ou perte de focus), ce qui préserve le texte et la position du curseur malgré les mises à jour distantes (F03-S2, FL-5). La taille de police est ajustée par `fitStickyFontSize` pour que le texte tienne, sans descendre sous 10 px.
 
