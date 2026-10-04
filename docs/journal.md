@@ -47,6 +47,8 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-04 | F10-S2 | contrôle | Vérification indépendante de main @ 1d133f5 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 88.54 %, branches 82.06 %). | logs/verify-018.log | non |
+| 2026-10-04 | F10-S2 | contrôle | Commit(s) non conforme(s) à process/git.md : e6f28c7 « docs(plan): F10-S2#0 plan 1 step » (trailer Refs absent, trailer Plan-Step absent). | session 018 (logs du run) | oui |
 | 2026-10-04 | F10-S2 | décision | La couleur d'un utilisateur est dérivée de son identifiant par un hachage FNV-1a modulo 12 (palette de 12 couleurs distinctes de celle des éléments) ; le curseur local est publié dans l'awareness au plus toutes les 50 ms (avec envoi de la dernière position) ; le curseur distant est interpolé linéairement sur 100 ms à l'affichage (FL-4). | packages/model/src/presence.ts, apps/web/src/collab/use-local-cursor.ts, apps/web/src/canvas/remote-cursors.tsx | oui |
 | 2026-10-04 | F10-S2 | décision | Un curseur distant hors de la partie visible n'est pas rendu et est filtré de `getOverlayBoxes()` ; l'API de test lit l'awareness et la taille du canvas pour exposer les positions écran (F10-S2-AC3). | apps/web/src/testing/board-api.ts, apps/web/src/canvas/remote-cursors.tsx | oui |
 | 2026-10-04 | F10-S2 | décision | Ajout du jeton de charte `--cursor-label-text` (`#FFFFFF`) pour le texte et le contour de la flèche du curseur distant, afin de respecter l'interdiction de couleur en dur dans `apps/web/src` (T-006-AC7). | docs/design/charte.md, apps/web/src/index.css, apps/web/src/lib/theme-tokens.ts | oui |
