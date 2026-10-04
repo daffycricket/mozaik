@@ -36,7 +36,7 @@ apps/
       identity/   Identité locale (`identity.ts`, `localStorage`) et dialogue de nom
       components/
         ui/       Composants shadcn/ui copiés dans le dépôt (ADR-0011) : `button`, `dialog`, `input`, `label`, `toggle-group`
-        board/    Composants du projet : `toolbar.tsx`, `zoom-controls.tsx`, `text-editor.tsx` ; barre contextuelle et dialogues à venir
+        board/    Composants du projet : `toolbar.tsx`, `zoom-controls.tsx`, `text-editor.tsx`, `context-bar.tsx` ; autres dialogues à venir
       lib/        `utils.ts` (`cn` de shadcn/ui), `theme-tokens.ts` (jetons de la charte exposés au canvas), client REST (`boards-api.ts`)
       index.css   Thème : import Tailwind, variables shadcn/ui `neutral`, jetons du projet
       state/      Stores Zustand (UI locale uniquement) : `viewport-store.ts` (viewport, pan et zoom), `tool-store.ts` (outil actif), `canvas-size-store.ts` (taille du canvas, ancre du zoom), `selection-store.ts` (sélection, ajout/retrait avec `toggle`), `editing-store.ts` (élément en édition)
@@ -54,7 +54,7 @@ packages/
     src/
       schema.ts       Types et validation (zod) des éléments, palette de couleurs
       doc.ts          Création/accès au Y.Doc d'un board
-      ops.ts          Opérations : createElement, createSticky, updateElement, deleteElements, elementAtPoint, elementsInBox, LOCAL_ORIGIN
+      ops.ts          Opérations : createElement, createSticky, updateElement, setElementsColor, deleteElements, elementAtPoint, elementsInBox, LOCAL_ORIGIN
       text-fit.ts     Taille de police d'un post-it qui fait tenir son texte (`fitStickyFontSize`)
       geometry.ts     Boîte englobante (`unionBounds`), rectangle de sélection (`boxFromPoints`)
       viewport.ts     Conversions coordonnées monde ↔ écran
@@ -128,6 +128,8 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 **Sélection** (F07-S1) : la sélection est un état local (Zustand), jamais écrite dans le document Yjs. Avec l'outil Sélection, un clic sélectionne l'élément sous le pointeur (le plus haut), Shift+clic l'ajoute ou le retire, un glisser depuis une zone vide trace un rectangle qui sélectionne les éléments entièrement contenus (`elementsInBox`), `Ctrl+A` sélectionne tout et Échap ou un clic dans le vide désélectionne. Le cadre et ses huit poignées (`selectionHandles`, tailles divisées par le zoom) sont dessinés par `selection-overlay.tsx`.
 
 **Édition de texte** : un double-clic sur un post-it existant, ou Entrée sur un post-it seul sélectionné, ouvre l'éditeur HTML superposé à l'élément. La saisie reste locale (état React de l'éditeur) et n'est écrite dans Yjs qu'à la validation (Entrée, Échap ou perte de focus), ce qui préserve le texte et la position du curseur malgré les mises à jour distantes (F03-S2, FL-5). La taille de police est ajustée par `fitStickyFontSize` pour que le texte tienne, sans descendre sous 10 px.
+
+**Changement de couleur** (F03-S3) : quand la sélection contient un post-it ou un texte, la barre contextuelle (`components/board/context-bar.tsx`) apparaît centrée au-dessus du cadre de sélection (ou en dessous s'il n'y a pas la place, UI-BOARD-7) et propose les dix couleurs de la palette, la couleur courante marquée `aria-pressed`. Choisir une couleur écrit `color` sur tous les post-its et textes sélectionnés via `setElementsColor`, en une seule transaction à origine locale : l'effet est local et immédiat, sans attendre le serveur (FL-1).
 
 **Modification distante** : serveur → provider → mise à jour appliquée au `Y.Doc` → observation → rendu. Le `Y.UndoManager` ne suit que `LOCAL_ORIGIN` : annuler n'annule jamais le travail d'un autre.
 

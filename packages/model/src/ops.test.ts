@@ -10,6 +10,7 @@ import {
   getElement,
   getElements,
   LOCAL_ORIGIN,
+  setElementsColor,
   updateElement,
 } from './ops';
 
@@ -223,6 +224,46 @@ describe('[F09-S1-AC2] concurrent updates', () => {
     updateElement(doc, 's1', { x: 50 });
 
     expect(getElement(doc, 's1')).toMatchObject({ x: 50, color: 'blue', text: 'idée' });
+    doc.destroy();
+  });
+});
+
+describe('[F03-S3-AC1] element colour', () => {
+  test('[F03-S3-AC1] recolours the given sticky notes and free texts in one transaction', () => {
+    const doc = createBoardDoc();
+    createElement(
+      doc,
+      { type: 'sticky', x: 0, y: 0, width: 100, height: 100 },
+      { id: 's1', createdBy: 'u' },
+    );
+    createElement(
+      doc,
+      { type: 'sticky', x: 0, y: 0, width: 100, height: 100 },
+      { id: 's2', createdBy: 'u' },
+    );
+    createElement(
+      doc,
+      { type: 'text', x: 0, y: 0, width: 50, height: 20 },
+      { id: 't1', createdBy: 'u' },
+    );
+    createElement(
+      doc,
+      { type: 'rect', x: 0, y: 0, width: 50, height: 20 },
+      { id: 'r1', createdBy: 'u' },
+    );
+
+    const origins: unknown[] = [];
+    doc.on('afterTransaction', (transaction) => {
+      origins.push(transaction.origin);
+    });
+
+    setElementsColor(doc, ['s1', 's2', 't1', 'r1', 'missing'], 'blue');
+
+    expect(getElement(doc, 's1')).toMatchObject({ color: 'blue' });
+    expect(getElement(doc, 's2')).toMatchObject({ color: 'blue' });
+    expect(getElement(doc, 't1')).toMatchObject({ color: 'blue' });
+    expect(getElement(doc, 'r1')).not.toHaveProperty('color');
+    expect(origins).toEqual([LOCAL_ORIGIN]);
     doc.destroy();
   });
 });

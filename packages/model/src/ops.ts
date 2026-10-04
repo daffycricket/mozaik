@@ -270,6 +270,28 @@ export function updateElement(doc: Y.Doc, id: string, patch: ElementPatch): void
 }
 
 /**
+ * Sets the colour of the given sticky notes and free texts in a single local
+ * transaction, so recolouring a multiple selection is one undo entry
+ * (F03-S3-AC1). Elements of other types are ignored.
+ */
+export function setElementsColor(doc: Y.Doc, ids: string[], color: PaletteColor): void {
+  const map = elementsMap(doc);
+  doc.transact(() => {
+    for (const id of ids) {
+      const value = map.get(id);
+      if (value === undefined) {
+        continue;
+      }
+      const type = value.get('type');
+      if (type !== 'sticky' && type !== 'text') {
+        continue;
+      }
+      value.set('color', color);
+    }
+  }, LOCAL_ORIGIN);
+}
+
+/**
  * Deletes the given elements in a single local transaction.
  */
 export function deleteElements(doc: Y.Doc, ids: string[]): void {

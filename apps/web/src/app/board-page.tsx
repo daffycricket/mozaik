@@ -4,6 +4,7 @@ import { BoardCanvas } from '@/canvas/board-canvas';
 import { BoardDocContext } from '@/collab/board-doc-context';
 import { PresenceContext } from '@/collab/presence-context';
 import { useBoardConnection } from '@/collab/use-board-connection';
+import { ContextBar } from '@/components/board/context-bar';
 import { Toolbar } from '@/components/board/toolbar';
 import { ZoomControls } from '@/components/board/zoom-controls';
 import { Button } from '@/components/ui/button';
@@ -182,6 +183,7 @@ export function BoardShell({ name, onRename }: { name: string; onRename: (name: 
       </header>
       <div className="relative min-h-0 flex-1">
         <BoardCanvas />
+        <ContextBar />
         <Toolbar />
         <ZoomControls />
       </div>
