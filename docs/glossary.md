@@ -24,5 +24,7 @@ Terme métier (documentation, français) → identifiant dans le code (anglais).
 | Origine locale | `LOCAL_ORIGIN` | Marqueur des transactions Yjs faites par l'utilisateur local, suivies par l'annulation |
 | Historique | `BoardHistory` | `Y.UndoManager` d'un board, limité aux transactions de l'utilisateur local ; une action (glisser, flèches, création) = une entrée |
 | Annuler / Rétablir | `undo`, `redo` | Application inverse d'une entrée d'historique (`Ctrl+Z`) ou de son rétablissement (`Ctrl+Shift+Z`), via les boutons `undo`/`redo` de la barre d'outils (F08-S2) |
+| Dupliquer / Copier / Coller | `duplicateElements`, `pasteElements` | Création de copies de la sélection via `Ctrl+D` (dupliquer) et `Ctrl+C`/`Ctrl+V` (copier/coller) : nouveaux identifiants, décalage `COPY_OFFSET` de (+20, +20), `zIndex` au-dessus des originaux (F08-S3) |
+| Presse-papiers | `CLIPBOARD_PREFIX` | Texte du presse-papiers système : tableau JSON d'éléments préfixé par `mozaik/elements:`, avec repli en mémoire si l'accès est refusé (F08-S3) |
 | Jeton de design | `PROJECT_TOKENS` | Valeur visuelle propre au projet (canvas, sélection, mise en page), déclarée dans `index.css` et exposée au canvas par `theme-tokens.ts` |
 | Boîtes de superposition | `OverlayBoxes` | Positions à l'écran du cadre de sélection, de ses poignées et des curseurs distants, exposées aux tests e2e par `getOverlayBoxes()` |

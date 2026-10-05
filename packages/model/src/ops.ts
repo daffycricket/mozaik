@@ -1,7 +1,8 @@
 import { generateKeyBetween } from 'fractional-indexing';
 import * as Y from 'yjs';
+import { z } from 'zod';
 import { type Box, distanceToSegment } from './geometry';
-import { canReorder, type ReorderDirection, reorderStep } from './order';
+import { canReorder, type ReorderDirection, reorderStep, sortByZIndex } from './order';
 import {
   type Element,
   elementSchema,
@@ -18,6 +19,18 @@ import type { Point } from './viewport';
 export const LOCAL_ORIGIN = Symbol('mozaik:local');
 
 export const ELEMENTS_KEY = 'elements';
+
+/**
+ * Prefix of the text written to the system clipboard, followed by the JSON
+ * array of the copied elements, so a paste recognizes a Mozaik payload and
+ * ignores external text (F08-S3).
+ */
+export const CLIPBOARD_PREFIX = 'mozaik/elements:';
+
+/**
+ * Offset applied to duplicated or pasted elements, in world units (F08).
+ */
+export const COPY_OFFSET: Point = { x: 20, y: 20 };
 
 export type ElementInit =
   | {
@@ -92,6 +105,32 @@ export function getElement(doc: Y.Doc, id: string): Element | undefined {
   }
   const parsed = elementSchema.safeParse(value.toJSON());
   return parsed.success ? parsed.data : undefined;
+}
+
+/**
+ * Serializes elements to the prefixed JSON text stored in the system clipboard
+ * (F08-S3). The prefix tells a Mozaik payload from external clipboard text.
+ */
+export function serializeElements(elements: Element[]): string {
+  return CLIPBOARD_PREFIX + JSON.stringify(elements);
+}
+
+/**
+ * Parses a clipboard text back to elements, returning `null` when it does not
+ * carry a valid Mozaik payload (F08-S3).
+ */
+export function parseElements(text: string): Element[] | null {
+  if (!text.startsWith(CLIPBOARD_PREFIX)) {
+    return null;
+  }
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text.slice(CLIPBOARD_PREFIX.length));
+  } catch {
+    return null;
+  }
+  const parsed = z.array(elementSchema).safeParse(raw);
+  return parsed.success ? parsed.data : null;
 }
 
 /**
@@ -214,6 +253,14 @@ function buildElement(init: ElementInit, options: CreateElementOptions, zIndex: 
   }
 }
 
+function writeElement(map: Y.Map<Y.Map<unknown>>, element: Element): void {
+  const value = new Y.Map<unknown>();
+  for (const [key, field] of Object.entries(element)) {
+    value.set(key, field);
+  }
+  map.set(element.id, value);
+}
+
 /**
  * Creates an element in a local transaction and returns it.
  */
@@ -226,11 +273,7 @@ export function createElement(
     buildElement(init, options, options.zIndex ?? nextZIndex(doc)),
   );
   doc.transact(() => {
-    const value = new Y.Map<unknown>();
-    for (const [key, field] of Object.entries(element)) {
-      value.set(key, field);
-    }
-    elementsMap(doc).set(element.id, value);
+    writeElement(elementsMap(doc), element);
   }, LOCAL_ORIGIN);
   return element;
 }
@@ -447,4 +490,89 @@ export function deleteElements(doc: Y.Doc, ids: string[]): void {
       map.delete(id);
     }
   }, LOCAL_ORIGIN);
+}
+
+export type PasteOptions = {
+  createdBy: string;
+  offset: Point;
+  generateId: () => string;
+};
+
+function initFromElement(element: Element, offset: Point): ElementInit {
+  const x = element.x + offset.x;
+  const y = element.y + offset.y;
+  switch (element.type) {
+    case 'sticky':
+      return {
+        type: 'sticky',
+        x,
+        y,
+        width: element.width,
+        height: element.height,
+        text: element.text,
+        color: element.color,
+      };
+    case 'text':
+      return {
+        type: 'text',
+        x,
+        y,
+        width: element.width,
+        height: element.height,
+        text: element.text,
+        color: element.color,
+      };
+    case 'rect':
+    case 'ellipse':
+      return { type: element.type, x, y, width: element.width, height: element.height };
+    case 'arrow':
+      return {
+        type: 'arrow',
+        x1: element.x1 + offset.x,
+        y1: element.y1 + offset.y,
+        x2: element.x2 + offset.x,
+        y2: element.y2 + offset.y,
+      };
+  }
+}
+
+/**
+ * Creates copies of the given elements in a single local transaction (one undo
+ * entry): new identifiers, a (+20, +20) offset and a zIndex above every existing
+ * element, keeping the relative stacking order (F08-S3-AC1, AC2, AC3). Returns
+ * the ids of the copies in creation order.
+ */
+export function pasteElements(doc: Y.Doc, elements: Element[], options: PasteOptions): string[] {
+  const map = elementsMap(doc);
+  let previous =
+    getElements(doc)
+      .map((element) => element.zIndex)
+      .sort()
+      .at(-1) ?? null;
+  const ids: string[] = [];
+  doc.transact(() => {
+    for (const element of elements) {
+      const zIndex = generateKeyBetween(previous, null);
+      previous = zIndex;
+      const copy = buildElement(
+        initFromElement(element, options.offset),
+        { id: options.generateId(), createdBy: options.createdBy, zIndex },
+        zIndex,
+      );
+      writeElement(map, copy);
+      ids.push(copy.id);
+    }
+  }, LOCAL_ORIGIN);
+  return ids;
+}
+
+/**
+ * Duplicates the given elements in the same document, keeping their relative
+ * stacking order and placing the copies above the originals (F08-S3-AC1).
+ * Missing ids are ignored.
+ */
+export function duplicateElements(doc: Y.Doc, ids: string[], options: PasteOptions): string[] {
+  const selected = new Set(ids);
+  const elements = sortByZIndex(getElements(doc).filter((element) => selected.has(element.id)));
+  return pasteElements(doc, elements, options);
 }
