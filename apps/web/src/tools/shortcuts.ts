@@ -2,14 +2,22 @@ import {
   type BoardDoc,
   type BoardHistory,
   bringForward,
+  COPY_OFFSET,
   deleteElements,
+  duplicateElements,
   getElement,
+  getElements,
   moveElements,
+  type PasteOptions,
   type Point,
+  pasteElements,
   sendBackward,
+  sortByZIndex,
   ZOOM_STEP,
 } from '@mozaik/model';
 import { useEffect, useState } from 'react';
+import { loadStoredIdentity } from '@/identity/identity';
+import { readClipboard, writeClipboard } from '@/lib/clipboard';
 import { useCanvasSizeStore } from '@/state/canvas-size-store';
 import { useEditingStore } from '@/state/editing-store';
 import { useSelectionStore } from '@/state/selection-store';
@@ -219,6 +227,76 @@ export function useDeleteShortcut(doc: BoardDoc | null): void {
       event.preventDefault();
       deleteElements(doc, selection);
       useSelectionStore.getState().clearSelection();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [doc]);
+}
+
+/**
+ * Duplicates the selection with `Ctrl+D`, copies it with `Ctrl+C` and pastes it
+ * with `Ctrl+V` (F08-S3). Duplicating and pasting create new elements offset by
+ * (+20, +20) above the originals and select the copies; copying writes the
+ * selection to the system clipboard with a memory fallback. Inactive while a
+ * text field has focus or an element is being edited.
+ */
+export function useClipboardShortcuts(doc: BoardDoc | null): void {
+  useEffect(() => {
+    if (doc === null) {
+      return;
+    }
+    const pasteOptions = (): PasteOptions | null => {
+      const identity = loadStoredIdentity();
+      if (identity === null) {
+        return null;
+      }
+      return {
+        createdBy: identity.id,
+        offset: COPY_OFFSET,
+        generateId: () => crypto.randomUUID(),
+      };
+    };
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) {
+        return;
+      }
+      if (isTextEditingTarget(event.target) || useEditingStore.getState().editingId !== null) {
+        return;
+      }
+      const key = event.key.toLowerCase();
+      if (key === 'd') {
+        const selection = useSelectionStore.getState().selection;
+        const options = pasteOptions();
+        if (selection.length === 0 || options === null) {
+          return;
+        }
+        event.preventDefault();
+        useSelectionStore.getState().setSelection(duplicateElements(doc, selection, options));
+        return;
+      }
+      if (key === 'c') {
+        const selection = useSelectionStore.getState().selection;
+        if (selection.length === 0) {
+          return;
+        }
+        event.preventDefault();
+        const selected = new Set(selection);
+        const elements = sortByZIndex(
+          getElements(doc).filter((element) => selected.has(element.id)),
+        );
+        void writeClipboard(elements);
+        return;
+      }
+      if (key === 'v') {
+        event.preventDefault();
+        void readClipboard().then((elements) => {
+          const options = pasteOptions();
+          if (elements === null || elements.length === 0 || options === null) {
+            return;
+          }
+          useSelectionStore.getState().setSelection(pasteElements(doc, elements, options));
+        });
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
