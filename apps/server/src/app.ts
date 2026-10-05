@@ -21,25 +21,53 @@ export type BuildAppOptions = {
 const seedSchema = z.object({
   name: z.string().min(1).max(100),
   elements: z.number().int().nonnegative().default(0),
+  mixed: z.boolean().default(false),
 });
 
+const SEED_GRID_COLUMNS = 10;
 const SEED_GRID_STEP = 120;
+const SEED_MIXED_TYPES = ['sticky', 'rect', 'ellipse', 'text', 'arrow'] as const;
 
-function seedDocument(db: BoardDatabase, boardId: string, elements: number): void {
+function seedElement(
+  doc: Y.Doc,
+  type: (typeof SEED_MIXED_TYPES)[number],
+  index: number,
+  x: number,
+  y: number,
+): void {
+  const options = { id: nanoid(), createdBy: 'seed' };
+  switch (type) {
+    case 'sticky':
+      createElement(
+        doc,
+        { type: 'sticky', x, y, width: 100, height: 100, text: `#${index + 1}` },
+        options,
+      );
+      return;
+    case 'rect':
+    case 'ellipse':
+      createElement(doc, { type, x, y, width: 100, height: 80 }, options);
+      return;
+    case 'text':
+      createElement(
+        doc,
+        { type: 'text', x, y, width: 100, height: 40, text: `Text ${index + 1}` },
+        options,
+      );
+      return;
+    case 'arrow':
+      createElement(doc, { type: 'arrow', x1: x, y1: y, x2: x + 100, y2: y + 80 }, options);
+      return;
+  }
+}
+
+function seedDocument(db: BoardDatabase, boardId: string, elements: number, mixed: boolean): void {
   const doc = createBoardDoc();
   for (let index = 0; index < elements; index += 1) {
-    createElement(
-      doc,
-      {
-        type: 'sticky',
-        x: (index % 10) * SEED_GRID_STEP,
-        y: Math.floor(index / 10) * SEED_GRID_STEP,
-        width: 100,
-        height: 100,
-        text: `#${index + 1}`,
-      },
-      { id: nanoid(), createdBy: 'seed' },
-    );
+    const x = (index % SEED_GRID_COLUMNS) * SEED_GRID_STEP;
+    const y = Math.floor(index / SEED_GRID_COLUMNS) * SEED_GRID_STEP;
+    const type = mixed ? (SEED_MIXED_TYPES[index % SEED_MIXED_TYPES.length] ?? 'sticky') : 'sticky';
+    seedElement(doc, type, index, x, y);
   }
   storeDocumentState(db, boardId, Y.encodeStateAsUpdate(doc));
   doc.destroy();
@@ -52,7 +80,7 @@ function registerTestRoutes(app: FastifyInstance, db: BoardDatabase): void {
       return reply.code(400).send(validationError('Invalid seed payload'));
     }
     const board = createBoard(db, parsed.data.name);
-    seedDocument(db, board.id, parsed.data.elements);
+    seedDocument(db, board.id, parsed.data.elements, parsed.data.mixed);
     return reply.code(201).send({ ...board, elementCount: parsed.data.elements });
   });
 

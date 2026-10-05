@@ -173,7 +173,7 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 | PATCH | `/api/boards/:id` | `{ name }` | `200 Board` ou `404` |
 | DELETE | `/api/boards/:id` | | `204` ; supprime aussi le document Yjs et déconnecte les clients |
 | GET | `/api/health` | | `200 { status: 'ok' }` |
-| POST | `/api/test/seed` | `{ name, elements: number }` | `201 Board` pré-rempli. **Uniquement si `NODE_ENV=test`** |
+| POST | `/api/test/seed` | `{ name, elements: number, mixed?: boolean }` | `201 Board` pré-rempli (post-its, ou mélange de post-its, formes, textes et flèches si `mixed`). **Uniquement si `NODE_ENV=test`** |
 | POST | `/api/test/reset` | | `204`, vide la base. **Uniquement si `NODE_ENV=test`** |
 
 Validation des entrées par schémas zod, erreurs au format `{ error: { code, message } }`.
