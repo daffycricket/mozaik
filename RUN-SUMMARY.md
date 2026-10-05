@@ -39,6 +39,12 @@
 - end=2026-10-05T05:43:30+00:00
 - sessions=35
 - stop_reason=nombre maximal de sessions atteint (35, dont 15 après la reprise)
+- resumed=2026-10-05T17:52:23Z
+- runner_commit=34dec3f
+- resume_sessions=1
+- end=2026-10-05T18:02:51+00:00
+- sessions=36
+- stop_reason=nombre maximal de sessions atteint (36, dont 1 après la reprise)
 
 ## Consommation
 
@@ -79,7 +85,8 @@
 | 33 | 2026-10-05T04:44:09+00:00 | 990 | 0 | F08-S3 | 156789 | 18420 | 20419 | 6936024 | 0 | 0.241 |
 | 34 | 2026-10-05T05:03:10+00:00 | 570 | 0 | F02-S3 | 105912 | 7461 | 13208 | 3643796 | 0 | 0.1303 |
 | 35 | 2026-10-05T05:15:14+00:00 | 1530 | 0 | B-001 | 199610 | 11423 | 20361 | 6094118 | 0 | 0.2196 |
-| **Total** | | 56987 | | | 5280495 | 678296 | 991052 | 312518450 | 0 | 10.5441 |
+| 36 | 2026-10-05T17:52:28+00:00 | 450 | 0 | B-002 | 95923 | 7716 | 4935 | 2585546 | 0 | 0.0944 |
+| **Total** | | 57437 | | | 5376418 | 686012 | 995987 | 315103996 | 0 | 10.6385 |
 
 Coûts calculés par OpenCode à partir des tarifs connus du modèle (0 si le tarif n'est pas renseigné dans `opencode.json`).
 
@@ -166,21 +173,25 @@ Coûts calculés par OpenCode à partir des tarifs connus du modèle (0 si le ta
 | contrôle | B-001 | Test hérité modifié : e2e/fluidity/board-pan.spec.ts, modification justifiée (entrée test au journal, ticket bug). | non |
 | contrôle | B-001 | Vérification indépendante de main @ fffee9d réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.16 %, branches 83.06 %). | non |
 | run | RUN | Fin du run après 35 session(s) : nombre maximal de sessions atteint (35, dont 15 après la reprise). | oui |
+| run | RUN | Reprise du run : session 36, outillage @ 34dec3f. | non |
+| contrôle | B-002 | Test hérité modifié : e2e/fluidity/board-zoom.spec.ts, modification justifiée (entrée test au journal, ticket bug). | non |
+| contrôle | B-002 | Vérification indépendante de main @ c8e6e12 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.16 %, branches 83.06 %). | non |
+| run | RUN | Fin du run après 36 session(s) : nombre maximal de sessions atteint (36, dont 1 après la reprise). | oui |
 
-Totaux : contrôle 67, garde-fou 1, run 11.
+Totaux : contrôle 69, garde-fou 1, run 13.
 
 ## Tickets (backlog de main)
-- done : 35
+- done : 36
 - in-progress : 0
 - blocked : 0
-- todo : 1
+- todo : 0
 
 ## Journal
-- entrées à revoir : 162
+- entrées à revoir : 165
 
 ## Git
-- commits sur main : 126
-- branche publiée : main @ e588caf
+- commits sur main : 130
+- branche publiée : main @ 940c146
 
 ## Sessions
 ```
@@ -386,6 +397,16 @@ Fin du run. Synthèse : RUN-SUMMARY.md
    publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ e588caf
 Arrêt : nombre maximal de sessions atteint (35, dont 15 après la reprise)
    journal : 1 événement(s) (run)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 934ee8b
+Fin du run. Synthèse : RUN-SUMMARY.md
+== reprise 2026-10-05T17:52:28+00:00 : session 36, outillage @ 34dec3f, branche main, main=934ee8b
+== session 36 2026-10-05T17:52:28+00:00 main=934ee8b
+   exit=0 durée=450s ticket=B-002 tokens in=95923 out=7716 reasoning=4935 cache_read=2585546 cache_write=0 coût=0.0944 USD
+   vérification indépendante : réussie
+   journal : 3 événement(s) (run, contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 940c146
+Arrêt : nombre maximal de sessions atteint (36, dont 1 après la reprise)
+   journal : 1 événement(s) (run)
 ```
 
 ## opencode stats
@@ -393,21 +414,21 @@ Arrêt : nombre maximal de sessions atteint (35, dont 15 après la reprise)
 ┌────────────────────────────────────────────────────────┐
 │                       OVERVIEW                         │
 ├────────────────────────────────────────────────────────┤
-│Sessions                                             35 │
-│Messages                                          2,940 │
-│Days                                                  1 │
+│Sessions                                             36 │
+│Messages                                          2,977 │
+│Days                                                  2 │
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
 │                    COST & TOKENS                       │
 ├────────────────────────────────────────────────────────┤
-│Total Cost                                       $10.54 │
-│Avg Cost/Day                                     $10.54 │
-│Avg Tokens/Session                                 9.1M │
+│Total Cost                                       $10.64 │
+│Avg Cost/Day                                      $5.32 │
+│Avg Tokens/Session                                 8.9M │
 │Median Tokens/Session                              8.2M │
-│Input                                              5.3M │
-│Output                                           678.3K │
-│Cache Read                                       312.5M │
+│Input                                              5.4M │
+│Output                                           686.0K │
+│Cache Read                                       315.1M │
 │Cache Write                                           0 │
 └────────────────────────────────────────────────────────┘
 
@@ -415,23 +436,23 @@ Arrêt : nombre maximal de sessions atteint (35, dont 15 après la reprise)
 │                      MODEL USAGE                       │
 ├────────────────────────────────────────────────────────┤
 │ umans/umans-deepseek-v4.1-flash                        │
-│  Messages                                        2,905 │
-│  Input Tokens                                     5.3M │
+│  Messages                                        2,941 │
+│  Input Tokens                                     5.4M │
 │  Output Tokens                                    1.7M │
-│  Cache Read                                     312.5M │
+│  Cache Read                                     315.1M │
 │  Cache Write                                         0 │
-│  Cost                                         $10.5442 │
+│  Cost                                         $10.6386 │
 ├────────────────────────────────────────────────────────┤
 [1A└────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
 │                      TOOL USAGE                        │
 ├────────────────────────────────────────────────────────┤
-│ read               ████████████████████ 1581 (39.0%)   │
-│ bash               ████████████████     1316 (32.4%)   │
-│ edit               ████████             700 (17.3%)    │
-│ write              ████                 388 ( 9.6%)    │
-│ todowrite          █                     63 ( 1.6%)    │
+│ read               ████████████████████ 1605 (39.1%)   │
+│ bash               ████████████████     1332 (32.4%)   │
+│ edit               ████████             708 (17.2%)    │
+│ write              ████                 389 ( 9.5%)    │
+│ todowrite          █                     67 ( 1.6%)    │
 │ grep               █                      5 ( 0.1%)    │
 │ webfetch           █                      3 ( 0.1%)    │
 └────────────────────────────────────────────────────────┘

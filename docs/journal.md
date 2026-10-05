@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-05 | RUN | run | Fin du run après 36 session(s) : nombre maximal de sessions atteint (36, dont 1 après la reprise). | RUN-SUMMARY.md | oui |
 | 2026-10-05 | B-002 | contrôle | Vérification indépendante de main @ c8e6e12 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.16 %, branches 83.06 %). | logs/verify-036.log | non |
 | 2026-10-05 | B-002 | contrôle | Test hérité modifié : e2e/fluidity/board-zoom.spec.ts, modification justifiée (entrée test au journal, ticket bug). | session 036 (logs du run) | non |
 | 2026-10-05 | RUN | run | Reprise du run : session 36, outillage @ 34dec3f. | logs/loop.log | non |
