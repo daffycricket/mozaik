@@ -143,6 +143,7 @@ Note : les tests de AC1 à AC5 vivent dans `e2e-docker/`, hors de `pnpm test:e2e
 |---|---|---|---|---|
 | B-001 | Mesure FL-2 du pan instable sous charge | F09-S2 | todo | F02-S1-AC4 : intervalle d'image max de 411 ms (seuil 200 ms) au premier run e2e complet, repasse isolé puis au run complet suivant ; à investiguer (charge machine, GC). |
 | B-002 | Mesure FL-2 du zoom instable sous charge | F10-S2 | todo | F02-S2-AC4 : intervalle d'image max de 547 ms (seuil 200 ms, plancher 500 ms) au run e2e complet, repasse isolé puis au run complet suivant ; à investiguer (charge machine, GC). |
+| B-003 | Redimensionnement : annulation partielle sous charge | F06-S2 | in-progress | Vérification indépendante de main @ 5c575cf : `[F07-S3-AC4]` échoue (ligne 142) en attendant le retour de la largeur après un seul `Ctrl+Z` (attendu 100, reçu 124). Cause : un geste scindé par un blocage du fil principal > `captureTimeout` (500 ms). |
 
 ### B-001 : Mesure FL-2 du pan instable sous charge
 
@@ -159,6 +160,16 @@ Contexte : `e2e/fluidity/board-zoom.spec.ts`, exigence FL-2 (F00).
 Critères d'acceptance :
 
 - **B-002-AC1** : `pnpm test:e2e` complet enchaîné plusieurs fois de suite ne fait plus échouer F02-S2-AC4, sans abaisser les seuils de F00 ni marquer le test `skip`.
+
+### B-003 : Redimensionnement : annulation partielle sous charge
+
+Contexte : `e2e/fluidity/board-resize.spec.ts` (ligne 142, `[F07-S3-AC4]`), `packages/model/src/history.ts`, `apps/web/src/canvas/use-select.ts`, F07-S3-AC4, F08-S2-AC1.
+
+Cause : un geste de glisser écrit dans Yjs plusieurs fois (au plus toutes les 50 ms) ; le `Y.UndoManager` fusionne ces écritures en une entrée tant qu'elles sont à moins de `captureTimeout` (500 ms). Un blocage du fil principal de plus de 500 ms entre deux écritures scinde le geste, et un seul `Ctrl+Z` n'annule que la dernière partie.
+
+Critères d'acceptance :
+
+- **B-003-AC1** : un geste de glisser (déplacement, redimensionnement, glisser d'extrémité de flèche) reste une seule entrée d'annulation même si le fil principal se bloque plus de 500 ms entre deux écritures intermédiaires ; `e2e/fluidity/board-resize.spec.ts` enchaîné plusieurs fois de suite ne fait plus échouer sa vérification d'annulation (ligne 142), sans abaisser les seuils de F00 ni marquer le test `skip`.
 
 ## Dette technique
 
