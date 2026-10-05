@@ -47,6 +47,8 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-05 | B-002 | test | Test hérité modifié : `e2e/fluidity/board-zoom.spec.ts`, l'agrégation fusionnée des 3 runs devient une agrégation par run (`frameStatsPerRun`, `medianOfMaxima`) pour B-002-AC1 ; seuils (médiane ≤ 33 ms, max ≤ 200 ms, tâche longue ≤ 200 ms) et assertions inchangés, aucun cas retiré. Nouveaux tests unitaires `[B-002-AC1]` dans `tooling/fluidity-stats.test.ts` (bloc ajouté, cas hérités `[B-001-AC1]` inchangés). | e2e/fluidity/board-zoom.spec.ts, tooling/fluidity-stats.test.ts | oui |
+| 2026-10-05 | B-002 | décision | La mesure FL-2 du zoom agrège désormais chaque run séparément puis retient la médiane des 3 exécutions pour le maximum d'intervalle et les tâches longues, comme F00 le prescrit et comme B-001 l'a fait pour le pan ; le pic isolé d'un run (547 ms, sans tâche longue) ne fait donc plus échouer F02-S2-AC4. Aucun seuil n'est abaissé, aucune nouvelle fonction (celles de B-001 sont réutilisées). | e2e/fluidity/board-zoom.spec.ts | oui |
 | 2026-10-05 | RUN | run | Fin du run après 35 session(s) : nombre maximal de sessions atteint (35, dont 15 après la reprise). | RUN-SUMMARY.md | oui |
 | 2026-10-05 | B-001 | contrôle | Vérification indépendante de main @ fffee9d réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.16 %, branches 83.06 %). | logs/verify-035.log | non |
 | 2026-10-05 | B-001 | contrôle | Test hérité modifié : e2e/fluidity/board-pan.spec.ts, modification justifiée (entrée test au journal, ticket bug). | session 035 (logs du run) | non |

@@ -39,3 +39,32 @@ describe('[B-001-AC1] frame interval aggregation over three runs', () => {
     expect(medianOfMaxima([[250], [250], [0]])).toBe(250);
   });
 });
+
+describe('[B-002-AC1] zoom frame interval aggregation over three runs', () => {
+  test('[B-002-AC1] absorbs the spike of a single unstable zoom run among three', () => {
+    const stats = frameStatsPerRun([
+      [16, 16, 16],
+      [16, 547, 16],
+      [16, 16, 16],
+    ]);
+
+    expect(stats.medianMs).toBe(16);
+    expect(stats.maxMs).toBe(16);
+    expect(stats.count).toBe(9);
+  });
+
+  test('[B-002-AC1] still fails when the jank affects two zoom runs out of three', () => {
+    const stats = frameStatsPerRun([
+      [16, 547],
+      [16, 547],
+      [16, 16],
+    ]);
+
+    expect(stats.maxMs).toBe(547);
+  });
+
+  test('[B-002-AC1] absorbs an isolated long task spike among three zoom runs', () => {
+    expect(medianOfMaxima([[0], [547], [0]])).toBe(0);
+    expect(medianOfMaxima([[547], [547], [0]])).toBe(547);
+  });
+});
