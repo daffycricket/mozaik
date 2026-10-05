@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-05 | RUN | run | Fin du run après 35 session(s) : nombre maximal de sessions atteint (35, dont 15 après la reprise). | RUN-SUMMARY.md | oui |
 | 2026-10-05 | B-001 | contrôle | Vérification indépendante de main @ fffee9d réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.16 %, branches 83.06 %). | logs/verify-035.log | non |
 | 2026-10-05 | B-001 | contrôle | Test hérité modifié : e2e/fluidity/board-pan.spec.ts, modification justifiée (entrée test au journal, ticket bug). | session 035 (logs du run) | non |
 | 2026-10-05 | B-001 | contrôle | Commit(s) non conforme(s) à process/git.md : f199135 « docs(plan): B-001#0 plan 1 step » (trailer Refs absent, trailer Plan-Step absent). | session 035 (logs du run) | oui |

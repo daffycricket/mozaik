@@ -33,6 +33,12 @@
 - end=2026-10-04T18:28:16+00:00
 - sessions=20
 - stop_reason=nombre maximal de sessions atteint (20, dont 10 après la reprise)
+- resumed=2026-10-04T18:54:14Z
+- runner_commit=34dec3f
+- resume_sessions=15
+- end=2026-10-05T05:43:30+00:00
+- sessions=35
+- stop_reason=nombre maximal de sessions atteint (35, dont 15 après la reprise)
 
 ## Consommation
 
@@ -58,7 +64,22 @@
 | 18 | 2026-10-04T17:19:27+00:00 | 1560 | 0 | F10-S2 | 203451 | 27443 | 52996 | 16704262 | 0 | 0.5465 |
 | 19 | 2026-10-04T17:46:40+00:00 | 1231 | 0 | F03-S2 | 166674 | 24537 | 32567 | 11633960 | 0 | 0.385 |
 | 20 | 2026-10-04T18:08:26+00:00 | 1110 | 0 | F07-S1 | 167281 | 25438 | 28968 | 12288310 | 0 | 0.4018 |
-| **Total** | | 23973 | | | 2984295 | 422727 | 684246 | 198031282 | 0 | 6.6566 |
+| 21 | 2026-10-04T18:54:17+00:00 | 1171 | 0 | F03-S3 | 157399 | 17952 | 26539 | 8828878 | 0 | 0.2975 |
+| 22 | 2026-10-04T19:15:19+00:00 | 1350 | 0 | F07-S2 | 160922 | 23720 | 37227 | 10991650 | 0 | 0.3685 |
+| 23 | 2026-10-04T19:39:29+00:00 | 840 | 0 | F07-S3 | 140723 | 18569 | 19142 | 6159760 | 0 | 0.2162 |
+| 24 | 2026-10-04T19:55:22+00:00 | 1171 | 0 | F07-S4 | 143824 | 19691 | 25951 | 7678736 | 0 | 0.264 |
+| 25 | 2026-10-04T20:16:50+00:00 | 480 | 0 | F08-S1 | 100074 | 9645 | 7115 | 3836494 | 0 | 0.1325 |
+| 26 | 2026-10-04T20:26:46+00:00 | 1609 | 0 | F08-S2 | 142771 | 16600 | 19064 | 7935680 | 0 | 0.265 |
+| 27 | 2026-10-04T20:55:38+00:00 | 1050 | 0 | F04-S1 | 154184 | 21791 | 19099 | 10597628 | 0 | 0.3444 |
+| 28 | 2026-10-04T21:15:07+00:00 | 961 | 0 | F05-S1 | 148961 | 20864 | 14154 | 9253636 | 0 | 0.3025 |
+| 29 | 2026-10-04T21:33:17+00:00 | 631 | 0 | F05-S2 | 78197 | 8149 | 9174 | 2487662 | 0 | 0.0918 |
+| 30 | 2026-10-04T21:45:56+00:00 | 1230 | 0 | F06-S1 | 164014 | 22124 | 21356 | 10885874 | 0 | 0.3555 |
+| 31 | 2026-10-04T22:08:47+00:00 | 8776 | 0 | F06-S2 | 279836 | 16806 | 14734 | 6738618 | 0 | 0.2496 |
+| 32 | 2026-10-05T01:44:04+00:00 | 10655 | 0 | B-003 | 162984 | 22354 | 39263 | 12418614 | 0 | 0.4091 |
+| 33 | 2026-10-05T04:44:09+00:00 | 990 | 0 | F08-S3 | 156789 | 18420 | 20419 | 6936024 | 0 | 0.241 |
+| 34 | 2026-10-05T05:03:10+00:00 | 570 | 0 | F02-S3 | 105912 | 7461 | 13208 | 3643796 | 0 | 0.1303 |
+| 35 | 2026-10-05T05:15:14+00:00 | 1530 | 0 | B-001 | 199610 | 11423 | 20361 | 6094118 | 0 | 0.2196 |
+| **Total** | | 56987 | | | 5280495 | 678296 | 991052 | 312518450 | 0 | 10.5441 |
 
 Coûts calculés par OpenCode à partir des tarifs connus du modèle (0 si le tarif n'est pas renseigné dans `opencode.json`).
 
@@ -120,21 +141,46 @@ Coûts calculés par OpenCode à partir des tarifs connus du modèle (0 si le ta
 | contrôle | F03-S2 | Vérification indépendante de main @ 8729fd6 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 88.73 %, branches 82.73 %). | non |
 | contrôle | F07-S1 | Vérification indépendante de main @ 12912cb réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 88.67 %, branches 82.83 %). | non |
 | run | RUN | Fin du run après 20 session(s) : nombre maximal de sessions atteint (20, dont 10 après la reprise). | oui |
+| run | RUN | Reprise du run : sessions 21 à 35, outillage @ 34dec3f. | non |
+| contrôle | F03-S3 | Vérification indépendante de main @ 76e882e réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 89.26 %, branches 82.78 %). | non |
+| contrôle | F07-S2 | Vérification indépendante de main @ 2d68263 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 88.28 %, branches 80.37 %). | non |
+| contrôle | F07-S3 | Commit(s) non conforme(s) à process/git.md : aab389b « docs(plan): F07-S3#0 plan 1 step » (trailer Refs absent, trailer Plan-Step absent). | oui |
+| contrôle | F07-S3 | Vérification indépendante de main @ 62b99e5 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 88.57 %, branches 80.88 %). | non |
+| contrôle | F07-S4 | Test hérité modifié : apps/web/src/components/board/context-bar.test.tsx, modification justifiée (entrée test au journal, critère F07-S4-ACn ou règle UI du ticket citée) ; 1 test(s) disparu(s) : « [F03-S3-AC1] hides the bar when the selection hold ». | oui |
+| contrôle | F07-S4 | Rejeu : l'ancienne version de apps/web/src/components/board/context-bar.test.tsx échoue sur le nouveau code ; changement de comportement justifié (critère F07-S4-ACn ou règle UI du ticket citée). | oui |
+| contrôle | F07-S4 | Vérification indépendante de main @ b150040 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 89.19 %, branches 81.63 %). | non |
+| contrôle | F08-S1 | Vérification indépendante de main @ 539b3f9 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 89.09 %, branches 81.65 %). | non |
+| contrôle | F08-S2 | Vérification indépendante de main @ 2746ddc réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.14 %, branches 83.42 %). | non |
+| contrôle | F04-S1 | Vérification indépendante de main @ 8f9f3c5 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90 %, branches 83.19 %). | non |
+| contrôle | F05-S1 | Vérification indépendante de main @ 75c82da réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.17 %, branches 83.58 %). | non |
+| contrôle | F05-S2 | Vérification indépendante de main @ b56636b réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.17 %, branches 83.58 %). | non |
+| contrôle | F06-S1 | Commit(s) non conforme(s) à process/git.md : a93767a « docs(plan): F06-S1#0 plan 1 step » (trailer Refs absent, trailer Plan-Step absent). | oui |
+| contrôle | F06-S1 | Vérification indépendante de main @ 1036deb réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.13 %, branches 83.41 %). | non |
+| contrôle | F06-S2 | Vérification indépendante de main @ 5c575cf en échec : test:e2e : échec (code 1). La session suivante doit corriger via un ticket bug. | oui |
+| garde-fou | B-003 | Bloqué (bash) : cd /workspace && rm e2e/fluidity/_debug-resize.spec.ts tmp-undo-split.cjs && ls e2e/fluidity/ / head -> e2e/fluidity/arrow-create.spec.ts, e2e/fluidity/arrow-edit.spec.ts, e2e/fluidity/board-move-remote.spec.ts, e2e/fluidity/board-move.spec.ts, e2e/fluidity/board-pan.spec.ts. Règle : Interdit de supprimer ou déplacer un test des tickets précédents (process/testing.md, tests de non-régression). | oui |
+| contrôle | B-003 | Vérification indépendante de main @ ddce07a réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.3 %, branches 84.08 %). | non |
+| contrôle | F08-S3 | Commit(s) non conforme(s) à process/git.md : 04c4d62 « docs(plan): F08-S3#0 plan 2 steps » (trailer Refs absent, trailer Plan-Step absent). | oui |
+| contrôle | F08-S3 | Vérification indépendante de main @ 7e7b859 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.52 %, branches 83.88 %). | non |
+| contrôle | F02-S3 | Vérification indépendante de main @ 986a041 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.16 %, branches 83.06 %). | non |
+| contrôle | B-001 | Commit(s) non conforme(s) à process/git.md : f199135 « docs(plan): B-001#0 plan 1 step » (trailer Refs absent, trailer Plan-Step absent). | oui |
+| contrôle | B-001 | Test hérité modifié : e2e/fluidity/board-pan.spec.ts, modification justifiée (entrée test au journal, ticket bug). | non |
+| contrôle | B-001 | Vérification indépendante de main @ fffee9d réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.16 %, branches 83.06 %). | non |
+| run | RUN | Fin du run après 35 session(s) : nombre maximal de sessions atteint (35, dont 15 après la reprise). | oui |
 
-Totaux : contrôle 45, run 9.
+Totaux : contrôle 67, garde-fou 1, run 11.
 
 ## Tickets (backlog de main)
-- done : 20
+- done : 35
 - in-progress : 0
 - blocked : 0
-- todo : 15
+- todo : 1
 
 ## Journal
-- entrées à revoir : 115
+- entrées à revoir : 162
 
 ## Git
-- commits sur main : 79
-- branche publiée : main @ 3807f51
+- commits sur main : 126
+- branche publiée : main @ e588caf
 
 ## Sessions
 ```
@@ -260,6 +306,86 @@ Fin du run. Synthèse : RUN-SUMMARY.md
    publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 3807f51
 Arrêt : nombre maximal de sessions atteint (20, dont 10 après la reprise)
    journal : 1 événement(s) (run)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 3d6e091
+Fin du run. Synthèse : RUN-SUMMARY.md
+== reprise 2026-10-04T18:54:17+00:00 : sessions 21 à 35, outillage @ 34dec3f, branche main, main=3d6e091
+== session 21 2026-10-04T18:54:17+00:00 main=3d6e091
+   exit=0 durée=1171s ticket=F03-S3 tokens in=157399 out=17952 reasoning=26539 cache_read=8828878 cache_write=0 coût=0.2975 USD
+   vérification indépendante : réussie
+   journal : 2 événement(s) (run, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ c7da943
+== session 22 2026-10-04T19:15:19+00:00 main=c7da943
+   exit=0 durée=1350s ticket=F07-S2 tokens in=160922 out=23720 reasoning=37227 cache_read=10991650 cache_write=0 coût=0.3685 USD
+   vérification indépendante : réussie
+   journal : 1 événement(s) (contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 79050ee
+== session 23 2026-10-04T19:39:29+00:00 main=79050ee
+   exit=0 durée=840s ticket=F07-S3 tokens in=140723 out=18569 reasoning=19142 cache_read=6159760 cache_write=0 coût=0.2162 USD
+   vérification indépendante : réussie
+   journal : 2 événement(s) (contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ c80ec24
+== session 24 2026-10-04T19:55:22+00:00 main=c80ec24
+   exit=0 durée=1171s ticket=F07-S4 tokens in=143824 out=19691 reasoning=25951 cache_read=7678736 cache_write=0 coût=0.264 USD
+   vérification indépendante : réussie
+   journal : 3 événement(s) (contrôle, contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 8b96f10
+== session 25 2026-10-04T20:16:50+00:00 main=8b96f10
+   exit=0 durée=480s ticket=F08-S1 tokens in=100074 out=9645 reasoning=7115 cache_read=3836494 cache_write=0 coût=0.1325 USD
+   vérification indépendante : réussie
+   journal : 1 événement(s) (contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 10b9435
+== session 26 2026-10-04T20:26:46+00:00 main=10b9435
+   exit=0 durée=1609s ticket=F08-S2 tokens in=142771 out=16600 reasoning=19064 cache_read=7935680 cache_write=0 coût=0.265 USD
+   vérification indépendante : réussie
+   journal : 1 événement(s) (contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 3c103f2
+== session 27 2026-10-04T20:55:38+00:00 main=3c103f2
+   exit=0 durée=1050s ticket=F04-S1 tokens in=154184 out=21791 reasoning=19099 cache_read=10597628 cache_write=0 coût=0.3444 USD
+   vérification indépendante : réussie
+   journal : 1 événement(s) (contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ a63448a
+== session 28 2026-10-04T21:15:07+00:00 main=a63448a
+   exit=0 durée=961s ticket=F05-S1 tokens in=148961 out=20864 reasoning=14154 cache_read=9253636 cache_write=0 coût=0.3025 USD
+   vérification indépendante : réussie
+   journal : 1 événement(s) (contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 7ec714c
+== session 29 2026-10-04T21:33:17+00:00 main=7ec714c
+   exit=0 durée=631s ticket=F05-S2 tokens in=78197 out=8149 reasoning=9174 cache_read=2487662 cache_write=0 coût=0.0918 USD
+   vérification indépendante : réussie
+   journal : 1 événement(s) (contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ cabc618
+== session 30 2026-10-04T21:45:56+00:00 main=cabc618
+   exit=0 durée=1230s ticket=F06-S1 tokens in=164014 out=22124 reasoning=21356 cache_read=10885874 cache_write=0 coût=0.3555 USD
+   vérification indépendante : réussie
+   journal : 2 événement(s) (contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ b252030
+== session 31 2026-10-04T22:08:47+00:00 main=b252030
+   exit=0 durée=8776s ticket=F06-S2 tokens in=279836 out=16806 reasoning=14734 cache_read=6738618 cache_write=0 coût=0.2496 USD
+   vérification indépendante : échec (test:e2e : échec (code 1))
+   journal : 1 événement(s) (contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ c7f3648
+== session 32 2026-10-05T01:44:04+00:00 main=c7f3648
+   exit=0 durée=10655s ticket=B-003 tokens in=162984 out=22354 reasoning=39263 cache_read=12418614 cache_write=0 coût=0.4091 USD
+   vérification indépendante : réussie
+   journal : 2 événement(s) (garde-fou, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ bdce2bb
+== session 33 2026-10-05T04:44:09+00:00 main=bdce2bb
+   exit=0 durée=990s ticket=F08-S3 tokens in=156789 out=18420 reasoning=20419 cache_read=6936024 cache_write=0 coût=0.241 USD
+   vérification indépendante : réussie
+   journal : 2 événement(s) (contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ c05f902
+== session 34 2026-10-05T05:03:10+00:00 main=c05f902
+   exit=0 durée=570s ticket=F02-S3 tokens in=105912 out=7461 reasoning=13208 cache_read=3643796 cache_write=0 coût=0.1303 USD
+   vérification indépendante : réussie
+   journal : 1 événement(s) (contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ 543503c
+== session 35 2026-10-05T05:15:14+00:00 main=543503c
+   exit=0 durée=1530s ticket=B-001 tokens in=199610 out=11423 reasoning=20361 cache_read=6094118 cache_write=0 coût=0.2196 USD
+   vérification indépendante : réussie
+   journal : 3 événement(s) (contrôle, contrôle, contrôle)
+   publié : run/20261004-100537-umans-umans-deepseek-v4.1-flash-payg @ e588caf
+Arrêt : nombre maximal de sessions atteint (35, dont 15 après la reprise)
+   journal : 1 événement(s) (run)
 ```
 
 ## opencode stats
@@ -267,21 +393,21 @@ Arrêt : nombre maximal de sessions atteint (20, dont 10 après la reprise)
 ┌────────────────────────────────────────────────────────┐
 │                       OVERVIEW                         │
 ├────────────────────────────────────────────────────────┤
-│Sessions                                             20 │
-│Messages                                          1,836 │
+│Sessions                                             35 │
+│Messages                                          2,940 │
 │Days                                                  1 │
 └────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
 │                    COST & TOKENS                       │
 ├────────────────────────────────────────────────────────┤
-│Total Cost                                        $6.66 │
-│Avg Cost/Day                                      $6.66 │
-│Avg Tokens/Session                                10.1M │
-│Median Tokens/Session                              8.9M │
-│Input                                              3.0M │
-│Output                                           422.7K │
-│Cache Read                                       198.0M │
+│Total Cost                                       $10.54 │
+│Avg Cost/Day                                     $10.54 │
+│Avg Tokens/Session                                 9.1M │
+│Median Tokens/Session                              8.2M │
+│Input                                              5.3M │
+│Output                                           678.3K │
+│Cache Read                                       312.5M │
 │Cache Write                                           0 │
 └────────────────────────────────────────────────────────┘
 
@@ -289,24 +415,24 @@ Arrêt : nombre maximal de sessions atteint (20, dont 10 après la reprise)
 │                      MODEL USAGE                       │
 ├────────────────────────────────────────────────────────┤
 │ umans/umans-deepseek-v4.1-flash                        │
-│  Messages                                        1,816 │
-│  Input Tokens                                     3.0M │
-│  Output Tokens                                    1.1M │
-│  Cache Read                                     198.0M │
+│  Messages                                        2,905 │
+│  Input Tokens                                     5.3M │
+│  Output Tokens                                    1.7M │
+│  Cache Read                                     312.5M │
 │  Cache Write                                         0 │
-│  Cost                                          $6.6567 │
+│  Cost                                         $10.5442 │
 ├────────────────────────────────────────────────────────┤
 [1A└────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────┐
 │                      TOOL USAGE                        │
 ├────────────────────────────────────────────────────────┤
-│ read               ████████████████████ 962 (37.8%)    │
-│ bash               █████████████████    827 (32.5%)    │
-│ edit               ████████             414 (16.2%)    │
-│ write              ██████               298 (11.7%)    │
-│ todowrite          █                     40 ( 1.6%)    │
-│ grep               █                      4 ( 0.2%)    │
+│ read               ████████████████████ 1581 (39.0%)   │
+│ bash               ████████████████     1316 (32.4%)   │
+│ edit               ████████             700 (17.3%)    │
+│ write              ████                 388 ( 9.6%)    │
+│ todowrite          █                     63 ( 1.6%)    │
+│ grep               █                      5 ( 0.1%)    │
 │ webfetch           █                      3 ( 0.1%)    │
 └────────────────────────────────────────────────────────┘
 
