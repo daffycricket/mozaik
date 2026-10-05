@@ -47,6 +47,7 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
+| 2026-10-05 | F02-S3 | contrôle | Vérification indépendante de main @ 986a041 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.16 %, branches 83.06 %). | logs/verify-034.log | non |
 | 2026-10-05 | F02-S3 | décision | L'API de test `POST /api/test/seed` gagne une option `mixed` : quand elle est vraie, le board pré-rempli alterne post-its, rectangles, ellipses, textes et flèches (F02-S3-AC1) ; sans elle, le seed reste composé de post-its, pour ne pas toucher aux tests hérités qui s'appuient sur des post-its à des index précis (F03-S2-AC5, F03-S3-AC3, F05-S1-AC4). | apps/server/src/app.ts, e2e/fluidity/board-open.spec.ts | oui |
 | 2026-10-05 | F08-S3 | contrôle | Vérification indépendante de main @ 7e7b859 réussie : lint, typecheck, test:cov, test:e2e, ac:check, couverture conforme aux trailers (lignes 90.52 %, branches 83.88 %). | logs/verify-033.log | non |
 | 2026-10-05 | F08-S3 | contrôle | Commit(s) non conforme(s) à process/git.md : 04c4d62 « docs(plan): F08-S3#0 plan 2 steps » (trailer Refs absent, trailer Plan-Step absent). | session 033 (logs du run) | oui |
