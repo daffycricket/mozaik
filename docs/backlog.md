@@ -142,7 +142,7 @@ Note : les tests de AC1 à AC5 vivent dans `e2e-docker/`, hors de `pnpm test:e2e
 | ID | Titre | Découvert dans | Statut | Notes |
 |---|---|---|---|---|
 | B-001 | Mesure FL-2 du pan instable sous charge | F09-S2 | done | F02-S1-AC4 : intervalle d'image max de 411 ms (seuil 200 ms) au premier run e2e complet. Corrigé en appliquant la méthode de F00 (médiane des 3 exécutions) au maximum d'intervalle et aux tâches longues du test de pan (`tooling/fluidity-stats.ts`), seuils inchangés. |
-| B-002 | Mesure FL-2 du zoom instable sous charge | F10-S2 | todo | F02-S2-AC4 : intervalle d'image max de 547 ms (seuil 200 ms, plancher 500 ms) au run e2e complet, repasse isolé puis au run complet suivant ; à investiguer (charge machine, GC). |
+| B-002 | Mesure FL-2 du zoom instable sous charge | F10-S2 | in-progress | F02-S2-AC4 : intervalle d'image max de 547 ms (seuil 200 ms, plancher 500 ms) au run e2e complet, repasse isolé puis au run complet suivant ; à investiguer (charge machine, GC). |
 | B-003 | Redimensionnement : annulation partielle sous charge | F06-S2 | done | Vérification indépendante de main @ 5c575cf : `[F07-S3-AC4]` échoue (ligne 142) en attendant le retour de la largeur après un seul `Ctrl+Z` (attendu 100, reçu 124). Corrigé : `beginHistoryGesture`/`endHistoryGesture` élargissent la fenêtre de fusion pendant un geste (un geste = une entrée). |
 
 ### B-001 : Mesure FL-2 du pan instable sous charge
