@@ -45,7 +45,7 @@ Liste ordonnée de tout le travail. L'agent prend toujours le **premier ticket `
 | 30 | F06-S1 | Tracer une flèche | story | F07-S2 | done |  |
 | 31 | F06-S2 | Modifier une flèche | story | F06-S1 | done |  |
 | 32 | F08-S3 | Dupliquer, copier, coller | story | F06-S1, F05-S1 | done |  |
-| 33 | F02-S3 | Board de 300 éléments | story | F06-S1, F04-S1, F05-S1 | todo |  |
+| 33 | F02-S3 | Board de 300 éléments | story | F06-S1, F04-S1, F05-S1 | in-progress |  |
 
 Note : l'ordre de la colonne `#` prime. Si les dépendances d'un ticket ne sont pas `done`, prendre le suivant éligible et le signaler dans Notes.
 
