@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import * as Y from 'yjs';
 import { createBoardDoc } from './doc';
-import { createBoardHistory } from './history';
-import { createElement, getElement, getElements, moveElements } from './ops';
+import { beginHistoryGesture, createBoardHistory, endHistoryGesture } from './history';
+import { createElement, getElement, getElements, moveElements, updateElement } from './ops';
 
 describe('[F07-S2-AC3] single undo entry per drag', () => {
   test('[F07-S2-AC3] restores the start position with a single undo after several move transactions', () => {
@@ -79,6 +79,54 @@ describe('[F08-S2-AC1] undo and redo', () => {
     history.redo();
     expect(getElement(doc, 's1')).toMatchObject({ x: 0, y: 0 });
 
+    history.destroy();
+    doc.destroy();
+  });
+});
+
+describe('[B-003-AC1] one undo entry per gesture whatever the pauses', () => {
+  test('[B-003-AC1] undoes the whole resize gesture in one step across a stall longer than the merge window', () => {
+    const doc = createBoardDoc();
+    const history = createBoardHistory(doc);
+    createElement(
+      doc,
+      { type: 'sticky', x: 0, y: 0, width: 100, height: 100 },
+      { id: 's1', createdBy: 'u' },
+    );
+
+    beginHistoryGesture(history);
+    updateElement(doc, 's1', { width: 102 });
+    history.lastChange = Date.now() - 600;
+    updateElement(doc, 's1', { width: 160 });
+    endHistoryGesture(history);
+
+    history.undo();
+    expect(getElement(doc, 's1')).toMatchObject({ width: 100 });
+    history.destroy();
+    doc.destroy();
+  });
+
+  test('[B-003-AC1] keeps two gestures separated by the gesture boundaries as two undo entries', () => {
+    const doc = createBoardDoc();
+    const history = createBoardHistory(doc);
+    createElement(
+      doc,
+      { type: 'sticky', x: 0, y: 0, width: 100, height: 100 },
+      { id: 's1', createdBy: 'u' },
+    );
+
+    beginHistoryGesture(history);
+    updateElement(doc, 's1', { width: 140 });
+    endHistoryGesture(history);
+
+    beginHistoryGesture(history);
+    updateElement(doc, 's1', { width: 180 });
+    endHistoryGesture(history);
+
+    history.undo();
+    expect(getElement(doc, 's1')).toMatchObject({ width: 140 });
+    history.undo();
+    expect(getElement(doc, 's1')).toMatchObject({ width: 100 });
     history.destroy();
     doc.destroy();
   });

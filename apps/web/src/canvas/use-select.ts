@@ -6,9 +6,11 @@ import {
   type BoardDoc,
   type BoardHistory,
   type Box,
+  beginHistoryGesture,
   boxFromPoints,
   elementAtPoint,
   elementsInBox,
+  endHistoryGesture,
   getElements,
   isResizable,
   moveElements,
@@ -191,7 +193,9 @@ export function useSelect(
         lastWritten: box,
         timer: null,
       };
-      history?.stopCapturing();
+      if (history !== null) {
+        beginHistoryGesture(history);
+      }
       container.setPointerCapture?.(event.pointerId);
       return true;
     };
@@ -217,7 +221,9 @@ export function useSelect(
         lastWritten: { x1: single.x1, y1: single.y1, x2: single.x2, y2: single.y2 },
         timer: null,
       };
-      history?.stopCapturing();
+      if (history !== null) {
+        beginHistoryGesture(history);
+      }
       container.setPointerCapture?.(event.pointerId);
       return true;
     };
@@ -245,7 +251,9 @@ export function useSelect(
         lastFlushedWorld = world;
         pendingWorld = lastFlushedWorld;
         lastSent = 0;
-        history?.stopCapturing();
+        if (history !== null) {
+          beginHistoryGesture(history);
+        }
         container.setPointerCapture?.(event.pointerId);
         return;
       }
@@ -310,7 +318,9 @@ export function useSelect(
       dragIds = null;
       lastFlushedWorld = null;
       pendingWorld = null;
-      history?.stopCapturing();
+      if (history !== null) {
+        endHistoryGesture(history);
+      }
       if (container.hasPointerCapture?.(event.pointerId)) {
         container.releasePointerCapture(event.pointerId);
       }
@@ -325,7 +335,9 @@ export function useSelect(
       }
       flushResize();
       resize = null;
-      history?.stopCapturing();
+      if (history !== null) {
+        endHistoryGesture(history);
+      }
       if (container.hasPointerCapture?.(event.pointerId)) {
         container.releasePointerCapture(event.pointerId);
       }
@@ -340,7 +352,9 @@ export function useSelect(
       }
       flushArrow();
       arrowDrag = null;
-      history?.stopCapturing();
+      if (history !== null) {
+        endHistoryGesture(history);
+      }
       if (container.hasPointerCapture?.(event.pointerId)) {
         container.releasePointerCapture(event.pointerId);
       }
