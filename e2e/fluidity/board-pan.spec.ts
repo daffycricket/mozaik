@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { recordFluidityMeasure, videoPathFor } from '../support/fluidity-report';
 import {
-  frameStats,
+  frameStatsPerRun,
   installProbe,
-  maximum,
+  medianOfMaxima,
   readFrameIntervals,
   readLongTasks,
   resetProbe,
@@ -33,8 +33,8 @@ test('[F02-S1-AC4] keeps panning a 300-element board free of jank', async ({
     )
     .toBe(300);
 
-  const intervals: number[] = [];
-  const longTasks: number[] = [];
+  const intervalRuns: number[][] = [];
+  const longTaskRuns: number[][] = [];
   for (let run = 0; run < 3; run += 1) {
     await resetProbe(page);
     await page.mouse.move(600, 400);
@@ -50,12 +50,12 @@ test('[F02-S1-AC4] keeps panning a 300-element board free of jank', async ({
           }),
       );
     }
-    intervals.push(...(await readFrameIntervals(page)));
-    longTasks.push(...(await readLongTasks(page)));
+    intervalRuns.push(await readFrameIntervals(page));
+    longTaskRuns.push(await readLongTasks(page));
   }
 
-  const stats = frameStats(intervals);
-  const maxLongTaskMs = maximum(longTasks);
+  const stats = frameStatsPerRun(intervalRuns);
+  const maxLongTaskMs = medianOfMaxima(longTaskRuns);
   recordFluidityMeasure({
     requirement: 'FL-2',
     scenario: 'Pan d’un board de 300 éléments',

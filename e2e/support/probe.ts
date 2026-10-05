@@ -1,5 +1,14 @@
 import type { Page } from '@playwright/test';
 
+export type { FrameStats } from '../../tooling/fluidity-stats';
+export {
+  frameStats,
+  frameStatsPerRun,
+  maximum,
+  median,
+  medianOfMaxima,
+} from '../../tooling/fluidity-stats';
+
 export type ProbeState = {
   frames: number[];
   longTasks: number[];
@@ -90,43 +99,4 @@ export async function readLongTasks(page: Page): Promise<number[]> {
     const browser = globalThis as unknown as ProbeWindow;
     return [...(browser.__probe?.longTasks ?? [])];
   });
-}
-
-/**
- * Returns the median of a list of numbers (0 when the list is empty).
- */
-export function median(values: number[]): number {
-  if (values.length === 0) {
-    return 0;
-  }
-  const sorted = [...values].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  if (sorted.length % 2 === 1) {
-    return sorted[middle] ?? 0;
-  }
-  const low = sorted[middle - 1] ?? 0;
-  const high = sorted[middle] ?? 0;
-  return (low + high) / 2;
-}
-
-/**
- * Returns the largest value of a list (0 when the list is empty).
- */
-export function maximum(values: number[]): number {
-  return values.reduce((max, value) => (value > max ? value : max), 0);
-}
-
-/**
- * Extracts the median and maximum interval from frame intervals (FL-2).
- */
-export function frameStats(intervals: number[]): {
-  medianMs: number;
-  maxMs: number;
-  count: number;
-} {
-  return {
-    medianMs: median(intervals),
-    maxMs: maximum(intervals),
-    count: intervals.length,
-  };
 }
