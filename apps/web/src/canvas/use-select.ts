@@ -1,4 +1,8 @@
 import {
+  type ArrowEndpoint,
+  type ArrowPoints,
+  arrowEndpointAtPoint,
+  arrowWithEndpointMoved,
   type BoardDoc,
   type BoardHistory,
   type Box,
@@ -40,8 +44,22 @@ type ResizeState = {
   timer: ReturnType<typeof setTimeout> | null;
 };
 
+type ArrowDragState = {
+  id: string;
+  endpoint: ArrowEndpoint;
+  origin: ArrowPoints;
+  pendingWorld: Point;
+  lastSent: number;
+  lastWritten: ArrowPoints;
+  timer: ReturnType<typeof setTimeout> | null;
+};
+
 function sameBox(a: Box, b: Box): boolean {
   return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+}
+
+function sameArrow(a: ArrowPoints, b: ArrowPoints): boolean {
+  return a.x1 === b.x1 && a.y1 === b.y1 && a.x2 === b.x2 && a.y2 === b.y2;
 }
 
 /**
@@ -53,8 +71,11 @@ function sameBox(a: Box, b: Box): boolean {
  * are written at most every 50 ms and the drag is a single undo entry (F07-S2).
  * A drag on a handle resizes a single resizable element, keeping the opposite
  * edge fixed, preserving the ratio with Shift and clamping to the minimum size
- * (F07-S3). Inactive while panning (hand tool or space). Returns the rectangle
- * being dragged, to render it.
+ * (F07-S3). A drag on one of the two endpoint handles of a single selected
+ * arrow moves that endpoint, the other staying fixed (F06-S2-AC1); a drag on
+ * the body of an arrow moves both endpoints by the same vector through the
+ * existing move path (F06-S2-AC2). Inactive while panning (hand tool or space).
+ * Returns the rectangle being dragged, to render it.
  */
 export function useSelect(
   containerRef: RefObject<HTMLElement | null>,
@@ -88,6 +109,7 @@ export function useSelect(
     let moveTimer: ReturnType<typeof setTimeout> | null = null;
 
     let resize: ResizeState | null = null;
+    let arrowDrag: ArrowDragState | null = null;
 
     const flushMove = (): void => {
       moveTimer = null;
@@ -126,6 +148,24 @@ export function useSelect(
       updateElement(doc, resize.id, next);
     };
 
+    const flushArrow = (): void => {
+      if (arrowDrag === null) {
+        return;
+      }
+      arrowDrag.timer = null;
+      const next = arrowWithEndpointMoved(
+        arrowDrag.origin,
+        arrowDrag.endpoint,
+        arrowDrag.pendingWorld,
+      );
+      if (sameArrow(next, arrowDrag.lastWritten)) {
+        return;
+      }
+      arrowDrag.lastSent = performance.now();
+      arrowDrag.lastWritten = next;
+      updateElement(doc, arrowDrag.id, next);
+    };
+
     const startResize = (event: PointerEvent, world: Point): boolean => {
       const selection = useSelectionStore.getState().selection;
       const selected = getElements(doc).filter((element) => selection.includes(element.id));
@@ -156,15 +196,42 @@ export function useSelect(
       return true;
     };
 
+    const startArrowDrag = (event: PointerEvent, world: Point): boolean => {
+      const selection = useSelectionStore.getState().selection;
+      const selected = getElements(doc).filter((element) => selection.includes(element.id));
+      const single = selected.length === 1 ? selected[0] : undefined;
+      if (single === undefined || single.type !== 'arrow') {
+        return false;
+      }
+      const tolerance = HANDLE_SIZE / useViewportStore.getState().viewport.zoom;
+      const endpoint = arrowEndpointAtPoint(single, world, tolerance);
+      if (endpoint === undefined) {
+        return false;
+      }
+      arrowDrag = {
+        id: single.id,
+        endpoint,
+        origin: { x1: single.x1, y1: single.y1, x2: single.x2, y2: single.y2 },
+        pendingWorld: world,
+        lastSent: 0,
+        lastWritten: { x1: single.x1, y1: single.y1, x2: single.x2, y2: single.y2 },
+        timer: null,
+      };
+      history?.stopCapturing();
+      container.setPointerCapture?.(event.pointerId);
+      return true;
+    };
+
     const onPointerDown = (event: PointerEvent): void => {
       if (event.button !== 0 || !canSelect()) {
         return;
       }
       const world = worldAt(event);
-      if (startResize(event, world)) {
+      if (startResize(event, world) || startArrowDrag(event, world)) {
         return;
       }
-      const hit = elementAtPoint(getElements(doc), world);
+      const tolerance = HANDLE_SIZE / useViewportStore.getState().viewport.zoom;
+      const hit = elementAtPoint(getElements(doc), world, { tolerance });
       const selection = useSelectionStore.getState();
       if (hit !== undefined) {
         if (event.shiftKey) {
@@ -197,6 +264,16 @@ export function useSelect(
           flushResize();
         } else if (resize.timer === null) {
           resize.timer = setTimeout(flushResize, MOVE_SEND_INTERVAL_MS - elapsed);
+        }
+        return;
+      }
+      if (arrowDrag !== null) {
+        arrowDrag.pendingWorld = worldAt(event);
+        const elapsed = performance.now() - arrowDrag.lastSent;
+        if (elapsed >= MOVE_SEND_INTERVAL_MS) {
+          flushArrow();
+        } else if (arrowDrag.timer === null) {
+          arrowDrag.timer = setTimeout(flushArrow, MOVE_SEND_INTERVAL_MS - elapsed);
         }
         return;
       }
@@ -254,9 +331,28 @@ export function useSelect(
       }
     };
 
+    const endArrowDrag = (event: PointerEvent): void => {
+      if (arrowDrag === null) {
+        return;
+      }
+      if (arrowDrag.timer !== null) {
+        clearTimeout(arrowDrag.timer);
+      }
+      flushArrow();
+      arrowDrag = null;
+      history?.stopCapturing();
+      if (container.hasPointerCapture?.(event.pointerId)) {
+        container.releasePointerCapture(event.pointerId);
+      }
+    };
+
     const onPointerUp = (event: PointerEvent): void => {
       if (resize !== null) {
         endResize(event);
+        return;
+      }
+      if (arrowDrag !== null) {
+        endArrowDrag(event);
         return;
       }
       if (dragIds !== null) {
@@ -311,6 +407,9 @@ export function useSelect(
       }
       if (resize !== null && resize.timer !== null) {
         clearTimeout(resize.timer);
+      }
+      if (arrowDrag !== null && arrowDrag.timer !== null) {
+        clearTimeout(arrowDrag.timer);
       }
       container.removeEventListener('pointerdown', onPointerDown);
       container.removeEventListener('pointermove', onPointerMove);

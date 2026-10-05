@@ -10,6 +10,8 @@ export type Box = { x: number; y: number; width: number; height: number };
 
 export type ArrowPoints = { x1: number; y1: number; x2: number; y2: number };
 
+export type ArrowEndpoint = 'start' | 'end';
+
 /**
  * Endpoints of an arrow dragged from `start` to `end`, or `null` when the drag
  * is shorter than `ARROW_MIN_LENGTH` (F06-S1-AC1, AC2).
@@ -19,6 +21,53 @@ export function arrowFromDrag(start: Point, end: Point): ArrowPoints | null {
     return null;
   }
   return { x1: start.x, y1: start.y, x2: end.x, y2: end.y };
+}
+
+/**
+ * Distance from `point` to the segment `[a, b]`, used to hit-test the body of an
+ * arrow instead of its bounding box (F06-S2-AC2).
+ */
+export function distanceToSegment(point: Point, a: Point, b: Point): number {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const lengthSquared = dx * dx + dy * dy;
+  if (lengthSquared === 0) {
+    return Math.hypot(point.x - a.x, point.y - a.y);
+  }
+  const t = Math.max(0, Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / lengthSquared));
+  return Math.hypot(point.x - (a.x + t * dx), point.y - (a.y + t * dy));
+}
+
+/**
+ * Endpoint of an arrow within `tolerance` of the world point, or `undefined`
+ * when the point is not on one of the two handles (F06-S2-AC1).
+ */
+export function arrowEndpointAtPoint(
+  arrow: ArrowPoints,
+  point: Point,
+  tolerance: number,
+): ArrowEndpoint | undefined {
+  if (Math.hypot(point.x - arrow.x1, point.y - arrow.y1) <= tolerance) {
+    return 'start';
+  }
+  if (Math.hypot(point.x - arrow.x2, point.y - arrow.y2) <= tolerance) {
+    return 'end';
+  }
+  return undefined;
+}
+
+/**
+ * Arrow endpoints after moving one endpoint to `point`, the other staying fixed
+ * (F06-S2-AC1).
+ */
+export function arrowWithEndpointMoved(
+  arrow: ArrowPoints,
+  endpoint: ArrowEndpoint,
+  point: Point,
+): ArrowPoints {
+  return endpoint === 'start'
+    ? { ...arrow, x1: point.x, y1: point.y }
+    : { ...arrow, x2: point.x, y2: point.y };
 }
 
 /**

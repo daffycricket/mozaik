@@ -45,6 +45,8 @@ L'utilisateur trace des flèches sur le canvas pour indiquer des liens ou des fl
 - **F06-S2-AC2** : déplacer la flèche entière
   - Quand je fais glisser le corps de la flèche
   - Alors ses deux extrémités se déplacent du même vecteur
+- **F06-S2-AC3** : fluidité
+  - Le glisser d'une poignée d'extrémité ou du corps d'une flèche respecte FL-1 et FL-2 (F00)
 
 ## Hors périmètre
 

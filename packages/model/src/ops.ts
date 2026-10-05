@@ -1,6 +1,6 @@
 import { generateKeyBetween } from 'fractional-indexing';
 import * as Y from 'yjs';
-import type { Box } from './geometry';
+import { type Box, distanceToSegment } from './geometry';
 import { canReorder, type ReorderDirection, reorderStep } from './order';
 import {
   type Element,
@@ -95,18 +95,31 @@ export function getElement(doc: Y.Doc, id: string): Element | undefined {
 }
 
 /**
- * Returns the topmost element whose bounding box contains the world point, or
- * `undefined` when the point hits nothing (F03-S2-AC1).
+ * Returns the topmost element under the world point, or `undefined` when the
+ * point hits nothing (F03-S2-AC1). An arrow is hit within `tolerance` of its
+ * segment rather than anywhere in its bounding box, so the empty corners of a
+ * diagonal arrow do not capture clicks (F06-S2-AC2).
  */
-export function elementAtPoint(elements: Element[], point: Point): Element | undefined {
+export function elementAtPoint(
+  elements: Element[],
+  point: Point,
+  options: { tolerance?: number } = {},
+): Element | undefined {
+  const tolerance = options.tolerance ?? 0;
   let hit: Element | undefined;
   for (const element of elements) {
-    if (
-      point.x < element.x ||
-      point.x > element.x + element.width ||
-      point.y < element.y ||
-      point.y > element.y + element.height
-    ) {
+    const contains =
+      element.type === 'arrow'
+        ? distanceToSegment(
+            point,
+            { x: element.x1, y: element.y1 },
+            { x: element.x2, y: element.y2 },
+          ) <= tolerance
+        : point.x >= element.x &&
+          point.x <= element.x + element.width &&
+          point.y >= element.y &&
+          point.y <= element.y + element.height;
+    if (!contains) {
       continue;
     }
     if (hit === undefined || element.zIndex > hit.zIndex) {
