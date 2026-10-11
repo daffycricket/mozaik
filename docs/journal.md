@@ -1,49 +1,44 @@
 # Journal du projet
 
-Trace des décisions et des événements qui modifient le cadre du projet pendant l'implémentation. Il permet à l'humain de voir, en revenant, ce que l'agent a décidé ou changé sans lui.
+Trace unique de l'histoire des specs, des décisions et du code de Mozaik. Il permet de retrouver pourquoi chaque élément a changé, et de refaire cette histoire. Aucun autre fichier ne porte de traçabilité, sauf l'en-tête des ADR.
 
-## Ce qui va dans le journal
+## Structure
 
-Une ligne par événement, **la plus récente en haut** :
+1. La section **v1** conserve telles quelles les entrées du run 20261004-100537 qui a produit la v1 (tag `v1.0`), dans leur format d'origine (la plus récente en haut).
+2. La section **Mise en place du mode produit** trace le passage au fonctionnement par tickets.
+3. Puis **une section par ticket**, dans l'ordre de traitement, avec une sous-section par phase : Spec, Spec review, Design, Tech review, Dev, Review, Merge.
 
-| Type | Quand |
-|---|---|
-| `décision` | L'agent tranche un point flou ou non spécifié, ou fait un choix structurant (bibliothèque, format de données, protocole, convention, comportement non décrit) |
-| `spec` | Un critère d'acceptance ou une règle métier est ajouté, précisé ou corrigé dans `docs/features/` |
-| `adr` | Un ADR est créé ou en remplace un autre |
-| `seuil` | Un seuil de fluidité est ajusté (détail dans l'historique de F00) |
-| `test` | Un test est désactivé ou instable, une exclusion de couverture est ajoutée, ou un test hérité est modifié parce que sa spec a changé (citer le chemin de chaque fichier et la spec) |
-| `backlog` | Un ticket est ajouté, découpé, réordonné ou abandonné ; un bug est découvert |
-| `blocage` | Un ticket passe en `blocked` malgré les règles de repli |
-| `dépendance` | Une dépendance est ajoutée ou retirée (avec sa licence) |
-| `environnement` | Problème d'outil ou de machine : Docker absent, version changée, test non exécutable |
-| `abandon` | Une approche est abandonnée et l'enseignement dépasse le ticket |
-| `bilan` | Plus aucun ticket n'est faisable : état final (tickets `done`, `blocked`, restants) et raisons |
-| `garde-fou` | *Écrit par l'outillage du run.* Une commande ou une modification interdite a été bloquée |
-| `contrôle` | *Écrit par l'outillage du run.* Un écart aux règles a été constaté après une session (format, historique, fichier protégé, test désactivé) |
-| `run` | *Écrit par l'outillage du run.* Événement d'exécution : session en échec ou hors délai, crédit épuisé, fin du run |
+```markdown
+## MZK-42 : <titre du ticket>
 
-## Entrées écrites par l'outillage
+Carte : <lien Trello> · Type : <bug, feat, change ou tech> · Branche : `ticket/MZK-42-<slug>`
 
-Quand l'agent est exécuté par un outillage automatisé, celui-ci ajoute lui-même des entrées `garde-fou`, `contrôle` et `run`, dans un commit `chore(run): RUN#0 journal`. L'agent les lit comme les autres, ne les modifie pas, et en tient compte (une entrée `contrôle` signale une règle qu'il a enfreinte).
+### Spec : AAAA-MM-JJ
 
-## Ce qui n'y va pas
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| critère | F08-S1-AC6 | Ajouté : confirmation au-delà de 10 éléments, demandée par la carte | humain | non |
 
-Fichiers créés, code modifié, exécutions de tests, commits, retours arrière à l'intérieur d'une étape : ils sont déjà dans Git, dans les rapports de test et dans le journal du plan du ticket.
+Fichiers modifiés : docs/features/F08-edition.md, docs/design/ecrans.md
+```
 
-## Colonne « À revoir »
+Gabarit complet : [process/gabarits/journal.md](process/gabarits/journal.md).
 
-- `oui` pour les types `décision`, `spec`, `adr`, `seuil`, `test`, `garde-fou` et `contrôle` : l'humain doit en prendre connaissance.
-- `non` pour les autres.
-- L'humain remplace `oui` par `revu` après lecture. L'agent ne modifie jamais cette valeur.
+## Règles
 
-## Format
+- **Types** : `story`, `critère`, `ui`, `adr`, `test`, `fichier`, `décision`, `retour`, `hypothèse`, `question`.
+- **Éléments concernés** : identifiants (`F08-S1`, `F08-S1-AC3`, `UI-DEL-1`, `T-002-AC5`, `adr/0013`) ou chemins de fichiers. C'est par cette colonne qu'on retrouve l'historique d'un élément.
+- **Origine** : `humain` (demande de la carte, réponse à une question, retour de revue) ou `agent`.
+- **À revoir** : `oui` pour une décision de l'agent, `non` sinon. Le lancement de la phase suivante vaut validation : le script passe à `revu` les entrées `oui` des phases précédentes ; le merge valide celles des phases Dev et Review.
+- Une modification qui en entraîne une autre dans un autre fichier est tracée.
+- Une entrée `adr` précise si l'ADR a été créé au design (avant le code) ou au dev (pendant le code).
+- **Fichiers modifiés** : liste générée par le script de la phase à partir de Git, jamais écrite par l'agent.
+- Pas de SHA de commit de branche (le rebase les change) : on cite les sujets `MZK-42#n`. Le SHA du commit de merge est noté dans la sous-section Merge.
+- Un agent ne lit que la section de son ticket, et recherche par identifiant l'historique des éléments qu'il modifie.
 
-- Date : AAAA-MM-JJ.
-- Résumé : une ou deux phrases, la décision et sa raison.
-- Lien : fichier modifié, ADR, plan ou rapport où se trouve le détail.
+## v1 : run 20261004-100537
 
-## Entrées
+Entrées produites pendant la construction de la v1. Les entrées « À revoir : oui » seront revues à part ; elles ne concernent aucun ticket `MZK`. Les liens vers `docs/plans/`, `docs/test-reports/` et `docs/backlog.md` renvoient au tag `v1.0`.
 
 | Date | Ticket | Type | Résumé | Lien | À revoir |
 |---|---|---|---|---|---|
@@ -285,3 +280,27 @@ Fichiers créés, code modifié, exécutions de tests, commits, retours arrière
 | 2026-10-04 | T-001 | dépendance | Ajout des dépendances d'outillage : TypeScript 7.0.2 (Apache-2.0), @biomejs/biome 2.5.15 (MIT), vitest 5.0.3 (MIT), tsx 4.23.15 (MIT), @types/node 26.6.4 (MIT). | package.json | non |
 | 2026-10-04 | T-001 | dépendance | Ajout de Fastify 5.12.5 (MIT) au serveur. | apps/server/package.json | non |
 | 2026-10-04 | T-001 | dépendance | Ajout de React et React-DOM 19.3.0 (MIT), Vite 8.3.2 (MIT), @vitejs/plugin-react 6.1.1 (MIT), @types/react et @types/react-dom 19.3.0 (MIT) au front. | apps/web/package.json | non |
+
+## Mise en place du mode produit
+
+Branche : `setup/mode-produit`
+
+### Restructuration de la documentation et de l'outillage : 2026-10-11
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| fichier | docs/backlog.md, docs/exigences-techniques.md | Le backlog est supprimé : les statuts sont suivis dans Trello. Les critères techniques `T-001` à `T-006` et les critères de bug `B-001` à `B-003` sont déplacés dans `exigences-techniques.md`, avec leurs identifiants. | humain | non |
+| fichier | docs/plans/, docs/test-reports/ | Plans et rapports de test par ticket de la v1 supprimés ; ils restent au tag `v1.0`. Le plan et le rapport d'un ticket vivent désormais dans `docs/tickets/<id>/`. | humain | non |
+| critère | T-001-AC4 | Format des commits : `MZK-<n>#<k>`, commits de phase avec `Refs:` seul, commits de merge acceptés ; l'étape 0 et le commit de bilan `RUN#0` disparaissent. | humain | non |
+| critère | T-002-AC4 | `ac:check` ne lit plus de statuts : tout critère déclaré doit être couvert, puisque la documentation ne décrit que du livré (le trunk) ou ce que la branche du ticket doit livrer. | agent | oui |
+| critère | T-002-AC5 | Le rapport est écrit dans `docs/tickets/<id>/rapport.md`, avec le titre d'étape et les critères lus dans `docs/tickets/<id>/plan.md`. | humain | non |
+| critère | T-002-AC8 | Reformulé sans référence à T-001 : le hook refuse `Report: n/a`. | agent | oui |
+| critère | T-004-AC6, T-005 | Références au rapport T-004 et au statut `done` retirées du texte, sans changement de comportement. | agent | oui |
+| fichier | tooling/acceptance.ts, tooling/ac-check.ts, tooling/report.ts, tooling/commit-msg.ts | Outillage adapté aux critères ci-dessus, tests mis à jour. | agent | oui |
+| story | docs/features/README.md | Règles de création et de modification des features et des stories du mode produit, à la place de « on ne crée jamais de nouvelle story ». | humain | non |
+| critère | F00 (calibrage, point 4) | Un plancher de fluidité intenable devient un bug décrit par l'agent et créé dans Trello par le script, au lieu d'un ticket `T-` dans le backlog. | agent | oui |
+| critère | F00 (calibrage, point 3) | Tableau « Historique des seuils » (vide) supprimé : un changement de seuil est tracé dans le journal, comme toute modification de spec. | humain | non |
+| fichier | docs/features/_template.md | Section « Points tranchés » retirée du gabarit : une feature ne porte pas de traçabilité. | humain | non |
+| fichier | LICENSE, package.json | Licence MIT ajoutée (commit `df58739`, avant cette branche). | humain | non |
+
+Fichiers modifiés : voir la branche `setup/mode-produit`.

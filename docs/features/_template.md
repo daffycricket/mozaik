@@ -27,7 +27,3 @@ En tant que ..., je veux ..., afin de ...
 ## Hors périmètre
 
 - Ce qui n'est volontairement pas couvert.
-
-## Points tranchés
-
-- Point flou rencontré, décision prise et lien vers l'entrée du journal (date).
