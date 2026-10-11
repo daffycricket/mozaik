@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { type Criterion, collectCoveredCriteria, collectCriteria } from './acceptance';
+import { collectCoveredCriteria, extractCriterionIds } from './acceptance';
 
 export type TestLevelCounts = {
   passed: number;
@@ -338,6 +338,17 @@ export function upsertSection(existing: string, stepNumber: number, section: str
   return `${prefix}${section}${suffix}`;
 }
 
+/**
+ * Path of the report of a ticket, relative to the repository root.
+ */
+export function reportRelativePath(ticketId: string): string {
+  return `docs/tickets/${ticketId}/rapport.md`;
+}
+
+function planPath(repoRoot: string, ticketId: string): string {
+  return join(repoRoot, 'docs/tickets', ticketId, 'plan.md');
+}
+
 function trailerCount(counts: TestLevelCounts): string {
   const total = counts.passed + counts.failed;
   return `${counts.passed}/${total}`;
@@ -350,7 +361,7 @@ export function buildTrailers(input: ReportInput): string {
   const lines = [
     `Tests: unit ${trailerCount(input.unit)}, integration ${trailerCount(input.integration)}, e2e ${trailerCount(input.e2e)}`,
     `Coverage: lines ${formatPct(input.coverageGlobal.lines)}, branches ${formatPct(input.coverageGlobal.branches)}`,
-    `Report: docs/test-reports/${input.ticketId}.md (step ${input.stepNumber})`,
+    `Report: ${reportRelativePath(input.ticketId)} (step ${input.stepNumber})`,
   ];
   return `${lines.join('\n')}\n`;
 }
@@ -364,22 +375,28 @@ function gitOutput(args: string[]): string {
 }
 
 function readStepTitle(repoRoot: string, ticketId: string, stepNumber: number): string {
-  const planPath = join(repoRoot, 'docs/plans', `${ticketId}.md`);
-  if (!existsSync(planPath)) {
+  const path = planPath(repoRoot, ticketId);
+  if (!existsSync(path)) {
     return `Étape ${stepNumber}`;
   }
   const pattern = new RegExp(`^### Étape ${stepNumber} : (.+)$`, 'm');
-  const match = pattern.exec(readFileSync(planPath, 'utf8'));
+  const match = pattern.exec(readFileSync(path, 'utf8'));
   return match?.[1] ?? `Étape ${stepNumber}`;
 }
 
-function buildAcceptanceRows(repoRoot: string, ticketId: string): AcceptanceRow[] {
+/**
+ * Lists the criteria covered by the plan of the ticket and the tests that cover each of them.
+ */
+export function buildAcceptanceRows(repoRoot: string, ticketId: string): AcceptanceRow[] {
+  const path = planPath(repoRoot, ticketId);
+  if (!existsSync(path)) {
+    return [];
+  }
   const covered = collectCoveredCriteria(repoRoot);
-  const criteria = collectCriteria(repoRoot).filter((c: Criterion) => c.ticketId === ticketId);
-  return criteria.map((criterion) => {
-    const files = covered.get(criterion.id);
+  return extractCriterionIds(readFileSync(path, 'utf8')).map((id) => {
+    const files = covered.get(id);
     return {
-      id: criterion.id,
+      id,
       tests: files === undefined ? 'aucun' : [...new Set(files)].join(', '),
       status: files === undefined ? 'non couvert' : 'passé',
     };
@@ -411,11 +428,11 @@ export function runReport(repoRoot: string, ticketId: string, stepNumber: number
     remarks: '—',
   };
   const section = buildReportSection(input);
-  const reportPath = join(repoRoot, 'docs/test-reports', `${ticketId}.md`);
+  const reportPath = join(repoRoot, reportRelativePath(ticketId));
   mkdirSync(dirname(reportPath), { recursive: true });
   const existing = existsSync(reportPath)
     ? readFileSync(reportPath, 'utf8')
-    : `# Rapport de test : ${ticketId}\n`;
+    : `# Rapport : ${ticketId}\n`;
   writeFileSync(reportPath, upsertSection(existing, stepNumber, section), 'utf8');
   const trailersPath = join(repoRoot, '.git/TRAILERS');
   mkdirSync(dirname(trailersPath), { recursive: true });

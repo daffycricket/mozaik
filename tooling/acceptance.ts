@@ -10,11 +10,10 @@ export type Criterion = {
 };
 
 const FEATURE_ID = /F\d{2}-S\d+-AC\d+/g;
-const TECH_ID = /T-\d{3}-AC\d+/g;
+const TECH_ID = /(?:T|B)-\d{3}-AC\d+/g;
 const UI_RULE = /\|\s*(UI-[A-Z]+-\d+)\s*\|[^|]*\|\s*(F\d{2}-S\d+)\s*\|/g;
 const TEST_ID = /\[((?:F\d{2}-S\d+|T-\d{3}|B-\d{3})-AC\d+|UI-[A-Z]+-\d+)\]/g;
-const TICKET_ID = /^(?:F\d{2}-S\d+|T-\d{3}|B-\d{3})$/;
-const STATUSES = new Set(['todo', 'in-progress', 'blocked', 'done']);
+const CRITERION_ID = /\b(?:(?:F\d{2}-S\d+|T-\d{3}|B-\d{3})-AC\d+|UI-[A-Z]+-\d+)\b/g;
 const IGNORED_DIRS = new Set(['node_modules', 'dist', '.git', 'coverage', 'test-results']);
 
 function unique(ids: string[]): string[] {
@@ -34,7 +33,8 @@ export function extractFeatureCriteria(content: string): Criterion[] {
 }
 
 /**
- * Extracts acceptance criteria identifiers of technical tickets from the backlog.
+ * Extracts the technical requirements and bug regression criteria declared in
+ * `docs/exigences-techniques.md`.
  */
 export function extractTechCriteria(content: string): Criterion[] {
   const ids = content.match(TECH_ID) ?? [];
@@ -61,22 +61,11 @@ export function extractUiRules(content: string): Criterion[] {
 }
 
 /**
- * Reads the status of every ticket from the backlog table.
+ * Lists, in order of appearance and without duplicates, the criterion identifiers
+ * mentioned in a text (features, technical requirements, bug criteria and UI rules).
  */
-export function extractTicketStatuses(content: string): Map<string, string> {
-  const statuses = new Map<string, string>();
-  for (const line of content.split('\n')) {
-    if (!line.trim().startsWith('|')) {
-      continue;
-    }
-    const cells = line.split('|').map((cell) => cell.trim());
-    const id = cells[2];
-    const status = cells[6];
-    if (id !== undefined && status !== undefined && TICKET_ID.test(id) && STATUSES.has(status)) {
-      statuses.set(id, status);
-    }
-  }
-  return statuses;
+export function extractCriterionIds(content: string): string[] {
+  return unique(content.match(CRITERION_ID) ?? []);
 }
 
 function walk(dir: string): string[] {
@@ -123,7 +112,7 @@ export function collectCoveredCriteria(repoRoot: string): Map<string, string[]> 
 }
 
 /**
- * Reads all criteria declared by the features, the design screens and the technical tickets.
+ * Reads all criteria declared by the features, the design screens and the technical requirements.
  */
 export function collectCriteria(repoRoot: string): Criterion[] {
   const criteria: Criterion[] = [];
@@ -135,9 +124,9 @@ export function collectCriteria(repoRoot: string): Criterion[] {
       }
     }
   }
-  const backlogPath = join(repoRoot, 'docs/backlog.md');
-  if (existsSync(backlogPath)) {
-    criteria.push(...extractTechCriteria(readFileSync(backlogPath, 'utf8')));
+  const requirementsPath = join(repoRoot, 'docs/exigences-techniques.md');
+  if (existsSync(requirementsPath)) {
+    criteria.push(...extractTechCriteria(readFileSync(requirementsPath, 'utf8')));
   }
   const ecransPath = join(repoRoot, 'docs/design/ecrans.md');
   if (existsSync(ecransPath)) {

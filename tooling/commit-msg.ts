@@ -1,13 +1,29 @@
 export type ValidationResult = { valid: true } | { valid: false; errors: string[] };
 
 const SUBJECT_PATTERN =
-  /^(feat|fix|test|refactor|chore|docs|perf|build|revert)\(([a-z][a-z0-9-]*)\): (F\d{2}-S\d+|T-\d{3}|B-\d{3}|RUN)#(\d+) (.+)$/;
+  /^(feat|fix|test|refactor|chore|docs|perf|build|revert)\(([a-z][a-z0-9-]*)\): (MZK-\d+)#(\d+) (.+)$/;
 
-const REQUIRED_TRAILERS = ['Refs', 'Plan-Step', 'Tests', 'Coverage', 'Report'] as const;
+/** Scopes of the commits written by the spec, design and review phase scripts. */
+const PHASE_SCOPES = new Set(['spec', 'spec-review', 'design', 'tech-review']);
+
+const STEP_TRAILERS = ['Refs', 'Plan-Step', 'Tests', 'Coverage', 'Report'] as const;
+
+function readTrailers(lines: string[]): Map<string, string> {
+  const trailers = new Map<string, string>();
+  for (const line of lines) {
+    const trailer = /^([A-Za-z][A-Za-z-]*):\s*(.+)$/.exec(line);
+    if (trailer !== null) {
+      trailers.set(trailer[1] as string, (trailer[2] as string).trim());
+    }
+  }
+  return trailers;
+}
 
 /**
- * Validates a commit message against the project git conventions.
- * Step 0 (plan) and revert commits are exempt from the test trailers.
+ * Validates a commit message against the project git conventions (`docs/process/git.md`).
+ * Merge commits are accepted as written by Git. Revert commits and phase commits
+ * (`docs(spec|spec-review|design|tech-review)`) only need the `Refs:` trailer; every
+ * other commit is a development step and needs all the step trailers.
  */
 export function validateCommitMessage(message: string): ValidationResult {
   const errors: string[] = [];
@@ -20,38 +36,32 @@ export function validateCommitMessage(message: string): ValidationResult {
   if (subject === undefined) {
     return { valid: false, errors: ['commit message is empty'] };
   }
+  if (/^Merge (branch|pull request|remote-tracking branch|tag) /.test(subject.trim())) {
+    return { valid: true };
+  }
 
   const match = SUBJECT_PATTERN.exec(subject.trim());
   if (match === null) {
     return {
       valid: false,
-      errors: ['subject must match "<type>(<scope>): <TICKET-ID>#<n> <description>"'],
+      errors: ['subject must match "<type>(<scope>): MZK-<n>#<k> <description>"'],
     };
   }
 
-  const [, type, , ticketId, step] = match;
-  const requiresTrailers = Number(step) !== 0 && type !== 'revert';
-  if (!requiresTrailers) {
-    return { valid: true };
-  }
+  const [, type, scope, ticketId] = match;
+  const trailers = readTrailers(lines);
+  const isPhaseCommit = type === 'docs' && PHASE_SCOPES.has(scope as string);
+  const required = type === 'revert' || isPhaseCommit ? (['Refs'] as const) : STEP_TRAILERS;
 
-  const trailers = new Map<string, string>();
-  for (const line of lines) {
-    const trailer = /^([A-Za-z][A-Za-z-]*):\s*(.+)$/.exec(line);
-    if (trailer !== null) {
-      trailers.set(trailer[1] as string, (trailer[2] as string).trim());
-    }
-  }
-
-  for (const key of REQUIRED_TRAILERS) {
+  for (const key of required) {
     if (!trailers.has(key)) {
       errors.push(`missing trailer "${key}:"`);
     }
   }
 
   const refs = trailers.get('Refs');
-  if (refs !== undefined && refs !== ticketId) {
-    errors.push(`trailer "Refs:" must reference ${ticketId}`);
+  if (refs !== undefined && refs.split(',')[0]?.trim() !== ticketId) {
+    errors.push(`trailer "Refs:" must start with ${ticketId}`);
   }
 
   const planStep = trailers.get('Plan-Step');
