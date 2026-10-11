@@ -15,7 +15,7 @@ La v1 a été construite par un agent seul, ticket après ticket, avec un plan c
 ## Décision
 
 - Une branche `ticket/MZK-<n>-<slug>` par ticket, créée dès la phase spec ; la spec, le plan et le code y vivent jusqu'au merge.
-- Commits `MZK-<n>#<k>` : commits de phase écrits par les scripts (`docs(spec|spec-review|design|tech-review)`, `Refs:` seul), puis commits d'étape écrits par l'agent, un par étape du plan, verts, avec les trailers `Refs`, `Plan-Step`, `Tests`, `Coverage`, `Report`. Pas d'étape 0 : le plan est écrit en phase design.
+- Commits `MZK-<n>#<k>` : commits de phase écrits par les scripts (`docs(spec|spec-review|design|tech-review|dev|review|merge)`, `Refs:` seul), puis commits d'étape écrits par l'agent, un par étape du plan, verts, avec les trailers `Refs`, `Plan-Step`, `Tests`, `Coverage`, `Report`. Pas d'étape 0 : le plan est écrit en phase design.
 - Intégration : rebase sur `main`, vérification indépendante de la tête de la branche rebasée, puis merge commit (`--no-ff`), sans squash. Chaque merge commit de `main` est vert, sauf dérogation humaine tracée pour un bug secondaire connu.
 - Seuls les scripts publient ; l'agent ne pousse jamais et ne merge jamais dans `main`.
 - Format contrôlé par le hook `commit-msg` (exigence T-001-AC4).

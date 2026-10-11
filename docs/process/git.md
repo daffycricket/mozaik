@@ -26,11 +26,11 @@ Décision : [ADR-0013](../adr/0013-workflow-git-mode-produit.md), qui remplace l
 
 ### Numérotation
 
-Le sujet porte `MZK-<n>#<k>`, où `<k>` est le numéro du commit dans la branche du ticket, séquentiel, toutes phases confondues : par exemple `#1` pour la spec, `#2` pour la spec review, `#3` pour le design, `#4` et `#5` pour les deux étapes du dev. Pour le connaître : `git log --oneline main..HEAD | wc -l`, plus un.
+Le sujet porte `MZK-<n>#<k>`, où `<k>` est le numéro du commit dans la branche du ticket, séquentiel, toutes phases confondues : par exemple `#1` pour la spec, `#2` pour le design, `#3` pour l'ouverture de la phase dev (script), `#4` et `#5` pour les deux étapes du dev (agent), `#6` pour les métriques du runner. Pour le connaître : `git log --oneline main..HEAD | wc -l`, plus un.
 
 ### Commits de phase (écrits par les scripts)
 
-Spec, spec review, design et tech review se terminent par un commit du script, sans trailers de test :
+Les scripts commitent les documents des phases spec, spec review, design et tech review, l'ouverture des sous-sections du journal et les métriques du runner en dev et en review, sans trailers de test :
 
 ```
 docs(spec): MZK-42#1 specify confirmation before multiple deletion
@@ -38,7 +38,7 @@ docs(spec): MZK-42#1 specify confirmation before multiple deletion
 Refs: MZK-42
 ```
 
-Scopes : `spec`, `spec-review`, `design`, `tech-review`.
+Scopes : `spec`, `spec-review`, `design`, `tech-review`, `dev`, `review`, `merge`. Ces commits sont écrits par l'identité `mozaik-runner` ; l'agent n'utilise jamais ces scopes avec le type `docs`.
 
 ### Commits d'étape (écrits par l'agent en dev, review et merge)
 
@@ -90,7 +90,7 @@ Avant chaque commit d'étape, `pnpm verify` passe intégralement. Chaque commit 
 
 ### Contrôle
 
-Le hook `commit-msg` (`tooling/commit-msg.ts`, exigence T-001-AC4) refuse tout message non conforme : Conventional Commits, `MZK-<n>#<k>` dans le sujet, `Refs:` commençant par l'identifiant du ticket ; trailers `Plan-Step:`, `Tests:`, `Coverage:` et `Report:` pour un commit d'étape ; `Refs:` seul pour un commit de phase (`docs(spec|spec-review|design|tech-review)`) et pour un revert. Les commits de merge écrits par Git sont acceptés.
+Le hook `commit-msg` (`tooling/commit-msg.ts`, exigence T-001-AC4) refuse tout message non conforme : Conventional Commits, `MZK-<n>#<k>` dans le sujet, `Refs:` commençant par l'identifiant du ticket ; trailers `Plan-Step:`, `Tests:`, `Coverage:` et `Report:` pour un commit d'étape ; `Refs:` seul pour un commit de phase des scripts (`docs(spec|spec-review|design|tech-review|dev|review|merge)`) et pour un revert. Les commits de merge écrits par Git sont acceptés.
 
 ## Revenir à l'étape précédente
 

@@ -24,9 +24,9 @@ describe('[T-001-AC4] commit message validation', () => {
     expect(validateCommitMessage(stepCommit).valid).toBe(true);
   });
 
-  test('[T-001-AC4] accepts a spec, design or review phase commit with only Refs', () => {
+  test('[T-001-AC4] accepts a phase commit of the scripts with only Refs', () => {
     expect(validateCommitMessage(specCommit).valid).toBe(true);
-    for (const scope of ['spec-review', 'design', 'tech-review']) {
+    for (const scope of ['spec-review', 'design', 'tech-review', 'dev', 'review', 'merge']) {
       expect(validateCommitMessage(specCommit.replace('docs(spec)', `docs(${scope})`)).valid).toBe(
         true,
       );

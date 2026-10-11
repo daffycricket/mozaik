@@ -3,8 +3,16 @@ export type ValidationResult = { valid: true } | { valid: false; errors: string[
 const SUBJECT_PATTERN =
   /^(feat|fix|test|refactor|chore|docs|perf|build|revert)\(([a-z][a-z0-9-]*)\): (MZK-\d+)#(\d+) (.+)$/;
 
-/** Scopes of the commits written by the spec, design and review phase scripts. */
-const PHASE_SCOPES = new Set(['spec', 'spec-review', 'design', 'tech-review']);
+/** Scopes of the commits written by the phase scripts (documents, journal, runner metrics). */
+const PHASE_SCOPES = new Set([
+  'spec',
+  'spec-review',
+  'design',
+  'tech-review',
+  'dev',
+  'review',
+  'merge',
+]);
 
 const STEP_TRAILERS = ['Refs', 'Plan-Step', 'Tests', 'Coverage', 'Report'] as const;
 
@@ -22,7 +30,7 @@ function readTrailers(lines: string[]): Map<string, string> {
 /**
  * Validates a commit message against the project git conventions (`docs/process/git.md`).
  * Merge commits are accepted as written by Git. Revert commits and phase commits
- * (`docs(spec|spec-review|design|tech-review)`) only need the `Refs:` trailer; every
+ * (`docs(spec|spec-review|design|tech-review|dev|review|merge)`) only need the `Refs:` trailer; every
  * other commit is a development step and needs all the step trailers.
  */
 export function validateCommitMessage(message: string): ValidationResult {
