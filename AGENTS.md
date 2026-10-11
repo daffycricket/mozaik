@@ -5,33 +5,33 @@ Lis ce fichier en entier avant toute action. Il est court par construction : le 
 
 ## 1. Le projet en une phrase
 
-**Mozaik**, une application open source de tableau blanc collaboratif de type Miro : canvas infini, post-its, formes, textes, flèches, édition simultanée par plusieurs utilisateurs en temps réel, avec une expérience fluide. Cible actuelle : exécution locale uniquement (pas de déploiement).
+**Mozaik**, une application open source (licence MIT) de tableau blanc collaboratif de type Miro : canvas infini, post-its, formes, textes, flèches, édition simultanée par plusieurs utilisateurs en temps réel, avec une expérience fluide. La v1 est livrée (tag `v1.0`) ; le produit évolue désormais **ticket par ticket**.
 
 ## 2. Carte de la documentation
 
 | Besoin | Fichier |
 |---|---|
-| Vision, périmètre MVP, hors périmètre | `docs/vision.md` |
+| Vision, périmètre, exigences non fonctionnelles | `docs/vision.md` |
 | Architecture, modules, modèle de données, flux | `docs/architecture.md` |
 | Décisions d'architecture (ADR) | `docs/adr/README.md` (index) puis `docs/adr/NNNN-*.md` |
-| Fonctionnalités, user stories, critères d'acceptance | `docs/features/README.md` (index) puis `docs/features/FNN-*.md` |
+| Fonctionnalités, stories, critères d'acceptance | `docs/features/README.md` (index) puis `docs/features/FNN-*.md` |
 | Exigences de fluidité (FL-1 à FL-8) | `docs/features/F00-fluidite.md` |
-| Backlog global, ordre de travail, statut des tickets | `docs/backlog.md` |
-| Journal des décisions et événements du projet | `docs/journal.md` |
+| Exigences techniques et critères de non-régression | `docs/exigences-techniques.md` |
+| Design : navigation, maquettes, règles `UI-*`, composants, charte | `docs/design/README.md` |
+| Dossier du ticket : demande, plan, retours, rapport | `docs/tickets/<id>/` |
+| Journal : trace unique de toutes les décisions et modifications | `docs/journal.md` |
+| Gabarits des documents à produire | `docs/process/gabarits/` |
 | Standards de code et de qualité | `docs/process/code.md` |
 | Stratégie et exigences de test | `docs/process/testing.md` |
-| Workflow Git : plan, commit par étape, retour arrière | `docs/process/git.md` |
-| Plans d'implémentation par ticket | `docs/plans/` |
+| Workflow Git : branche de ticket, commits, rebase, merge | `docs/process/git.md` |
 | Règles de maintenance de la documentation | `docs/process/documentation.md` |
-| Rapports de test par ticket | `docs/test-reports/` |
 | Vocabulaire du domaine | `docs/glossary.md` |
-| Design : navigation, maquettes, composants, charte | `docs/design/README.md` |
 
-Ordre de lecture au démarrage d'une session : ce fichier, `docs/backlog.md`, les 10 dernières entrées de `docs/journal.md`, puis la feature, les ADR et les écrans de `docs/design/` liés au ticket en cours, et `docs/process/code.md` avant d'écrire du code.
+Ordre de lecture au démarrage d'une session : ce fichier, `docs/tickets/<id>/` (tous ses fichiers), **la section du ticket** dans `docs/journal.md` (pas tout le journal), puis selon la phase les features, écrans, ADR et code concernés. Pour connaître l'historique d'un élément que tu modifies, recherche son identifiant dans le journal (`grep -n "F08-S1" docs/journal.md`).
 
 ## 3. Langue
 
-- Documentation, backlog, ADR, rapports de test : **français**.
+- Documentation, journal, ADR, plans, rapports de test : **français**.
 - Code, identifiants, commentaires de code, messages de commit, noms de branches, titres de tests : **anglais**.
 
 ## 4. Stack (résumé, détails et justification dans les ADR)
@@ -49,95 +49,142 @@ Toute dépendance ajoutée doit avoir une licence permissive (MIT, Apache-2.0, B
 
 ## 5. Commandes
 
-Ces scripts sont créés par les tickets techniques T-001 à T-006. Tant qu'un contrôle n'existe pas encore, `pnpm verify` enchaîne seulement ceux qui sont en place ; chaque ticket technique y ajoute le sien (T-001 : lint, typecheck, tests unitaires ; T-002 : intégration, couverture, e2e, `ac:check`, `report` ; T-004 : fluidité ; T-006 : conformité aux maquettes ; T-005 : image Docker).
-
 | Commande | Effet |
 |---|---|
 | `pnpm install` | Installe les dépendances |
 | `pnpm dev` | Lance le serveur et le front en local, en mode développement |
-| `docker compose up --build` | Lance l'application packagée sur http://localhost:8080 (ticket T-005) |
-| `pnpm test:docker` | Construit l'image, la démarre et vérifie le parcours de base (ticket T-005) |
-| `pnpm lint` / `pnpm typecheck` | Biome / `tsc --noEmit` sur tout le monorepo |
+| `docker compose up --build` | Lance l'application packagée sur http://localhost:8080 |
+| `pnpm test:docker` | Construit l'image, la démarre et vérifie le parcours de base |
+| `pnpm lint` / `pnpm typecheck` | Biome et contrôle des couleurs / `tsc --noEmit` sur tout le monorepo |
 | `pnpm test:unit` | Tests unitaires Vitest |
 | `pnpm test:int` | Tests d'intégration Vitest (serveur réel en mémoire) |
 | `pnpm test:e2e` | Tests Playwright (lance l'app complète) |
 | `pnpm test:cov` | Unit + intégration avec couverture, échoue sous 80 % |
-| `pnpm ac:check` | Vérifie que chaque critère d'acceptance a au moins un test |
+| `pnpm ac:check` | Vérifie que chaque critère déclaré (features, règles `UI-*`, exigences techniques) a au moins un test |
 | `pnpm verify` | Lint, typecheck, couverture, e2e, ac:check, puis test:docker si Docker est disponible ; s'arrête au premier échec |
-| `pnpm report <TICKET-ID> --step <n>` | Ajoute la section de l'étape n à `docs/test-reports/<TICKET-ID>.md` et écrit les trailers de commit dans `.git/TRAILERS` |
+| `pnpm report <id> --step <n>` | Ajoute la section de l'étape n à `docs/tickets/<id>/rapport.md` et écrit les trailers de commit dans `.git/TRAILERS` |
 
-## 6. Boucle de travail (obligatoire)
+## 6. Comment tu es lancé
 
-Règles détaillées : `docs/process/git.md`.
+Chaque évolution est un **ticket** `MZK-<n>` (numéro court de sa carte Trello), traité sur sa branche `ticket/MZK-<n>-<slug>` en phases successives. Un humain lance chaque phase par une commande ; un script prépare la session, te lance avec la consigne de la phase, puis fait le reste (commit, publication, carte Trello).
 
-Tu travailles **en totale autonomie, sans humain disponible**. Tu ne poses jamais de question et tu n'attends jamais de réponse : tu décides selon la vision, les specs et les règles de ce contexte, et tu traces tes décisions (section 8).
+| Phase | Commande | Ton rôle | Qui commite |
+|---|---|---|---|
+| Spec | `spec <id>` | Produire ou modifier la spec à partir de `ticket.md` (§7) | le script |
+| Spec review | `spec-review <id>` | Appliquer les retours de l'humain à la spec (§10) | le script |
+| Design | `design <id>` | Écrire `plan.md`, les ADR, l'analyse d'impact (§8) | le script |
+| Tech review | `tech-review <id>` | Appliquer les retours de l'humain au plan (§10) | le script |
+| Dev | `dev <id>` | Exécuter le plan, étape par étape (§9) | toi, une étape = un commit |
+| Review | `review <id>` | Corriger selon les retours de la recette (§10) | toi |
+| Merge | `merge <id>` | Résoudre les conflits du rebase si le script te le demande (§11) | toi, puis le script merge |
 
-**Une session = un ticket.** Chaque session traite un seul ticket jusqu'à son intégration dans `main`, puis se termine. Une nouvelle session sera relancée pour le ticket suivant.
+Règles communes à toutes les phases :
 
-**Git local uniquement.** N'ajoute aucun remote et ne pousse jamais (`git push` est interdit). Les fichiers `RUN.md` et `RUN-SUMMARY.md`, s'ils existent, appartiennent à l'outillage d'exécution : ne les modifie pas.
+- **Tu ne poses jamais de question en attendant une réponse.** En spec et en design, tu écris tes questions dans le journal (`Q1`, `Q2`...) avec l'hypothèse que tu retiens, et tu continues ; l'humain répond en commentaire de la carte. En dev, tu tranches et tu traces (§13).
+- **Une session = une phase d'un ticket.** Tu restes sur la branche du ticket ; tu ne crées pas de branche, tu ne changes pas de branche, tu ne merges pas dans `main`.
+- **Git local uniquement.** N'ajoute aucun remote et ne pousse jamais (`git push` est interdit). La publication est faite par le script.
+- **Écritures limitées à ta phase.** En spec : `docs/features/`, `docs/design/`, `docs/tickets/<id>/`, `docs/journal.md`. En design : `docs/tickets/<id>/plan.md`, `docs/adr/`, `docs/architecture.md`, `docs/glossary.md`, `docs/journal.md`. En dev, review et merge : tout le dépôt, sauf `plan.md` et la spec (`docs/features/`, et dans `docs/design/` tout sauf `composants.md`), modifiable seulement sur un retour `[spec]` explicite (§10).
+- **Traçabilité dans le journal uniquement** (`docs/journal.md`, section du ticket, sous-section de ta phase, créée par le script) : chaque décision, hypothèse, question, critère ou story modifié, ADR, test hérité modifié, répercussion d'un fichier sur un autre. Format : [docs/journal.md](docs/journal.md) et [le gabarit](docs/process/gabarits/journal.md). Aucun autre fichier ne porte d'historique, sauf l'en-tête des ADR. La ligne « Fichiers modifiés » est écrite par le script : ne l'écris pas.
 
-**Vérification indépendante.** Après chaque session qui modifie `main`, l'outillage d'exécution rejoue sur une copie propre de `main` les commandes `lint`, `typecheck`, `test:cov`, `test:e2e` et `ac:check`, et compare la couverture mesurée aux trailers `Coverage:` de tes commits. Le résultat est tracé dans `docs/journal.md`. Si la consigne de ta session signale un échec, tu le traites avant toute reprise et tout autre ticket : inscris un ticket `bug` dans `docs/backlog.md` qui décrit l'échec, traite-le selon les étapes 4 à 9 ci-dessous, puis termine la session. Un ticket `in-progress` reprendra à la session suivante, sa branche rebasée sur `main` corrigé.
+## 7. Phase spec
 
-1. Si le dossier n'est pas un dépôt Git, exécute `git init -b main` et commite le contexte tel quel : `docs(context): import agent context`.
-2. **Reprise** : si un ticket est `in-progress` dans `docs/backlog.md`, reprends-le. Va sur sa branche, lis son plan `docs/plans/<ticket-id>.md` et `git log --oneline` pour voir les étapes déjà commitées, abandonne tout travail non commité (`git restore --staged --worktree . && git clean -fd`), et continue à l'étape suivante.
-3. Sinon, prends le **premier ticket `todo` dont les dépendances sont `done`**. S'il n'y en a aucun, écris une entrée `bilan` dans `docs/journal.md` (tickets `done`, `blocked`, restants, et pourquoi), commite-la sur `main` avec le message `docs(journal): RUN#0 bilan` et les trailers `Refs: RUN` et `Plan-Step: 0/0`, et termine la session. Ce commit marque la fin du travail.
-4. Lis la feature, les ADR et les écrans de `docs/design/` liés au ticket. Un critère ambigu ou un comportement non spécifié se tranche selon la section 8.
-5. Crée la branche : `git switch -c <type>/<ticket-id>-<slug>`.
-6. **Étape 0, le plan.** Avant tout code, écris `docs/plans/<ticket-id>.md` à partir du gabarit : étapes numérotées 1, 2, 3…, chacune avec son objectif, les critères d'acceptance couverts, le code applicatif, le code technique, le code de test et la documentation qu'elle touche. Passe le ticket en `in-progress` dans le backlog. Commit : `docs(plan): <ticket-id>#0 plan <n> steps`.
-7. **Pour chaque étape n du plan** :
-   1. implémente le code applicatif et technique de l'étape, et ses tests (unitaires, intégration, e2e). Chaque critère d'acceptance a au moins un test dont le titre commence par son identifiant, ex. `[F03-S1-AC2]` ;
-   2. mets à jour la documentation que l'étape rend inexacte, et le journal si l'étape a pris une décision ;
-   3. exécute `pnpm verify` jusqu'à ce qu'il passe intégralement. Corrige le code, jamais le test pour le faire passer. Les tests des tickets précédents sont des **tests de non-régression** : tu ne les supprimes jamais, et tu ne les modifies que si la spec qu'ils vérifient change dans ce ticket, avec une entrée `test` au journal qui cite chaque fichier modifié et la raison (`docs/process/testing.md`, « Tests de non-régression ») ;
-   4. exécute `pnpm report <ticket-id> --step <n>` ;
-   5. commite l'étape : `<type>(<scope>): <ticket-id>#<n> <description>`, avec les trailers de `.git/TRAILERS` ;
-   6. si tu te perds dans l'étape, reviens au dernier commit d'étape (ou `git revert` d'une étape commitée), note-le dans le journal du plan, et reprends autrement.
-8. À la dernière étape, passe aussi le ticket en `done` dans le backlog (dans le commit de cette étape).
-9. Intègre dans `main` sans squash : `git switch main && git merge --ff-only <branche>`, puis supprime la branche. **Termine la session.**
+Entrée : `docs/tickets/<id>/ticket.md` (la demande, telle que l'a écrite un humain, parfois succincte).
 
-## 7. Definition of Done d'un ticket
+1. Lis la demande, puis les features, écrans et règles `UI-*` qu'elle touche, et le code si c'est nécessaire pour comprendre l'existant (lecture seule).
+2. Décide où va la demande ([docs/features/README.md](docs/features/README.md)) : story existante modifiée (elle n'est plus vraie telle qu'écrite), nouvelle story dans la feature (objectif distinct, livrable et testable seul), ou nouvelle feature (aucune ne couvre le besoin). Pour un bug, la spec existante est souvent juste : précise le critère que le comportement actuel viole, ou ajoute le critère manquant.
+3. Écris la spec : stories en « En tant que... je veux... afin de... », critères d'acceptance « Étant donné / Quand / Alors » avec leurs identifiants, règles `UI-*` et maquette dans `docs/design/` si l'interface change. Les identifiants prennent le numéro suivant et ne sont jamais réutilisés. Une exigence technique durable va dans `docs/exigences-techniques.md` (groupe `T-` ou `B-` suivant).
+4. Ne réduis pas la demande et n'ajoute rien qu'elle ne demande pas. Ce qui est ambigu devient une hypothèse (`H1`...) que tu appliques, ou une question (`Q1`...) avec l'hypothèse retenue en attendant la réponse.
+5. Trace dans la sous-section Spec du journal : chaque story, critère ou règle `UI-*` ajouté, modifié ou supprimé (avec l'ancien et le nouveau sens), chaque hypothèse, chaque question, chaque répercussion sur un autre fichier.
 
-Un ticket est `done` si et seulement si :
+Tu n'écris ni code, ni test, ni plan. Tu ne commites pas.
 
-- [ ] Les critères « Fluidité » du ticket passent, avec les mesures et vidéos citées dans le rapport (F00).
-- [ ] Tous les critères d'acceptance du ticket sont couverts par au moins un test nommé avec leur identifiant, et `pnpm ac:check` passe.
+## 8. Phase design
+
+Entrée : la spec du ticket (sous-sections Spec et Spec review du journal, fichiers de `docs/features/` et `docs/design/` modifiés sur la branche).
+
+1. Analyse l'impact dans le code : modules et fichiers touchés, tests hérités concernés (par identifiant), données (changement compatible, ou migration : `docs/process/code.md`, « Évolution du modèle de données »), fluidité (F00), documents à mettre à jour.
+2. Tu peux exécuter des tests si c'est utile à ton analyse, avec parcimonie et de façon ciblée (`pnpm exec vitest run <fichier>`, `pnpm exec playwright test <fichier>`) ; ce n'est pas requis.
+3. Écris `docs/tickets/<id>/plan.md` selon le [gabarit](docs/process/gabarits/plan.md) : éléments de spec couverts, analyse d'impact, étapes (une étape = un commit en dev, titre au format `### Étape <n> : <titre>`, avec ses critères et ses tests attendus), risques. Un ticket simple peut n'avoir qu'une étape.
+4. Toute décision structurante devient un ADR ([gabarit](docs/adr/template.md)), numéro suivant de `docs/adr/README.md`, avec le ticket, « créé au design » et la raison dans l'en-tête ; mets l'index à jour.
+5. Trace dans la sous-section Design du journal : décisions, hypothèses, questions techniques, ADR.
+
+Tu n'écris ni code applicatif ni test, et tu ne modifies pas la spec. Tu ne commites pas.
+
+## 9. Phase dev
+
+Entrée : `plan.md` validé, spec du ticket, section du ticket dans le journal. Règles Git détaillées : [docs/process/git.md](docs/process/git.md).
+
+Tu travailles **en totale autonomie, sans humain disponible**. Le plan est exécuté tel quel : il n'y a pas d'étape 0.
+
+1. Vérifie que tu es sur la branche du ticket et que l'arbre de travail est propre. Si des étapes sont déjà commitées (reprise), lis `git log --oneline main..HEAD` et continue à l'étape suivante ; abandonne tout travail non commité (`git restore --staged --worktree . && git clean -fd`).
+2. **Pour chaque étape n du plan** :
+   1. implémente le code applicatif et technique de l'étape, et ses tests (unitaires, intégration, e2e). Chaque critère a au moins un test dont le titre commence par son identifiant, ex. `[F08-S1-AC6]` ;
+   2. applique les règles des tests hérités ([testing.md](docs/process/testing.md), « Tests de non-régression ») et trace chaque test hérité modifié ou supprimé au journal ;
+   3. mets à jour la documentation que l'étape rend inexacte (`architecture.md`, `glossary.md`, `design/composants.md`, README) et trace la répercussion ;
+   4. exécute `pnpm verify` jusqu'à ce qu'il passe intégralement. Corrige le code, jamais le test pour le faire passer ;
+   5. exécute `pnpm report <id> --step <n>` ;
+   6. à la dernière étape, écris la synthèse dans `rapport.md` (§9 bis) ;
+   7. commite l'étape : `<type>(<scope>): MZK-<n>#<k> <description>` avec `Refs: MZK-<n>, <critères>`, `Plan-Step: <n>/<total>` et les trailers de `.git/TRAILERS`.
+3. **Écart au plan** : si une étape est impossible telle qu'écrite, s'il en faut une de plus ou si un critère est ambigu, continue et prends l'initiative nécessaire. Ne modifie ni `plan.md` ni la spec. Une étape ajoutée prend le numéro suivant (`Plan-Step: 3/3` pour un plan de 2 étapes). Trace l'écart au journal (`décision`, « À revoir : oui ») et dans les points ouverts du rapport.
+4. Si tu te perds dans une étape, reviens au dernier commit d'étape (ou `git revert` d'une étape commitée) et reprends autrement ; trace-le au journal.
+5. **Échec de la vérification indépendante** (la consigne de ta session le signale, avec le rapport d'échec) : corrige sur la branche par un commit supplémentaire. Si tu n'y parviens pas, trace l'échec au journal et décris un bug dans la section « Bugs décrits » du rapport (description, reproduction, test en échec, extrait de log, ticket d'origine), en le qualifiant : **bloquant** (le ticket ne peut pas être livré) ou **secondaire** (problème préexistant ou hors du périmètre du ticket). Le script crée la carte Trello. La qualification est « À revoir : oui ».
+6. Ne merge pas : la session se termine quand la dernière étape est commitée.
+
+### 9 bis. Synthèse du rapport
+
+Dans `docs/tickets/<id>/rapport.md` ([gabarit](docs/process/gabarits/rapport.md)), section « Synthèse de l'agent » : travail réalisé par étape et commit, tests ajoutés, modifiés ou supprimés avec la raison, **points ouverts** (écarts au plan, hypothèses, échecs, bugs décrits ; « Aucun » s'il n'y en a pas). La section « Métriques du runner » est écrite par le script : n'y touche pas.
+
+## 10. Traitement des retours (spec review, tech review, review)
+
+Entrée : `docs/tickets/<id>/retours.md`, sous-section de la phase en cours. Chaque remarque est préfixée :
+
+| Préfixe | Ce que tu fais |
+|---|---|
+| `[spec]` | Tu modifies la spec du ticket (et en review, le code et les tests qui en découlent). C'est le seul cas où la spec change hors phase spec. |
+| `[impl]` | Tu corriges l'implémentation (ou le plan en tech review), sans toucher à la spec. |
+| `[règle]` | Tu ajoutes ou modifies une règle transverse : `docs/process/`, `docs/architecture.md`, `docs/design/` ou un ADR. |
+| aucun | Tu classes toi-même la remarque dans l'une des trois catégories, avec « À revoir : oui ». Tu ne crées jamais de règle transverse sans préfixe `[règle]` : tu peux seulement la proposer dans les points ouverts du rapport. |
+
+Chaque remarque traitée est une entrée `retour` au journal (origine `humain`), suivie des entrées qui en découlent. En review, les corrections sont des commits d'étape comme en dev (§9), avec `Plan-Step` au numéro suivant, et la synthèse du rapport est mise à jour. Une remarque qui change la spec en profondeur ne se traite pas en review : signale-la dans les points ouverts, l'humain renverra le ticket en spec.
+
+## 11. Phase merge
+
+Le script rebase la branche sur `main`. S'il y a un conflit ou si la vérification échoue après le rebase, il te lance : résous le conflit en conservant le comportement des deux côtés (`main` et ticket), corrige ce qui est nécessaire par un commit supplémentaire, et trace la résolution au journal (sous-section Merge, « À revoir : oui »). Tu ne merges pas et tu ne pousses pas : le script vérifie, puis l'humain reteste avant le merge.
+
+## 12. Definition of Done d'une phase dev ou review
+
+- [ ] Toutes les étapes du plan ont leur commit, et chaque écart est tracé au journal et dans les points ouverts.
+- [ ] Tous les critères du plan sont couverts par au moins un test nommé avec leur identifiant, et `pnpm ac:check` passe.
 - [ ] `pnpm verify` passe intégralement : lint, typecheck, unitaires, intégration, couverture ≥ 80 % lignes et branches, **100 % des tests e2e au vert**.
-- [ ] Aucun test d'un ticket précédent n'est supprimé ; toute modification de l'un d'eux est justifiée par une spec modifiée dans ce ticket et tracée au journal.
-- [ ] Aucun test n'est désactivé (`skip`, `only`, `fixme`) sans ticket de dette ouvert dans le backlog et justification dans le rapport.
-- [ ] Le plan `docs/plans/<ticket-id>.md` existe, a été commité avant le code (étape 0), et chacune de ses étapes a son commit `<ticket-id>#<n>` (les reprises sont expliquées dans le journal du plan).
-- [ ] Chaque étape est un commit au format `<type>(<scope>): <ticket-id>#<n> ...`, vert, contenant son code, ses tests, la section de rapport correspondante et la documentation mise à jour, avec les trailers `Refs:`, `Plan-Step:`, `Tests:`, `Coverage:`, `Report:`.
-- [ ] La branche est intégrée dans `main` en fast-forward, sans squash.
+- [ ] Les critères « Fluidité » concernés passent, avec mesures et vidéos citées dans le rapport (F00).
+- [ ] Aucun test hérité n'est supprimé ou modifié hors des cas prévus par `testing.md`, et chaque cas est tracé au journal.
+- [ ] Aucun test n'est désactivé (`skip`, `only`, `fixme`).
+- [ ] Chaque commit d'étape est au format de `process/git.md`, vert, avec son code, ses tests, sa section de rapport, la documentation mise à jour et ses trailers.
+- [ ] Les données existantes restent lisibles : changement compatible, ou migration avec fixture et test (`docs/process/code.md`, « Évolution du modèle de données »).
 - [ ] Le code respecte `docs/process/code.md`.
-- [ ] La documentation impactée est à jour (architecture, ADR, feature, glossaire).
-- [ ] Le statut du ticket est `done` dans `docs/backlog.md`.
-- [ ] Les décisions, enrichissements de specs, ADR, ajustements de seuil et tests désactivés du ticket sont tracés dans `docs/journal.md`.
+- [ ] La synthèse du rapport est écrite, points ouverts compris.
 
-## 8. Autonomie et points d'arrêt
+## 13. Autonomie et règles de repli
 
-**Périmètre strict.** Tu développes uniquement les fonctionnalités et stories décrites dans `docs/features/`. Tu ne crées aucune nouvelle fonctionnalité ni story, et tu n'ajoutes aucune option, raccourci, réglage ou écran qui n'y figure pas, même s'il te paraît utile ou évident pour une application de ce type. Ce qui est listé en « Hors périmètre » est interdit.
+**Périmètre strict.** Tu développes uniquement ce que décrivent `docs/features/`, `docs/design/` et `docs/exigences-techniques.md`. En dev, tu n'ajoutes aucune option, raccourci, réglage ou écran qui n'y figure pas. Ce qui est listé en « Hors périmètre » est interdit. Seule la phase spec crée ou modifie des stories et des features.
 
-Tu es **autonome** sur : choix d'implémentation, découpage technique, écriture et exécution des tests, refactorings, ajout de dépendances à licence permissive, création de tickets techniques ou de bugs dans le backlog, calibrage des seuils de fluidité dans les limites fixées par F00, et sur les points suivants, **à condition de les tracer dans `docs/journal.md`** :
+Tu es **autonome** sur : choix d'implémentation, découpage technique, écriture et exécution des tests, refactorings nécessaires au ticket, ajout de dépendances à licence permissive, calibrage des seuils de fluidité dans les limites de F00, création d'un ADR au dev pour une décision découverte en codant (« créé au dev »). Chaque décision est tracée au journal.
 
-- **trancher un flou** : un critère ambigu ou un comportement nécessaire mais non spécifié. Choisis l'option la plus simple et la plus cohérente avec les specs existantes, écris-la dans la story concernée, et trace-la (`décision`) ;
-- **enrichir les specs** d'une story existante : préciser ou ajouter un critère d'acceptance, corriger une règle métier incohérente (`spec`). Un critère d'une story `done` ne se modifie pas : un changement de comportement sur une story terminée passe par un ticket `bug` ;
-- **créer un ADR** pour toute décision structurante, y compris un ADR qui en remplace un autre (`adr`) ;
-- toute autre **décision structurante** prise en cours de route (`décision`).
-
-Tu **ne t'arrêtes jamais pour demander une décision**. Quand rien ne fonctionne, applique la règle de repli correspondante et trace-la dans le journal :
+Tu **ne t'arrêtes jamais pour demander une décision**. Quand rien ne fonctionne, applique la règle de repli et trace-la :
 
 | Situation | Repli |
 |---|---|
-| La seule dépendance adaptée n'a pas de licence permissive | Choisis une alternative permissive, ou écris le code toi-même (`dépendance` ou `décision`). |
-| Une étape échoue 3 fois malgré des retours à l'étape précédente | Choisis une approche plus simple, quitte à redécouper le plan (`abandon` ou `décision`). |
-| Aucune approche ne permet de terminer le ticket | Passe le ticket en `blocked` avec un résumé des tentatives dans la colonne Notes (`blocage`), intègre dans `main` ce qui est vert et utile, et termine la session. Les tickets qui en dépendent ne seront pas traités. |
-| `pnpm verify` échoue pour une raison extérieure au code (outil, réseau, machine) | Corrige l'environnement si c'est possible depuis le projet (script, configuration) ; sinon traite le ticket comme bloqué ci-dessus (`environnement`). |
-| Un ordre de tickets différent est nécessaire | Réordonne le backlog et explique pourquoi (`backlog`). |
-| Docker n'est pas disponible dans ton environnement | C'est normal : `pnpm verify` saute la vérification de l'image et le rapport indique « Docker : non vérifié ». Ce n'est ni un échec ni un blocage. |
+| La seule dépendance adaptée n'a pas de licence permissive | Alternative permissive, ou code écrit toi-même (`décision`). |
+| Une étape échoue 3 fois malgré des retours à l'étape précédente | Approche plus simple, quitte à ajouter une étape (écart au plan, `décision`). |
+| Aucune approche ne permet de terminer le ticket | Commite ce qui est vert et utile, décris un bug **bloquant** dans le rapport, trace-le, et termine la session. |
+| `pnpm verify` échoue pour une raison extérieure au code (outil, réseau, machine) | Corrige l'environnement si c'est possible depuis le projet ; sinon décris un bug (`décision`). |
+| Docker n'est pas disponible dans ton environnement | C'est normal : `pnpm verify` saute la vérification de l'image et le rapport indique « Docker : non vérifié ». |
 
-## 9. Garder la documentation vivante
+## 14. Garder la documentation vivante
 
 La documentation fait partie du livrable : règles dans `docs/process/documentation.md`.
 
-## 10. Règles de code
+## 15. Règles de code
 
 Les standards de code et de qualité sont dans `docs/process/code.md`. Lis-le avant d'écrire du code dans une session, et applique sa checklist avant chaque commit d'étape.
 

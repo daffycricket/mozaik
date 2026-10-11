@@ -14,14 +14,15 @@ Règle de répartition : un comportement se teste au niveau le plus bas possible
 
 ## Traçabilité critères d'acceptance → tests
 
-- Chaque critère d'acceptance a un identifiant `FNN-SN-ACN` dans `docs/features/`.
+- Chaque critère d'acceptance a un identifiant : `FNN-SN-ACN` dans `docs/features/`, `T-NNN-ACN` ou `B-NNN-ACN` dans `docs/exigences-techniques.md`, `UI-<ÉCRAN>-N` dans `docs/design/ecrans.md`.
 - Le titre du test qui le couvre commence par cet identifiant entre crochets :
 
 ```ts
 test('[F03-S1-AC2] creates a sticky note at the double-click position', async ({ page }) => { ... })
 ```
 
-- `pnpm ac:check` parcourt `docs/features/*.md`, extrait tous les identifiants `FNN-SN-ACN`, cherche chaque identifiant dans les titres de tests, et échoue en listant les critères non couverts des tickets `in-progress` et `done` (statut lu dans `docs/backlog.md`). Les critères des autres tickets sont listés à titre informatif. Il contrôle de même les critères `T-NNN-ACN` des tickets techniques, et les règles `UI-*` de `docs/design/ecrans.md` selon la story à laquelle chacune est rattachée.
+- `pnpm ac:check` extrait tous les identifiants déclarés (features, exigences techniques, règles `UI-*`), cherche chacun dans les titres de tests, et échoue en listant les critères non couverts. Il ne lit aucun statut : la documentation ne décrit que ce qui est livré sur `main`, ou ce que la branche du ticket doit livrer à la fin de la phase dev.
+- Un critère supprimé de la spec disparaît du fichier : son identifiant n'est jamais réutilisé, et le test qui le portait est supprimé dans le même ticket.
 
 ## Tester un canvas en e2e
 
@@ -46,7 +47,7 @@ Konva dessine dans un `<canvas>` : le DOM ne contient pas les éléments du boar
 
 ## Tests de fluidité
 
-Exigences et seuils : [F00](../features/F00-fluidite.md). Projet Playwright dédié `fluidity`, Chromium, `workers: 1`, vidéo activée. Les mesures se font dans la page (intervalles `requestAnimationFrame`, `PerformanceObserver` `longtask`, horodatage action → effet visible). Chaque mesure chiffrée est la médiane de 3 exécutions. Un seuil non atteint fait échouer le test. L'agent calibre les seuils lui-même, sans descendre sous les planchers de F00, et trace chaque changement dans F00.
+Exigences et seuils : [F00](../features/F00-fluidite.md). Projet Playwright dédié `fluidity`, Chromium, `workers: 1`, vidéo activée. Les mesures se font dans la page (intervalles `requestAnimationFrame`, `PerformanceObserver` `longtask`, horodatage action → effet visible). Chaque mesure chiffrée est la médiane de 3 exécutions. Un seuil non atteint fait échouer le test. L'agent calibre les seuils lui-même, sans descendre sous les planchers de F00 : il met à jour la valeur dans F00 et trace le changement au journal.
 
 ## Conformité aux maquettes
 
@@ -90,37 +91,46 @@ Le **mode packagé sans Docker** est, lui, couvert par `pnpm test:e2e` : un test
 
 ## Tests de non-régression
 
-Un **test hérité** est un test présent sur `main` au début du ticket, donc écrit par un ticket précédent. L'ensemble des tests hérités constitue la suite de non-régression.
+Un **test hérité** est un test présent sur `main` au moment où la branche du ticket a été créée, donc écrit par un ticket précédent. L'ensemble des tests hérités constitue la suite de non-régression.
 
-- Un test hérité ne se supprime pas et ne se déplace pas.
-- Un test hérité ne se modifie que si **le comportement qu'il vérifie a changé dans le ticket en cours** : ticket `bug`, ou critère d'acceptance ou règle modifié dans `docs/features/` (ou règle `UI-*` dans `docs/design/ecrans.md`) dans ce ticket.
-- Chaque modification d'un test hérité est tracée par une entrée `test` du journal qui cite **le chemin de chaque fichier modifié** et la spec qui a changé.
-- Si un test hérité échoue sans que la spec ait changé, c'est une régression : on corrige le code, pas le test.
+La référence est la liste des éléments modifiés par le ticket, dans les sous-sections Spec et Spec review de sa section du journal (types `story`, `critère`, `ui`), comparée à toute la branche et pas seulement à la session.
+
+| Cas | Règle |
+|---|---|
+| Test lié à un critère modifié par le ticket | Modification légitime ; entrée `test` au journal qui cite le fichier et le critère |
+| Test lié à un critère supprimé par le ticket | Suppression légitime ; entrée `test` au journal |
+| Test lié à un critère que le ticket ne modifie pas | Interdit : un échec est une régression, on corrige le code. Toute modification est signalée et l'ancienne version du test est rejouée sur le nouveau code |
+| Test sans identifiant de critère (unitaire, intégration), modifié | Entrée `test` au journal avec la raison, « À revoir : oui » |
+| Test d'un code supprimé par le ticket | Suppression acceptée si le fichier source testé est supprimé sur la branche ; entrée `test`, « À revoir : oui » |
+| Cas ajouté dans un fichier de test existant | Ce n'est pas une modification de test hérité |
+| Ticket de type `bug` | Un test hérité qui vérifiait le comportement erroné peut être corrigé ; entrée `test` |
+
 - Préférer ajouter un test plutôt que d'en affaiblir un : un test hérité modifié ne perd ni cas de test ni assertion, sauf si la spec l'impose.
+- Un test hérité ne se déplace pas.
 
-Quand l'agent est exécuté par l'outillage du run, ces règles sont vérifiées automatiquement : la suppression d'un test hérité est refusée, et après chaque session les tests hérités modifiés sont inventoriés (cas de test disparus, assertions en baisse), confrontés aux changements de spec et au journal, puis leur version d'avant la session est réexécutée sur le nouveau code. Tout écart est inscrit au journal.
+Quand l'agent est exécuté par l'outillage, ces règles sont vérifiées automatiquement après chaque session : les tests hérités modifiés ou supprimés sont inventoriés (cas de test disparus, assertions en baisse), confrontés aux changements de spec du ticket et au journal, et leur version de `main` est réexécutée sur le nouveau code. Tout écart est signalé dans le rapport.
 
 ## Stabilité
 
-- Un test e2e instable (flaky) est un bug : ticket `B-xxx` immédiat. Il est interdit de le marquer `skip` pour avancer, sauf blocage externe documenté (cf. AGENTS.md §8), avec une entrée `test` dans `docs/journal.md`.
+- Un test e2e instable (flaky) est un bug : l'agent le corrige dans le ticket, ou le décrit dans la section « Bugs décrits » du rapport (AGENTS.md §9). Il est interdit de le marquer `skip` pour avancer.
 - Playwright : `retries: 0` en local. Un test qui ne passe qu'au retry n'est pas vert.
 - Chaque test e2e crée son propre board (nom unique) : aucun état partagé entre tests.
 
 ## Vérification indépendante
 
-Après chaque session qui modifie `main`, l'outillage d'exécution rejoue `lint`, `typecheck`, `test:cov` (à défaut `test:unit` et `test:int`), `test:e2e` et `ac:check` sur une copie propre de `main` (installation à partir du lockfile), et compare la couverture mesurée aux trailers `Coverage:` (tolérance 0,5 point, seuil 80 %). Un écart est tracé au journal et se corrige par un ticket `bug` (AGENTS.md section 6). Conséquence : `main` doit rester vert sans rien d'autre que le dépôt, sans fichier non commité ni service lancé à la main.
+Après chaque session de dev, de review ou de merge, l'outillage rejoue `lint`, `typecheck`, `test:cov` (à défaut `test:unit` et `test:int`), `test:e2e` et `ac:check` sur une copie propre de la tête de la branche du ticket (installation à partir du lockfile), et compare la couverture mesurée aux trailers `Coverage:` (tolérance 0,5 point, seuil 80 %). Un échec est transmis à la session suivante, qui le corrige sur la branche (AGENTS.md §9). Avant le merge, la même vérification est faite sur la branche rebasée. Conséquence : la branche doit rester verte sans rien d'autre que le dépôt, sans fichier non commité ni service lancé à la main.
 
 ## Rapport de test
 
-Un fichier par ticket, `docs/test-reports/<TICKET-ID>.md`, avec **une section par étape du plan**. `pnpm report <TICKET-ID> --step <n>` crée le fichier si besoin et y ajoute (ou remplace) la section de l'étape n, à partir des sorties JSON de Vitest et Playwright et de `coverage-summary.json`. La section est commitée avec l'étape (`process/git.md`).
+Un fichier par ticket, `docs/tickets/<id>/rapport.md` ([gabarit](gabarits/rapport.md)), avec **une section par étape du plan**, la synthèse de l'agent et les métriques du runner. `pnpm report <id> --step <n>` crée le fichier si besoin et y ajoute (ou remplace) la section de l'étape n, à partir des sorties JSON de Vitest et Playwright, de `coverage-summary.json`, et du titre et des critères de l'étape lus dans `docs/tickets/<id>/plan.md`. La section est commitée avec l'étape (`process/git.md`).
 
 ```markdown
-# Rapport de test : F03-S1
+# Rapport : MZK-42
 
-## Étape 2 : create sticky note on toolbar click
+## Étape 1 : Dialogue de confirmation
 
 - Date : 2026-10-03T14:12:00+02:00
-- Branche : feat/F03-S1-create-sticky-note
+- Branche : ticket/MZK-42-confirm-delete
 - Commit parent : a1b2c3d
 - Docker : vérifié | non vérifié
 
@@ -137,7 +147,7 @@ Un fichier par ticket, `docs/test-reports/<TICKET-ID>.md`, avec **une section pa
 
 | Critère | Tests | Statut |
 |---|---|---|
-| F03-S1-AC1 | e2e/sticky.spec.ts › [F03-S1-AC1] ... | passé |
+| F08-S1-AC6 | e2e/delete.spec.ts | passé |
 
 Fluidité (si l'étape en mesure) : exigence, valeur médiane mesurée, seuil, chemin de la vidéo.
 

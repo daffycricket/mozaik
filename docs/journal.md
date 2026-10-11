@@ -303,4 +303,18 @@ Branche : `setup/mode-produit`
 | fichier | docs/features/_template.md | Section « Points tranchés » retirée du gabarit : une feature ne porte pas de traçabilité. | humain | non |
 | fichier | LICENSE, package.json | Licence MIT ajoutée (commit `df58739`, avant cette branche). | humain | non |
 
+Fichiers modifiés : commits `78f0bf4`, `bdfee0c`, `056abf5` de la branche `setup/mode-produit`.
+
+### Règles de l'agent et workflow Git : 2026-10-11
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| fichier | AGENTS.md | Réécrit pour le mode produit : phases spec, design, dev, review, merge ; spec et design non interactifs (hypothèses et questions au journal) ; autonomie en dev sans étape 0 ; écarts au plan et bugs décrits dans le rapport ; traitement des retours `[spec]`, `[impl]`, `[règle]` ; écritures limitées par phase. | humain | non |
+| adr | adr/0013, adr/0007 | ADR-0013 (workflow Git du mode produit : branche de ticket, commits `MZK-<n>#<k>`, rebase puis merge commit) remplace ADR-0007. Créé pendant la mise en place, hors ticket. | humain | non |
+| fichier | docs/process/git.md, docs/process/documentation.md | Réécrits selon ADR-0013 et la traçabilité exclusive dans le journal. | humain | non |
+| fichier | docs/process/testing.md | `ac:check` sans statuts, règles des tests hérités du mode produit, vérification indépendante sur la branche du ticket, rapport dans `docs/tickets/<id>/rapport.md`. | humain | non |
+| fichier | docs/process/code.md | Section « Évolution du modèle de données » (changement compatible ou migration versionnée, fixtures, vérification de version à la connexion) ; une dette va dans les points ouverts du rapport. | humain | non |
+| décision | docs/process/git.md | Numérotation `<k>` des commits séquentielle sur la branche, toutes phases confondues ; `Plan-Step` renvoie au plan ; spec du ticket = `docs/features/` et `docs/design/` sauf `composants.md`. | agent | oui |
+| fichier | docs/features/F08-edition.md | Mention « (idée backlog) » retirée du hors périmètre, le backlog n'existant plus. | agent | oui |
+
 Fichiers modifiés : voir la branche `setup/mode-produit`.
