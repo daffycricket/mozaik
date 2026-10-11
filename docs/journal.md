@@ -322,3 +322,25 @@ Fichiers modifiés : commits `78f0bf4`, `bdfee0c`, `056abf5` de la branche `setu
 | fichier | .dockerignore, .gitignore | `runner/` exclu de l'image de l'application ; `runner/.env` ignoré par Git. | agent | oui |
 
 Fichiers modifiés : voir la branche `setup/mode-produit`.
+
+## MZK-1 : Recadrer la vue sur tout le contenu
+
+Carte : (aucune) · Type : feat · Branche : `ticket/MZK-1-recadrer-la-vue-sur-tout-le`
+
+### Spec : 2026-10-11
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| story | F02-S4 | Ajoutée : recadrer la vue sur tout le contenu au raccourci clavier, demandé par la carte | humain | non |
+| critère | F02-S4-AC1 | Ajouté : recadrage au raccourci `Shift+1`, contenu centré et entièrement visible avec une marge `FIT_PADDING` | agent | oui |
+| critère | F02-S4-AC2 | Ajouté : board vide, le recadrage revient au viewport par défaut | agent | oui |
+| critère | F02-S4-AC3 | Ajouté : zoom de recadrage borné à 10 %–400 %, contenu recentré | agent | oui |
+| critère | F02-S4-AC4 | Ajouté : fluidité FL-1 et FL-3 sur un board de 300 éléments | agent | oui |
+| décision | F02 (hors périmètre) | Supprimé : « Ajuster le zoom à l'ensemble du contenu » n'est plus hors périmètre, couvert par F02-S4 | humain | non |
+| hypothèse | H1, F02-S4 | Le recadrage est instantané, sans animation ; la carte demande « d'un coup » | agent | oui |
+| hypothèse | H2, F02-S4-AC2 | Un board vide revient aux valeurs par défaut (100 %, origine), comme `Ctrl+0` | agent | oui |
+| hypothèse | H3, F02-S4-AC3 | Le zoom de recadrage est borné par `MIN_ZOOM`/`MAX_ZOOM`, comme tout zoom | agent | oui |
+| question | Q1, F02-S4-AC1 | La carte ne précise pas le raccourci. Hypothèse retenue : `Shift+1` (convention « zoom to fit », inactif en édition) | agent | oui |
+| fichier | docs/features/F02-canvas-infini.md | Règle métier de recadrage et story F02-S4 ajoutées ; hors périmètre réduit | agent | oui |
+
+Fichiers modifiés : docs/features/F02-canvas-infini.md, docs/tickets/MZK-1/ticket.md

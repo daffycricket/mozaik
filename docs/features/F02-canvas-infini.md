@@ -11,6 +11,7 @@ L'utilisateur se déplace librement sur une surface sans limite et zoome pour vo
 
 - Zoom entre 10 % et 400 %. Zoom par défaut à l'ouverture : 100 %, centré sur l'origine (0, 0).
 - Le zoom à la molette (avec Ctrl/Cmd) ou au pincement du pavé tactile est centré sur le pointeur.
+- Recadrer la vue ajuste le zoom et le décalage pour afficher tout le contenu, centré, avec une marge constante `FIT_PADDING` (en pixels écran) entre la boîte englobante du contenu et les bords du canvas. Sur un board vide, le viewport revient aux valeurs par défaut.
 - Le viewport est local à chaque utilisateur, non partagé, non persisté.
 - Fond : grille de points qui suit le pan et le zoom.
 - Volume cible : 300 éléments par board. Aucune exigence au-delà dans un premier temps.
@@ -60,6 +61,25 @@ L'utilisateur se déplace librement sur une surface sans limite et zoome pour vo
   - Quand je l'ouvre
   - Alors tous les éléments sont présents dans `window.__board.getElements()` et l'ouverture respecte FL-3 et FL-7 (F00)
 
+### F02-S4 : Recadrer la vue sur tout le contenu
+
+**Critères d'acceptance**
+
+- **F02-S4-AC1** : recadrage au raccourci clavier
+  - Étant donné un board dont le contenu est plus petit que le viewport
+  - Quand j'appuie sur `Shift+1`, aucun champ de saisie ni édition de texte n'ayant le focus
+  - Alors le contenu est centré et entièrement visible, avec une marge d'au moins `FIT_PADDING` entre la boîte englobante du contenu et les bords du canvas
+- **F02-S4-AC2** : board vide
+  - Étant donné un board sans élément
+  - Quand j'appuie sur `Shift+1`
+  - Alors le viewport revient aux valeurs par défaut (zoom 100 %, centré sur l'origine)
+- **F02-S4-AC3** : bornes de zoom
+  - Étant donné un contenu qui demanderait un zoom de recadrage hors des bornes
+  - Quand je recadre
+  - Alors le zoom reste entre 10 % et 400 % et le centre du contenu reste au centre du viewport
+- **F02-S4-AC4** : fluidité
+  - Le recadrage respecte FL-1 et FL-3 (F00) sur un board de 300 éléments
+
 ## Hors périmètre
 
-- Ajuster le zoom à l'ensemble du contenu, mini-carte, viewport partagé, tactile mobile, boards de plusieurs milliers d'éléments.
+- Mini-carte, viewport partagé, tactile mobile, boards de plusieurs milliers d'éléments.
