@@ -332,16 +332,16 @@ Carte : (aucune) · Type : feat · Branche : `ticket/MZK-1-recadrer-la-vue-sur-t
 | Type | Éléments concernés | Décision et raison | Origine | À revoir |
 |---|---|---|---|---|
 | story | F02-S4 | Ajoutée : recadrer la vue sur tout le contenu au raccourci clavier, demandé par la carte | humain | non |
-| critère | F02-S4-AC1 | Ajouté : recadrage au raccourci `Shift+1`, contenu centré et entièrement visible avec une marge `FIT_PADDING` | agent | oui |
-| critère | F02-S4-AC2 | Ajouté : board vide, le recadrage revient au viewport par défaut | agent | oui |
-| critère | F02-S4-AC3 | Ajouté : zoom de recadrage borné à 10 %–400 %, contenu recentré | agent | oui |
-| critère | F02-S4-AC4 | Ajouté : fluidité FL-1 et FL-3 sur un board de 300 éléments | agent | oui |
+| critère | F02-S4-AC1 | Ajouté : recadrage au raccourci `Shift+1`, contenu centré et entièrement visible avec une marge `FIT_PADDING` | agent | revu |
+| critère | F02-S4-AC2 | Ajouté : board vide, le recadrage revient au viewport par défaut | agent | revu |
+| critère | F02-S4-AC3 | Ajouté : zoom de recadrage borné à 10 %–400 %, contenu recentré | agent | revu |
+| critère | F02-S4-AC4 | Ajouté : fluidité FL-1 et FL-3 sur un board de 300 éléments | agent | revu |
 | décision | F02 (hors périmètre) | Supprimé : « Ajuster le zoom à l'ensemble du contenu » n'est plus hors périmètre, couvert par F02-S4 | humain | non |
-| hypothèse | H1, F02-S4 | Le recadrage est instantané, sans animation ; la carte demande « d'un coup » | agent | oui |
-| hypothèse | H2, F02-S4-AC2 | Un board vide revient aux valeurs par défaut (100 %, origine), comme `Ctrl+0` | agent | oui |
-| hypothèse | H3, F02-S4-AC3 | Le zoom de recadrage est borné par `MIN_ZOOM`/`MAX_ZOOM`, comme tout zoom | agent | oui |
-| question | Q1, F02-S4-AC1 | La carte ne précise pas le raccourci. Hypothèse retenue : `Shift+1` (convention « zoom to fit », inactif en édition) | agent | oui |
-| fichier | docs/features/F02-canvas-infini.md | Règle métier de recadrage et story F02-S4 ajoutées ; hors périmètre réduit | agent | oui |
+| hypothèse | H1, F02-S4 | Le recadrage est instantané, sans animation ; la carte demande « d'un coup » | agent | revu |
+| hypothèse | H2, F02-S4-AC2 | Un board vide revient aux valeurs par défaut (100 %, origine), comme `Ctrl+0` | agent | revu |
+| hypothèse | H3, F02-S4-AC3 | Le zoom de recadrage est borné par `MIN_ZOOM`/`MAX_ZOOM`, comme tout zoom | agent | revu |
+| question | Q1, F02-S4-AC1 | La carte ne précise pas le raccourci. Hypothèse retenue : `Shift+1` (convention « zoom to fit », inactif en édition) | agent | revu |
+| fichier | docs/features/F02-canvas-infini.md | Règle métier de recadrage et story F02-S4 ajoutées ; hors périmètre réduit | agent | revu |
 
 Fichiers modifiés : docs/features/F02-canvas-infini.md, docs/tickets/MZK-1/ticket.md
 
@@ -360,3 +360,16 @@ Fichiers modifiés : docs/features/F02-canvas-infini.md, docs/tickets/MZK-1/tick
 | fichier | docs/features/README.md | `Shift+1` ajouté à la liste des raccourcis transverses. | agent | non |
 
 Fichiers modifiés : docs/features/F02-canvas-infini.md, docs/features/README.md, docs/tickets/MZK-1/retours.md
+
+### Design : 2026-10-11
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| décision | packages/model/src/viewport.ts | Le calcul du recadrage est une fonction pure `fitViewport(bounds, canvas)` et la marge une constante `FIT_PADDING = 48`, dans `viewport.ts` à côté du pan et du zoom ; testable sans DOM | agent | non |
+| décision | apps/web/src/state/viewport-store.ts | L'écriture du viewport de recadrage passe par une action `fitToContent` du store, comme `panByScreen`/`zoomTo`/`zoomBy`/`resetViewport` : le store reste le seul endroit qui modifie le viewport | agent | non |
+| décision | apps/web/src/tools/shortcuts.ts | Le raccourci est le hook `useFitShortcut(doc)`, reconnu par `event.code === 'Digit1'` + `Shift` (touche physique, disposition indifférente), inactif pendant l'édition d'un texte ; monté dans `board-canvas.tsx` | agent | non |
+| décision | plan.md | Aucun ADR : décision locale (fonction pure, action de store, hook), sans impact sur l'architecture ni le modèle | agent | non |
+| décision | docs/design/ | Aucun changement de design : pas de composant ni de règle `UI-*` nouvelle ; `UI-BOARD-5` ne liste que −, pourcentage, + (pas de bouton de recadrage) | agent | non |
+| test | packages/model/src/viewport-fit.test.ts, apps/web/src/state/viewport-store-fit.test.ts, apps/web/src/tools/fit-shortcut.test.tsx, e2e/board-fit.spec.ts, e2e/fluidity/board-fit.spec.ts | Tests prévus pour F02-S4-AC1 à AC4 ; aucun test hérité modifié ni supprimé | agent | non |
+
+Fichiers modifiés : docs/tickets/MZK-1/plan.md
