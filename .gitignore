@@ -12,3 +12,6 @@ data/
 .env.*
 !.env.example
 .DS_Store
+
+# Outillage des phases : secrets locaux
+runner/.env

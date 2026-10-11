@@ -4,10 +4,10 @@ Règles d'écriture du code, valables pour tous les paquets. Ce qui est vérifia
 
 ## 1. Principes
 
-- **Le plus simple qui satisfait les critères d'acceptance.** Pas d'abstraction, d'option ou de paramètre « pour plus tard ». Le périmètre est strict (AGENTS.md §8).
+- **Le plus simple qui satisfait les critères d'acceptance.** Pas d'abstraction, d'option ou de paramètre « pour plus tard ». Le périmètre est strict (AGENTS.md §13).
 - **Lisible avant d'être astucieux.** Un nom explicite vaut mieux qu'un commentaire.
 - **Pas de code mort** : pas de code commenté, de fonction inutilisée, d'export inutilisé. Git garde l'historique.
-- **Pas de `TODO` dans le code.** Une dette devient un ticket du backlog.
+- **Pas de `TODO` dans le code.** Une dette est signalée dans les points ouverts du rapport du ticket ; l'humain en fait une carte.
 
 ## 2. TypeScript
 
@@ -87,7 +87,7 @@ Règles d'écriture du code, valables pour tous les paquets. Ce qui est vérifia
 
 ## 11. Dépendances
 
-- Licence permissive uniquement (AGENTS.md §4). Vérifier la licence avant l'ajout, et la tracer dans le journal (`dépendance`).
+- Licence permissive uniquement (AGENTS.md §4). Vérifier la licence avant l'ajout, et la tracer dans le journal (entrée `décision`).
 - Ajouter une dépendance seulement si elle évite une quantité significative de code ; jamais deux bibliothèques pour le même besoin.
 - Versions verrouillées par `pnpm-lock.yaml` ; pas de version flottante sans raison.
 
@@ -114,3 +114,16 @@ Mis en place par T-001 (et T-006 pour les couleurs), vérifié par `pnpm lint` e
 - [ ] Aucun code mort, `TODO`, `console.log` ou fichier temporaire.
 - [ ] Les noms suivent le glossaire.
 - [ ] `pnpm verify` est vert.
+
+## 15. Évolution du modèle de données
+
+Les boards déjà enregistrés (documents Yjs persistés dans SQLite) doivent rester lisibles après chaque ticket. La phase design décide, dans l'analyse d'impact du plan, si un changement du modèle est compatible ou demande une migration.
+
+- **Préférer un changement compatible** : un champ ajouté avec une valeur par défaut, lu comme absent dans les anciens boards, ne demande pas de migration.
+- **Migration** pour tout changement incompatible (renommage, suppression, changement de structure) :
+  - chaque board porte un numéro de version de format ; un board sans numéro est en version 1 ;
+  - les migrations sont déclarées dans un registre unique et ordonné, et appliquées par le serveur au chargement d'un board ;
+  - une fixture de board de la version précédente (avec tous les types d'éléments) est ajoutée aux fixtures de test, et un test charge chaque fixture, applique les migrations et vérifie le résultat ;
+  - le client et le serveur vérifient la version du format à la connexion, et le client se recharge si elle a changé, pour qu'un onglet resté ouvert sur l'ancienne version n'écrive pas l'ancien format.
+- La première migration crée l'ADR qui décrit ce mécanisme ; les suivantes s'y conforment.
+

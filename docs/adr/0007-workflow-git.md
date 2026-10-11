@@ -1,6 +1,6 @@
 # ADR-0007 : Plan numéroté, un commit par étape, Conventional Commits
 
-- Statut : Accepted
+- Statut : Superseded by ADR-0013
 - Date : 2026-10-03
 - Décideurs : humain
 

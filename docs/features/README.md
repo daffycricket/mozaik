@@ -2,9 +2,16 @@
 
 Un fichier par fonctionnalité, à partir de [_template.md](_template.md). Chaque fichier contient des stories ; chaque story a des critères d'acceptance identifiés `FNN-SN-ACN` au format Étant donné / Quand / Alors.
 
-**Seul ce qui est décrit ici est développé.** Ce qui figure dans une section « Hors périmètre » ne doit pas être développé, même partiellement. Un comportement nécessaire mais non spécifié se tranche dans la story concernée, au plus simple, et se trace dans [../journal.md](../journal.md) (AGENTS.md §8). On ne crée jamais de nouvelle story.
+**Seul ce qui est décrit ici est développé.** Ce qui figure dans une section « Hors périmètre » ne doit pas être développé, même partiellement.
 
-Une story correspond à un ticket du [backlog](../backlog.md), qui porte seul son statut. Un critère d'acceptance est couvert par au moins un test dont le titre commence par son identifiant ([process/testing.md](../process/testing.md)).
+Ces fichiers décrivent le comportement actuel de Mozaik, sans historique : leurs modifications sont tracées dans [../journal.md](../journal.md). Ils ne changent que pendant les phases spec et spec review d'un ticket, sur la branche du ticket :
+
+- un besoin qu'aucune fonctionnalité ne couvre crée un nouveau fichier `FNN-<nom>.md` (numéro suivant) ;
+- si une story existante n'est plus vraie telle qu'écrite (même déclencheur ou objectif, comportement différent), elle est modifiée ;
+- si elle reste vraie et que le nouveau comportement a un objectif distinct, livrable et testable seul, une nouvelle story est créée (numéro suivant dans le fichier) ;
+- un identifiant de story, de critère ou de règle `UI-*` prend le numéro suivant et n'est jamais réutilisé après suppression.
+
+Un critère d'acceptance est couvert par au moins un test dont le titre commence par son identifiant ([process/testing.md](../process/testing.md)).
 
 | ID | Fonctionnalité |
 |---|---|

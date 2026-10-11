@@ -1,0 +1,37 @@
+# Conteneur d'une phase d'un ticket, lancé par runner/mzk.sh (docker compose run --rm).
+# L'image est construite à partir de ce dossier (copie de mozaik sur main).
+services:
+  agent:
+    build:
+      context: .
+      args:
+        OPENCODE_VERSION: ${OPENCODE_VERSION:-1.18.34}
+    image: mozaik-agent-runner:${OPENCODE_VERSION:-1.18.34}
+    env_file: .env
+    environment:
+      OPENCODE_MODEL: ${OPENCODE_MODEL:-}
+      MZK_PHASE: ${MZK_PHASE}
+      MZK_TICKET: ${MZK_TICKET}
+      MZK_BASE: ${MZK_BASE}
+      MZK_VERIFY_FAILURES: ${MZK_VERIFY_FAILURES:-}
+      MAX_SESSIONS: ${MAX_SESSIONS:-3}
+      MAX_FIX: ${MAX_FIX:-2}
+      SESSION_TIMEOUT: ${SESSION_TIMEOUT:-4h}
+      STALL_TIMEOUT: ${STALL_TIMEOUT:-3600}
+      TNR_REPLAY: ${TNR_REPLAY:-1}
+      VERIFY_TIMEOUT_MS: ${VERIFY_TIMEOUT_MS:-1800000}
+    volumes:
+      - ${TICKET_DIR}/workspace:/workspace
+      - ${TICKET_DIR}/logs:/run-logs
+      - ${TICKET_DIR}/opencode-data:/home/node/.local/share/opencode
+      - pw-browsers:/ms-playwright
+      - pnpm-store:/home/node/.local/share/pnpm/store
+    shm_size: 1gb
+
+volumes:
+  pw-browsers:
+    name: mozaik-agent-pw-browsers
+    external: true
+  pnpm-store:
+    name: mozaik-agent-pnpm-store
+    external: true

@@ -35,8 +35,8 @@ L'agent ajuste les seuils seul, sans demander l'humain, dans les conditions suiv
 
 1. Après les mesures de référence de T-004, puis à tout moment si un seuil se révèle instable (échecs intermittents) ou inadapté à la machine.
 2. Il peut assouplir un seuil jusqu'au **plancher** ci-dessous, jamais au-delà. Il peut aussi le resserrer librement.
-3. Il consigne chaque changement dans le tableau « Historique des seuils » de ce fichier et dans le rapport du ticket (valeur avant, valeur après, mesures qui le justifient), avec une entrée `seuil` dans `docs/journal.md`.
-4. Si même le plancher n'est pas tenable, il crée un ticket `T-` de performance dans le backlog, le traite comme les autres tickets techniques, et ne passe pas au ticket suivant tant que le plancher n'est pas tenu.
+3. Il met à jour la valeur du seuil dans ce fichier et consigne le changement (valeur avant, valeur après, mesures qui le justifient) dans une entrée `critère` de `docs/journal.md` et dans le rapport du ticket.
+4. Si même le plancher n'est pas tenable, il applique la règle d'échec de la phase dev : il trace l'échec au journal et décrit un bug de performance, que le script transforme en carte Trello.
 
 | ID | Plancher (limite d'assouplissement) |
 |---|---|
@@ -45,12 +45,6 @@ L'agent ajuste les seuils seul, sans demander l'humain, dans les conditions suiv
 | FL-3 | aucune tâche longue > 500 ms |
 | FL-4 | ≥ 3 positions intermédiaires par seconde, dernière position en ≤ 1 s |
 | FL-7 | 300 éléments en ≤ 5 s, board vide en ≤ 2 s |
-
-## Historique des seuils
-
-| Date | ID | Avant | Après | Justification |
-|---|---|---|---|---|
-| | | | | |
 
 ## Application
 

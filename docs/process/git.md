@@ -1,139 +1,149 @@
 # Workflow Git
 
-Décision : [ADR-0007](../adr/0007-workflow-git.md).
+Décision : [ADR-0013](../adr/0013-workflow-git-mode-produit.md), qui remplace l'ADR-0007.
 
 ## Principes
 
-1. **Un plan avant chaque implémentation.** Avant d'écrire du code pour un ticket, l'agent écrit un plan numéroté dans `docs/plans/<TICKET-ID>.md` ([gabarit](../plans/_template.md)).
-2. **Une étape du plan = un commit.** Le commit porte le numéro de l'étape.
-3. **Chaque étape est complète et verte.** Elle contient tout ce qu'il faut pour être un point de retour sûr : code, tests, résultats de test, documentation.
-4. **Conventional Commits** pour tous les messages.
-5. **On peut toujours revenir à l'étape précédente.** Chaque commit d'étape est un état stable de référence.
+1. **Une branche par ticket**, créée par le script de la phase spec, qui porte la spec, le plan et le code du ticket. `main` ne décrit que ce qui est livré.
+2. **Le plan avant le code.** Le plan est écrit en phase design et validé par l'humain ; la phase dev l'exécute.
+3. **Une étape du plan = un commit**, complet (code, tests, section de rapport, documentation) et vert.
+4. **Conventional Commits** pour tous les messages, en anglais.
+5. **Rebase puis merge commit** pour intégrer un ticket dans `main` : les commits d'étape restent dans l'historique, et `git log --first-parent main` affiche une ligne par ticket.
 
 ## Où vit l'état d'avancement
 
-- Statut d'un ticket : **uniquement** dans `docs/backlog.md`.
-- Avancement d'un plan : **uniquement** dans Git. Une étape est faite quand son commit `<TICKET-ID>#<n>` existe.
-- Les fichiers de fonctionnalités et de plans ne portent aucun statut.
+- Statut d'un ticket : **uniquement** sa colonne dans Trello.
+- Avancement du développement : **uniquement** dans Git. Une étape est faite quand son commit existe sur la branche (`git log --oneline main..HEAD`).
+- Les fichiers de la documentation et du dossier de ticket ne portent aucun statut.
 
 ## Branches
 
-- Une branche par ticket : `<type>/<TICKET-ID>-<slug-court>`, créée depuis `main`.
+- Une branche par ticket : `ticket/MZK-<n>-<slug-court>`, créée depuis `main` par le script de la phase spec. Exemple : `ticket/MZK-42-confirm-delete`.
+- L'agent ne crée pas de branche et ne change pas de branche ; il ne merge pas dans `main`.
+- Le dépôt de travail de l'agent n'a pas de remote. L'agent n'ajoute jamais de remote et ne pousse jamais ; les scripts publient la branche.
 
-| Type | Usage |
-|---|---|
-| `feat` | Story fonctionnelle (`F03-S1`) |
-| `fix` | Bug (`B-004`) |
-| `chore` | Outillage, configuration, technique (`T-002`) |
-| `docs` | Documentation seule |
-| `refactor` | Refactoring sans changement de comportement |
+## Commits
 
-Exemples : `feat/F03-S1-create-sticky-note`, `chore/T-001-bootstrap-monorepo`.
+### Numérotation
 
-- Le dépôt de travail n'a pas de remote : l'agent intègre lui-même sa branche dans `main` en local. Il n'ajoute jamais de remote et ne pousse jamais ; la publication éventuelle est assurée par l'outillage qui l'exécute.
+Le sujet porte `MZK-<n>#<k>`, où `<k>` est le numéro du commit dans la branche du ticket, séquentiel, toutes phases confondues : par exemple `#1` pour la spec, `#2` pour le design, `#3` pour l'ouverture de la phase dev (script), `#4` et `#5` pour les deux étapes du dev (agent), `#6` pour les métriques du runner. Pour le connaître : `git log --oneline main..HEAD | wc -l`, plus un.
 
-## Le plan (étape 0)
+### Commits de phase (écrits par les scripts)
 
-Premier commit de la branche, avant tout code :
-
-- crée `docs/plans/<TICKET-ID>.md` avec les étapes numérotées 1, 2, 3… ;
-- passe le ticket en `in-progress` dans `docs/backlog.md`.
-
-Message : `docs(plan): <TICKET-ID>#0 plan <n> steps`. C'est la seule étape sans trailers de test.
-
-Une étape doit être assez petite pour être terminée et vérifiée en une fois (ordre de grandeur : un critère d'acceptance, ou une brique technique). Un ticket compte en général 2 à 6 étapes.
-
-## Contenu obligatoire d'un commit d'étape
-
-Chaque commit d'étape contient, pour cette étape :
-
-| Élément | Contenu | Obligatoire |
-|---|---|---|
-| Code applicatif | Le comportement fonctionnel de l'étape (`apps/*`, `packages/model`) | Oui, sauf étape purement technique : « aucun » justifié dans le plan |
-| Code technique | Configuration, outillage, scripts, utilitaires de test, Docker | Oui, sauf si l'étape n'en demande pas : « aucun » justifié dans le plan |
-| Code de test | Tests unitaires, d'intégration et e2e de ce que l'étape ajoute ou modifie | Toujours |
-| Résultats de test | Section de l'étape ajoutée à `docs/test-reports/<TICKET-ID>.md` par `pnpm report <TICKET-ID> --step <n>`, et trailers dans le message | Toujours |
-| Documentation | Documentation impactée : architecture, ADR, glossaire, README | Toujours vérifiée ; mise à jour dès que l'étape la rend inexacte |
-| Fichiers Markdown de suivi | `docs/journal.md` si l'étape a pris une décision, enrichi une spec, créé un ADR, ajusté un seuil ou désactivé un test ; `docs/plans/<TICKET-ID>.md` si le plan évolue ; `docs/backlog.md` à la dernière étape | Selon besoin |
-
-Avant chaque commit d'étape, `pnpm verify` passe intégralement. Chaque commit est donc vert.
-
-## Message de commit d'étape
-
-Format [Conventional Commits](https://www.conventionalcommits.org/), en anglais :
+Les scripts commitent les documents des phases spec, spec review, design et tech review, l'ouverture des sous-sections du journal et les métriques du runner en dev et en review, sans trailers de test :
 
 ```
-<type>(<scope>): <TICKET-ID>#<n> <description à l'impératif>
+docs(spec): MZK-42#1 specify confirmation before multiple deletion
+
+Refs: MZK-42
+```
+
+Scopes : `spec`, `spec-review`, `design`, `tech-review`, `dev`, `review`, `merge`. Ces commits sont écrits par l'identité `mozaik-runner` ; l'agent n'utilise jamais ces scopes avec le type `docs`.
+
+### Commits d'étape (écrits par l'agent en dev, review et merge)
+
+```
+<type>(<scope>): MZK-<n>#<k> <description à l'impératif>
 
 <corps : ce que fait l'étape, pourquoi>
 
-Refs: <TICKET-ID>
+Refs: MZK-<n>, <identifiants des critères couverts>
 Plan-Step: <n>/<total>
 Tests: unit 142/142, integration 23/23, e2e 18/18
 Coverage: lines 86.2%, branches 81.0%
-Report: docs/test-reports/<TICKET-ID>.md (step <n>)
+Report: docs/tickets/MZK-<n>/rapport.md (step <n>)
 ```
 
 - `type` : `feat`, `fix`, `test`, `refactor`, `chore`, `docs`, `perf`, `build`. Il décrit la nature principale de l'étape.
 - `scope` : `web`, `server`, `model`, `e2e`, `docs`, `tooling`, `docker`.
-- Sujet ≤ 72 caractères, numéro d'étape juste après les deux-points.
+- Sujet ≤ 72 caractères.
+- `Refs:` commence par l'identifiant du ticket, suivi des critères couverts par l'étape.
+- `Plan-Step:` renvoie aux étapes de `plan.md`. Une étape ajoutée en cours de route prend le numéro suivant (`3/3` pour un plan de 2 étapes) ; une correction après la vérification indépendante ou après la review aussi.
+- `pnpm report MZK-<n> --step <n>` produit les lignes `Tests:`, `Coverage:`, `Report:` dans `.git/TRAILERS`.
 
 Exemple :
 
 ```
-feat(web): F03-S1#2 create sticky note on toolbar click
+feat(web): MZK-42#4 ask for confirmation before deleting many elements
 
-Adds the sticky tool, creation at click position and selection of the
-new note. Covers F03-S1-AC1 and F03-S1-AC4.
+Adds the confirmation dialog from ten selected elements, with the number
+of elements in the message.
 
-Refs: F03-S1
-Plan-Step: 2/4
-Tests: unit 151/151, integration 23/23, e2e 21/21
+Refs: MZK-42, F08-S1-AC2, F08-S1-AC6, UI-DEL-1
+Plan-Step: 1/2
+Tests: unit 151/151, integration 23/23, e2e 22/22
 Coverage: lines 86.9%, branches 81.4%
-Report: docs/test-reports/F03-S1.md (step 2)
+Report: docs/tickets/MZK-42/rapport.md (step 1)
 ```
 
-`pnpm report <TICKET-ID> --step <n>` produit les lignes `Tests:`, `Coverage:`, `Report:` dans `.git/TRAILERS`.
+### Contenu obligatoire d'un commit d'étape
 
-Un hook `commit-msg` (installé par T-001) refuse tout commit dont le message ne respecte pas ce format : Conventional Commits, `<TICKET-ID>#<n>` dans le sujet, trailers `Refs:` et `Plan-Step:`, et trailers de test sauf pour l'étape 0. Identifiants acceptés : `FNN-SN`, `T-NNN`, `B-NNN`, et `RUN` pour les commits qui ne relèvent d'aucun ticket : le bilan final de l'agent (`docs(journal): RUN#0 bilan`) et les commits de l'outillage d'exécution (`RUN#0`).
+| Élément | Contenu |
+|---|---|
+| Code applicatif et technique | Le comportement de l'étape, la configuration et l'outillage qu'elle demande |
+| Code de test | Tests unitaires, d'intégration et e2e de ce que l'étape ajoute ou modifie |
+| Résultats de test | Section de l'étape dans `docs/tickets/<id>/rapport.md`, et trailers dans le message |
+| Documentation | Documentation rendue inexacte par l'étape : architecture, ADR créé au dev, glossaire, composants, README |
+| Journal | Entrées de la sous-section Dev (ou Review, Merge) de la section du ticket |
+
+Avant chaque commit d'étape, `pnpm verify` passe intégralement. Chaque commit d'étape est donc vert.
+
+### Contrôle
+
+Le hook `commit-msg` (`tooling/commit-msg.ts`, exigence T-001-AC4) refuse tout message non conforme : Conventional Commits, `MZK-<n>#<k>` dans le sujet, `Refs:` commençant par l'identifiant du ticket ; trailers `Plan-Step:`, `Tests:`, `Coverage:` et `Report:` pour un commit d'étape ; `Refs:` seul pour un commit de phase des scripts (`docs(spec|spec-review|design|tech-review|dev|review|merge)`) et pour un revert. Les commits de merge écrits par Git et les commits de l'outillage (`<type>(runner): ...`) sont acceptés.
+
+### Commits de l'outillage
+
+L'outillage des phases (`runner/` : `mzk.sh`, image de l'agent, garde-fou, contrôles) n'est jamais modifié par l'agent. Il évolue par des commits humains, sans ticket ni trailer, de scope `runner` :
+
+```
+chore(runner): pin the OpenCode version
+```
+
+Ils passent par une branche et une pull request comme le reste, puis un merge commit. `mzk.sh merge` refuse de merger une branche de ticket qui modifie `runner/`, sauf option `--allow-runner-changes`. Décision : [ADR-0014](../adr/0014-outillage-dans-le-depot-produit.md).
 
 ## Revenir à l'étape précédente
 
-L'agent se perd dans une étape (tests qui ne passent plus, approche qui ne mène nulle part) :
-
-- **L'étape en cours n'est pas encore commitée** : il abandonne le travail en cours et repart du dernier commit d'étape.
+- **L'étape en cours n'est pas encore commitée** : abandonner le travail en cours et repartir du dernier commit.
 
   ```bash
   git restore --staged --worktree . && git clean -fd
   ```
 
-- **Une étape déjà commitée sur la branche s'avère mauvaise** : il l'annule par un commit de revert, ce qui conserve la trace de l'essai.
+- **Une étape déjà commitée s'avère mauvaise** : l'annuler par un commit de revert, ce qui conserve la trace de l'essai.
 
   ```bash
   git revert --no-edit <sha-de-l-etape>
   ```
 
-  Le message produit est retouché au format `revert(<scope>): <TICKET-ID>#<n> revert step <n>`, avec les trailers de test du nouvel état.
+  Le message est retouché au format `revert(<scope>): MZK-<n>#<k> revert step <n>` avec `Refs: MZK-<n>`.
 
-Dans les deux cas, il note dans le plan, section « Journal », ce qui a été tenté et pourquoi c'est abandonné (le journal du projet `docs/journal.md` ne reçoit une entrée `abandon` que si l'enseignement dépasse le ticket), puis il refait l'étape (même numéro, approche différente) ou découpe le plan autrement. Un plan modifié est commité avec la reprise de l'étape.
+Dans les deux cas, l'agent trace au journal ce qui a été tenté et pourquoi c'est abandonné, puis refait l'étape autrement. Après 3 échecs sur la même étape, il applique les règles de repli d'AGENTS.md §13.
 
-Après 3 échecs sur la même étape, il applique les règles de repli d'AGENTS.md §8 : approche plus simple, ou ticket `blocked` en dernier recours.
+Si l'humain demande de repartir de zéro (`dev <id> --restart`), le script ramène la branche au commit de la dernière phase design ou tech review et le trace au journal.
 
 ## Intégration dans `main`
 
-Quand la dernière étape est commitée (rapport complet, ticket `done` dans le backlog) :
+Faite par le script de merge, à la demande de l'humain, après la recette :
 
-```bash
-git switch main
-git merge --ff-only <branche>     # rebase sur main d'abord si nécessaire
-git branch -d <branche>
-```
+1. rebase de la branche du ticket sur `main` ; en cas de conflit, ou de vérification rouge après le rebase, un agent corrige (AGENTS.md §11) ;
+2. vérification indépendante de la tête de la branche rebasée ; la branche n'est publiée (`--force-with-lease`) que si elle est verte ;
+3. si l'agent a résolu un conflit ou corrigé du code, arrêt avant le merge : l'humain reteste la branche rebasée, puis relance le merge ;
+4. merge commit sans fast-forward ni squash :
 
-Pas de squash : les commits d'étape restent visibles dans l'historique de `main`. `git log --oneline main` montre ainsi chaque ticket découpé en étapes numérotées, chacune avec ses résultats de test.
+   ```bash
+   git switch main
+   git merge --no-ff ticket/MZK-42-confirm-delete
+   ```
+
+5. SHA du commit de merge noté dans la sous-section Merge du journal, entrées « À revoir » des phases Dev et Review passées à « revu », déploiement de `main` en recette.
+
+Règle : **chaque merge commit de `main` est vert**. Seule exception : un merge décidé par l'humain alors que la vérification est rouge à cause d'un bug secondaire déjà connu (carte existante), tracé dans la sous-section Merge avec la référence de la carte.
 
 ## Interdits
 
 - Commit d'étape sans `pnpm verify` vert.
 - `--no-verify` pour contourner les hooks.
 - Réécrire l'historique de `main` (`reset`, `rebase`, `push --force` sur `main`).
-- Commit fourre-tout qui couvre plusieurs étapes, ou étape sans plan préalable.
+- Squash d'un ticket dans `main`.
+- Commit fourre-tout qui couvre plusieurs étapes.

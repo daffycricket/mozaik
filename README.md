@@ -1,10 +1,10 @@
-# Tableau blanc collaboratif open source
+# Mozaik
 
-Application de tableau blanc collaboratif en temps réel, de type Miro, open source.
+Application de tableau blanc collaboratif en temps réel, de type Miro, open source sous licence [MIT](LICENSE).
 
 - Vision et périmètre : [docs/vision.md](docs/vision.md)
 - Architecture : [docs/architecture.md](docs/architecture.md)
-- Contribuer (humains et agents) : [AGENTS.md](AGENTS.md)
+- Contribuer (humains et agents) : [AGENTS.md](AGENTS.md) ; chaque évolution est un ticket `MZK-<n>` traité sur sa branche, en phases spec, design et dev ([docs/process/git.md](docs/process/git.md))
 
 ## Lancer l'application
 

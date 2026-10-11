@@ -3,7 +3,10 @@
 - Statut : Proposed | Accepted
 - Date : AAAA-MM-JJ
 - Décideurs : humain | agent
-- Liens : features, tickets, ADR liés
+- Ticket : MZK-<n>, créé au design (avant le code) | au dev (pendant le code)
+- Raison : pourquoi ce ticket a eu besoin de cette décision, en une phrase
+- Remplace : ADR-NNNN, ou « aucun »
+- Liens : features, ADR liés
 
 ## Contexte
 

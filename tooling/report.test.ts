@@ -32,11 +32,11 @@ function write(name: string, value: unknown): string {
 }
 
 const baseInput: ReportInput = {
-  ticketId: 'T-002',
+  ticketId: 'MZK-42',
   stepNumber: 1,
   stepTitle: 'Outil de rapport',
   date: '2026-10-04T10:00:00.000Z',
-  branch: 'chore/T-002-test-harness',
+  branch: 'ticket/MZK-42-confirm-delete',
   parentCommit: 'abc1234',
   docker: 'non vérifié',
   unit: { passed: 12, failed: 0, skipped: 0, durationMs: 1200 },
@@ -161,7 +161,7 @@ describe('[T-002-AC5] report tool', () => {
   });
 
   test('[T-002-AC5] appends a new section and replaces an existing one', () => {
-    const appended = upsertSection('# Rapport de test : T-002\n', 1, buildReportSection(baseInput));
+    const appended = upsertSection('# Rapport : MZK-42\n', 1, buildReportSection(baseInput));
     expect(appended).toContain('## Étape 1 : Outil de rapport');
 
     const second: ReportInput = { ...baseInput, stepNumber: 2, stepTitle: 'Deuxième' };
@@ -180,18 +180,49 @@ describe('[T-002-AC5] report tool', () => {
     const trailers = buildTrailers(baseInput);
     expect(trailers).toContain('Tests: unit 12/12, integration 3/3, e2e 1/1');
     expect(trailers).toContain('Coverage: lines 85.4 %, branches 80.1 %');
-    expect(trailers).toContain('Report: docs/test-reports/T-002.md (step 1)');
+    expect(trailers).toContain('Report: docs/tickets/MZK-42/rapport.md (step 1)');
   });
 
   test('[T-002-AC5] writes the report file and the trailers', () => {
     const repo = mkdtempSync(join(tmpdir(), 'mozaik-report-repo-'));
     writeFileSync(join(repo, 'placeholder'), '', 'utf8');
-    const section = runReport(repo, 'T-002', 1);
+    const section = runReport(repo, 'MZK-42', 1);
     expect(section).toContain('## Étape 1');
-    const report = readFileSync(join(repo, 'docs/test-reports/T-002.md'), 'utf8');
-    expect(report).toContain('# Rapport de test : T-002');
+    const report = readFileSync(join(repo, 'docs/tickets/MZK-42/rapport.md'), 'utf8');
+    expect(report).toContain('# Rapport : MZK-42');
     const trailers = readFileSync(join(repo, '.git/TRAILERS'), 'utf8');
-    expect(trailers).toContain('Report: docs/test-reports/T-002.md (step 1)');
+    expect(trailers).toContain('Report: docs/tickets/MZK-42/rapport.md (step 1)');
+    rmSync(repo, { recursive: true, force: true });
+  });
+
+  test('[T-002-AC5] reads the step title and the criteria from the plan of the ticket', () => {
+    const repo = mkdtempSync(join(tmpdir(), 'mozaik-report-plan-'));
+    mkdirSync(join(repo, 'docs/tickets/MZK-42'), { recursive: true });
+    writeFileSync(
+      join(repo, 'docs/tickets/MZK-42/plan.md'),
+      [
+        '# Plan : MZK-42',
+        '',
+        'Éléments couverts : F08-S1-AC2, F08-S1-AC6, UI-DEL-1.',
+        '',
+        '### Étape 1 : Dialogue de confirmation',
+        '',
+        'Critères : F08-S1-AC6.',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+    mkdirSync(join(repo, 'e2e'), { recursive: true });
+    writeFileSync(
+      join(repo, 'e2e/delete.spec.ts'),
+      "test('[F08-S1-AC6] asks for confirmation', () => {});\n",
+      'utf8',
+    );
+    const section = runReport(repo, 'MZK-42', 1);
+    expect(section).toContain('## Étape 1 : Dialogue de confirmation');
+    expect(section).toContain('| F08-S1-AC6 | e2e/delete.spec.ts | passé |');
+    expect(section).toContain('| F08-S1-AC2 | aucun | non couvert |');
+    expect(section).toContain('| UI-DEL-1 | aucun | non couvert |');
     rmSync(repo, { recursive: true, force: true });
   });
 });

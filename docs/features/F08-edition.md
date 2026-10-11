@@ -62,4 +62,4 @@ L'utilisateur manipule rapidement le contenu du board avec les opérations d'éd
 
 ## Hors périmètre
 
-- Coller du texte brut ou des images depuis l'extérieur (idée backlog).
+- Coller du texte brut ou des images depuis l'extérieur.
