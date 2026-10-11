@@ -1,6 +1,6 @@
 # Rapport : MZK-42
 
-Les sections « Étape <n> » sont générées par `pnpm report MZK-42 --step <n>` et commitées avec l'étape : ne pas les éditer, sauf la ligne « Remarques ». La synthèse est écrite par l'agent de dev à la fin de la phase, les métriques sont ajoutées par le runner. Le script publie un résumé de ce fichier en commentaire de la carte et dans la pull request.
+Les sections « Étape <n> » sont générées par `pnpm report MZK-42 --step <n>` et commitées avec l'étape : ne pas les éditer, sauf la ligne « Remarques ». La synthèse et les bugs décrits sont écrits par l'agent ; les sections « Métriques du runner » et « Contrôles du runner » sont écrites par le script. Le script publie un résumé de ce fichier en commentaire de la carte et dans la pull request.
 
 ## Étape 1 : Dialogue de confirmation
 
@@ -34,8 +34,28 @@ Les sections « Étape <n> » sont générées par `pnpm report MZK-42 --step <n
 
 - Écart au plan : étape 3 ajoutée (focus après le dialogue), voir le journal.
 
+## Bugs décrits
+
+Section présente seulement si l'agent n'a pas pu corriger un échec (AGENTS.md §9, point 5). Le script crée une carte Trello par bug, à partir de ce texte : respecter le format des deux premières lignes.
+
+### Bug : Mesure FL-2 du pan instable sous charge
+
+- Qualification : secondaire
+- Description : `[F02-S1-AC4]` dépasse le seuil d'intervalle d'image maximal (411 ms pour 200 ms) une fois sur trois quand la suite e2e complète tourne.
+- Reproduction : `pnpm test:e2e` trois fois de suite sur la branche ; le test passe seul.
+- Test en échec : `e2e/fluidity/board-pan.spec.ts`, `[F02-S1-AC4]`.
+- Extrait de log : `Expected: <= 200, Received: 411`.
+- Pourquoi secondaire : le test échoue aussi sur `main` sans les changements du ticket.
+
 ## Métriques du runner
 
-| Session | Modèle | Durée | Tokens entrée / sortie / raisonnement / cache lu | Coût estimé | Vérification | Couverture vérifiée (lignes / branches) |
-|---|---|---|---|---|---|---|
-| 1 | umans/umans-deepseek-v4.1-flash | 21 min | 130 k / 22 k / 40 k / 6,8 M | 0,25 $ | verte | 90,2 % / 83,1 % |
+| Phase | Session | Modèle | Durée (s) | Tokens entrée / sortie / raisonnement / cache lu | Coût estimé | Vérification | Couverture vérifiée |
+|---|---|---|---|---|---|---|---|
+| spec | 001 | umans/umans-deepseek-v4.1-flash | 240 | 60000 / 6000 / 9000 / 900000 | 0.03 | — | — |
+| dev | 001 | umans/umans-deepseek-v4.1-flash | 1260 | 130000 / 22000 / 40000 / 6800000 | 0.25 | verte | 90.2 / 83.1 |
+
+## Contrôles du runner
+
+| Phase | Session | Contrôle | À revoir |
+|---|---|---|---|
+| dev | 001 | Test hérité e2e/delete.spec.ts : 1 test(s) disparu(s), assertions 4 -> 3, justifié (critères F08-S1-AC2, entrée test au journal). | non |

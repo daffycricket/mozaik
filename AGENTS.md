@@ -83,7 +83,7 @@ Règles communes à toutes les phases :
 - **Tu ne poses jamais de question en attendant une réponse.** En spec et en design, tu écris tes questions dans le journal (`Q1`, `Q2`...) avec l'hypothèse que tu retiens, et tu continues ; l'humain répond en commentaire de la carte. En dev, tu tranches et tu traces (§13).
 - **Une session = une phase d'un ticket.** Tu restes sur la branche du ticket ; tu ne crées pas de branche, tu ne changes pas de branche, tu ne merges pas dans `main`.
 - **Git local uniquement.** N'ajoute aucun remote et ne pousse jamais (`git push` est interdit). La publication est faite par le script.
-- **Écritures limitées à ta phase.** En spec : `docs/features/`, `docs/design/`, `docs/tickets/<id>/`, `docs/journal.md`. En design : `docs/tickets/<id>/plan.md`, `docs/adr/`, `docs/architecture.md`, `docs/glossary.md`, `docs/journal.md`. En dev, review et merge : tout le dépôt, sauf `plan.md` et la spec (`docs/features/`, et dans `docs/design/` tout sauf `composants.md`), modifiable seulement sur un retour `[spec]` explicite (§10).
+- **Écritures limitées à ta phase.** En spec : `docs/features/`, `docs/design/`, `docs/exigences-techniques.md`, `docs/tickets/<id>/`, `docs/journal.md`. En design : `docs/tickets/<id>/plan.md`, `docs/adr/`, `docs/architecture.md`, `docs/glossary.md`, `docs/journal.md`. En dev, review et merge : tout le dépôt, sauf `plan.md` et la spec (`docs/features/`, et dans `docs/design/` tout sauf `composants.md`), modifiable seulement sur un retour `[spec]` explicite (§10).
 - **Traçabilité dans le journal uniquement** (`docs/journal.md`, section du ticket, sous-section de ta phase, créée par le script) : chaque décision, hypothèse, question, critère ou story modifié, ADR, test hérité modifié, répercussion d'un fichier sur un autre. Format : [docs/journal.md](docs/journal.md) et [le gabarit](docs/process/gabarits/journal.md). Aucun autre fichier ne porte d'historique, sauf l'en-tête des ADR. La ligne « Fichiers modifiés » est écrite par le script : ne l'écris pas.
 
 ## 7. Phase spec
@@ -127,7 +127,7 @@ Tu travailles **en totale autonomie, sans humain disponible**. Le plan est exéc
    7. commite l'étape : `<type>(<scope>): MZK-<n>#<k> <description>` avec `Refs: MZK-<n>, <critères>`, `Plan-Step: <n>/<total>` et les trailers de `.git/TRAILERS`.
 3. **Écart au plan** : si une étape est impossible telle qu'écrite, s'il en faut une de plus ou si un critère est ambigu, continue et prends l'initiative nécessaire. Ne modifie ni `plan.md` ni la spec. Une étape ajoutée prend le numéro suivant (`Plan-Step: 3/3` pour un plan de 2 étapes). Trace l'écart au journal (`décision`, « À revoir : oui ») et dans les points ouverts du rapport.
 4. Si tu te perds dans une étape, reviens au dernier commit d'étape (ou `git revert` d'une étape commitée) et reprends autrement ; trace-le au journal.
-5. **Échec de la vérification indépendante** (la consigne de ta session le signale, avec le rapport d'échec) : corrige sur la branche par un commit supplémentaire. Si tu n'y parviens pas, trace l'échec au journal et décris un bug dans la section « Bugs décrits » du rapport (description, reproduction, test en échec, extrait de log, ticket d'origine), en le qualifiant : **bloquant** (le ticket ne peut pas être livré) ou **secondaire** (problème préexistant ou hors du périmètre du ticket). Le script crée la carte Trello. La qualification est « À revoir : oui ».
+5. **Échec de la vérification indépendante** (la consigne de ta session le signale, avec le rapport d'échec) : corrige sur la branche par un commit supplémentaire. Si tu n'y parviens pas, trace l'échec au journal et décris un bug dans la section « Bugs décrits » du rapport, au format du [gabarit](docs/process/gabarits/rapport.md) (`### Bug : <titre>`, puis `- Qualification : bloquant` ou `secondaire`, description, reproduction, test en échec, extrait de log). **Bloquant** : le ticket ne peut pas être livré ; **secondaire** : problème préexistant ou hors du périmètre du ticket. Le script crée la carte Trello. La qualification est « À revoir : oui » au journal.
 6. Ne merge pas : la session se termine quand la dernière étape est commitée.
 
 ### 9 bis. Synthèse du rapport
@@ -149,7 +149,7 @@ Chaque remarque traitée est une entrée `retour` au journal (origine `humain`),
 
 ## 11. Phase merge
 
-Le script rebase la branche sur `main`. S'il y a un conflit ou si la vérification échoue après le rebase, il te lance : résous le conflit en conservant le comportement des deux côtés (`main` et ticket), corrige ce qui est nécessaire par un commit supplémentaire, et trace la résolution au journal (sous-section Merge, « À revoir : oui »). Tu ne merges pas et tu ne pousses pas : le script vérifie, puis l'humain reteste avant le merge.
+Le script rebase la branche sur `main`. S'il y a un conflit ou si la vérification échoue après le rebase, il te lance : résous le conflit en conservant le comportement des deux côtés (`main` et ticket), corrige ce qui est nécessaire par un commit supplémentaire, et trace la résolution au journal : ajoute à la fin de la section du ticket une sous-section `### Merge : <date>` avec le tableau, entrées « À revoir : oui ». Tu ne merges pas et tu ne pousses pas : le script vérifie, puis l'humain reteste avant le merge.
 
 ## 12. Definition of Done d'une phase dev ou review
 
