@@ -344,3 +344,19 @@ Carte : (aucune) · Type : feat · Branche : `ticket/MZK-1-recadrer-la-vue-sur-t
 | fichier | docs/features/F02-canvas-infini.md | Règle métier de recadrage et story F02-S4 ajoutées ; hors périmètre réduit | agent | oui |
 
 Fichiers modifiés : docs/features/F02-canvas-infini.md, docs/tickets/MZK-1/ticket.md
+
+### Spec review : 2026-10-11
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| retour | retours.md (Spec review) | Q1 résolu : le raccourci de recadrage est `Shift+1`. | humain | non |
+| retour | retours.md (Spec review) | Le raccourci est la touche physique 1 avec Shift, quelle que soit la disposition du clavier (AZERTY comme QWERTY). | humain | non |
+| retour | retours.md (Spec review) | `FIT_PADDING` vaut 48 px. | humain | non |
+| retour | retours.md (Spec review) | AC1 couvre aussi un contenu plus grand que le viewport : le recadrage dézoome pour tout afficher. | humain | non |
+| question | Q1, F02-S4-AC1 | Résolue : `Shift+1` ; le raccourci est précisé comme la touche physique 1 avec Shift, indépendant de la disposition du clavier. | humain | non |
+| règle | F02 (règles métier) | Recadrage : raccourci `Shift+1` (touche physique 1), marge `FIT_PADDING = 48 px`, dézoom si le contenu dépasse le viewport. | humain | non |
+| critère | F02-S4-AC1 | Étendu : contenu plus petit ou plus grand que le viewport (dézoom), raccourci précisé (touche physique 1, disposition indifférente), marge `FIT_PADDING` fixée à 48 px. | humain | non |
+| fichier | docs/features/F02-canvas-infini.md | Règle métier et F02-S4-AC1 mises à jour selon les retours. | agent | non |
+| fichier | docs/features/README.md | `Shift+1` ajouté à la liste des raccourcis transverses. | agent | non |
+
+Fichiers modifiés : docs/features/F02-canvas-infini.md, docs/features/README.md, docs/tickets/MZK-1/retours.md
