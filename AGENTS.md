@@ -26,6 +26,7 @@ Lis ce fichier en entier avant toute action. Il est court par construction : le 
 | Workflow Git : branche de ticket, commits, rebase, merge | `docs/process/git.md` |
 | Règles de maintenance de la documentation | `docs/process/documentation.md` |
 | Vocabulaire du domaine | `docs/glossary.md` |
+| Outillage des phases (scripts, image, garde-fou, contrôles) : hors de ta portée | `runner/README.md` |
 
 Ordre de lecture au démarrage d'une session : ce fichier, `docs/tickets/<id>/` (tous ses fichiers), **la section du ticket** dans `docs/journal.md` (pas tout le journal), puis selon la phase les features, écrans, ADR et code concernés. Pour connaître l'historique d'un élément que tu modifies, recherche son identifiant dans le journal (`grep -n "F08-S1" docs/journal.md`).
 
@@ -83,7 +84,8 @@ Règles communes à toutes les phases :
 - **Tu ne poses jamais de question en attendant une réponse.** En spec et en design, tu écris tes questions dans le journal (`Q1`, `Q2`...) avec l'hypothèse que tu retiens, et tu continues ; l'humain répond en commentaire de la carte. En dev, tu tranches et tu traces (§13).
 - **Une session = une phase d'un ticket.** Tu restes sur la branche du ticket ; tu ne crées pas de branche, tu ne changes pas de branche, tu ne merges pas dans `main`.
 - **Git local uniquement.** N'ajoute aucun remote et ne pousse jamais (`git push` est interdit). La publication est faite par le script.
-- **Écritures limitées à ta phase.** En spec : `docs/features/`, `docs/design/`, `docs/exigences-techniques.md`, `docs/tickets/<id>/`, `docs/journal.md`. En design : `docs/tickets/<id>/plan.md`, `docs/adr/`, `docs/architecture.md`, `docs/glossary.md`, `docs/journal.md`. En dev, review et merge : tout le dépôt, sauf `plan.md` et la spec (`docs/features/`, et dans `docs/design/` tout sauf `composants.md`), modifiable seulement sur un retour `[spec]` explicite (§10).
+- **Ne modifie jamais `runner/`**, à aucune phase : c'est l'outillage qui te lance et te contrôle. Le garde-fou le refuse, le contrôle de fin de session le signale, et le merge d'une branche qui modifie `runner/` est refusé. Si l'outillage te gêne, écris-le dans les points ouverts du rapport.
+- **Écritures limitées à ta phase.** En spec : `docs/features/`, `docs/design/`, `docs/exigences-techniques.md`, `docs/tickets/<id>/`, `docs/journal.md`. En design : `docs/tickets/<id>/plan.md`, `docs/adr/`, `docs/architecture.md`, `docs/glossary.md`, `docs/journal.md`. En dev, review et merge : tout le dépôt, sauf `runner/`, `plan.md` et la spec (`docs/features/`, et dans `docs/design/` tout sauf `composants.md`), modifiable seulement sur un retour `[spec]` explicite (§10).
 - **Traçabilité dans le journal uniquement** (`docs/journal.md`, section du ticket, sous-section de ta phase, créée par le script) : chaque décision, hypothèse, question, critère ou story modifié, ADR, test hérité modifié, répercussion d'un fichier sur un autre. Format : [docs/journal.md](docs/journal.md) et [le gabarit](docs/process/gabarits/journal.md). Aucun autre fichier ne porte d'historique, sauf l'en-tête des ADR. La ligne « Fichiers modifiés » est écrite par le script : ne l'écris pas.
 
 ## 7. Phase spec

@@ -90,7 +90,17 @@ Avant chaque commit d'étape, `pnpm verify` passe intégralement. Chaque commit 
 
 ### Contrôle
 
-Le hook `commit-msg` (`tooling/commit-msg.ts`, exigence T-001-AC4) refuse tout message non conforme : Conventional Commits, `MZK-<n>#<k>` dans le sujet, `Refs:` commençant par l'identifiant du ticket ; trailers `Plan-Step:`, `Tests:`, `Coverage:` et `Report:` pour un commit d'étape ; `Refs:` seul pour un commit de phase des scripts (`docs(spec|spec-review|design|tech-review|dev|review|merge)`) et pour un revert. Les commits de merge écrits par Git sont acceptés.
+Le hook `commit-msg` (`tooling/commit-msg.ts`, exigence T-001-AC4) refuse tout message non conforme : Conventional Commits, `MZK-<n>#<k>` dans le sujet, `Refs:` commençant par l'identifiant du ticket ; trailers `Plan-Step:`, `Tests:`, `Coverage:` et `Report:` pour un commit d'étape ; `Refs:` seul pour un commit de phase des scripts (`docs(spec|spec-review|design|tech-review|dev|review|merge)`) et pour un revert. Les commits de merge écrits par Git et les commits de l'outillage (`<type>(runner): ...`) sont acceptés.
+
+### Commits de l'outillage
+
+L'outillage des phases (`runner/` : `mzk.sh`, image de l'agent, garde-fou, contrôles) n'est jamais modifié par l'agent. Il évolue par des commits humains, sans ticket ni trailer, de scope `runner` :
+
+```
+chore(runner): pin the OpenCode version
+```
+
+Ils passent par une branche et une pull request comme le reste, puis un merge commit. `mzk.sh merge` refuse de merger une branche de ticket qui modifie `runner/`, sauf option `--allow-runner-changes`. Décision : [ADR-0014](../adr/0014-outillage-dans-le-depot-produit.md).
 
 ## Revenir à l'étape précédente
 

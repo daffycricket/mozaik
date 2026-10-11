@@ -51,6 +51,17 @@ describe('[T-001-AC4] commit message validation', () => {
     expect(validateCommitMessage("Merge branch 'ticket/MZK-42-confirm-delete'").valid).toBe(true);
   });
 
+  test('[T-001-AC4] accepts a commit of the phase tooling without ticket nor trailer', () => {
+    expect(validateCommitMessage('chore(runner): pin the OpenCode version').valid).toBe(true);
+    expect(validateCommitMessage('fix(runner): refuse a launch from a ticket clone').valid).toBe(
+      true,
+    );
+  });
+
+  test('[T-001-AC4] rejects a revert of the phase tooling without ticket', () => {
+    expect(validateCommitMessage('revert(runner): undo the guard rule').valid).toBe(false);
+  });
+
   test('[T-001-AC4] rejects a subject without the ticket and commit number', () => {
     expect(validateCommitMessage('chore(tooling): bootstrap the workspace').valid).toBe(false);
   });

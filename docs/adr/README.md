@@ -21,3 +21,4 @@ Un ADR est créé en phase design (revu en tech review) ou, pour une décision d
 | [0011](0011-design-system-shadcn.md) | Design system shadcn/ui sur Base UI, avec Tailwind CSS | Accepted |
 | [0012](0012-routage-client-sans-dependance.md) | Routage client minimal sans dépendance | Accepted |
 | [0013](0013-workflow-git-mode-produit.md) | Workflow Git du mode produit : branche de ticket, rebase puis merge commit | Accepted |
+| [0014](0014-outillage-dans-le-depot-produit.md) | Outillage des phases dans le dépôt produit, exécuté depuis la copie sur main | Accepted |

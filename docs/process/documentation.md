@@ -6,6 +6,7 @@ La documentation est un livrable au même titre que le code. Elle est relue par 
 
 ```
 AGENTS.md                   Point d'entrée agent, court, pointe vers docs/
+runner/                     Outillage des phases (mzk.sh, image, garde-fou, contrôles), hors de portée de l'agent
 docs/
   README.md                 Index de la documentation
   vision.md                 Pourquoi, pour qui, périmètre, exigences non fonctionnelles

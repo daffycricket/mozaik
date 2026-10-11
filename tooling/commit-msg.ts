@@ -14,6 +14,9 @@ const PHASE_SCOPES = new Set([
   'merge',
 ]);
 
+/** Commits of the phase tooling (runner/), written by a human, without ticket nor trailers. */
+const TOOLING_SUBJECT = /^(feat|fix|test|refactor|chore|docs|perf|build)\(runner\): \S/;
+
 const STEP_TRAILERS = ['Refs', 'Plan-Step', 'Tests', 'Coverage', 'Report'] as const;
 
 function readTrailers(lines: string[]): Map<string, string> {
@@ -29,7 +32,8 @@ function readTrailers(lines: string[]): Map<string, string> {
 
 /**
  * Validates a commit message against the project git conventions (`docs/process/git.md`).
- * Merge commits are accepted as written by Git. Revert commits and phase commits
+ * Merge commits are accepted as written by Git, and commits of the phase tooling
+ * (`<type>(runner): ...`) need neither ticket nor trailer. Revert commits and phase commits
  * (`docs(spec|spec-review|design|tech-review|dev|review|merge)`) only need the `Refs:` trailer; every
  * other commit is a development step and needs all the step trailers.
  */
@@ -45,6 +49,9 @@ export function validateCommitMessage(message: string): ValidationResult {
     return { valid: false, errors: ['commit message is empty'] };
   }
   if (/^Merge (branch|pull request|remote-tracking branch|tag) /.test(subject.trim())) {
+    return { valid: true };
+  }
+  if (TOOLING_SUBJECT.test(subject.trim())) {
     return { valid: true };
   }
 

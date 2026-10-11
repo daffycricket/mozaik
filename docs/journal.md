@@ -316,5 +316,9 @@ Fichiers modifiés : commits `78f0bf4`, `bdfee0c`, `056abf5` de la branche `setu
 | fichier | docs/process/code.md | Section « Évolution du modèle de données » (changement compatible ou migration versionnée, fixtures, vérification de version à la connexion) ; une dette va dans les points ouverts du rapport. | humain | non |
 | décision | docs/process/git.md | Numérotation `<k>` des commits séquentielle sur la branche, toutes phases confondues ; `Plan-Step` renvoie au plan ; spec du ticket = `docs/features/` et `docs/design/` sauf `composants.md`. | agent | oui |
 | fichier | docs/features/F08-edition.md | Mention « (idée backlog) » retirée du hors périmètre, le backlog n'existant plus. | agent | oui |
+| adr | adr/0014 | Outillage des phases dans `runner/` de ce dépôt (et non dans le dépôt de construction de la v1), exécuté depuis la copie sur `main`, jamais depuis le clone d'un ticket. Créé pendant la mise en place, hors ticket. | humain | non |
+| fichier | runner/ | Outillage des phases : `mzk.sh` (commandes par phase, refus hors de `main`, mise à jour, refus de merge si `runner/` modifié, `clean`), `phase.sh`, `checks.mjs`, garde-fou, image `mozaik-agent-runner` (OpenCode 1.18.34), clones des tickets dans `../mozaik-tickets/`. | humain | non |
+| décision | AGENTS.md, process/git.md, T-001-AC4 | L'agent ne modifie jamais `runner/` ; commits humains de l'outillage `<type>(runner): ...` sans ticket ni trailer, acceptés par le hook. | humain | non |
+| fichier | .dockerignore, .gitignore | `runner/` exclu de l'image de l'application ; `runner/.env` ignoré par Git. | agent | oui |
 
 Fichiers modifiés : voir la branche `setup/mode-produit`.
