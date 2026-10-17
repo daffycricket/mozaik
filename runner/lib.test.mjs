@@ -34,6 +34,16 @@ test('slug ascii court', () => {
   assert.equal(slug('Éléments à côté'), 'elements-a-cote');
 });
 
+test('slug : mots entiers, élisions et mots vides finaux retirés', () => {
+  assert.equal(slug('Recadrer la vue sur tout le contenu'), 'recadrer-la-vue-sur-tout-le-contenu');
+  assert.equal(
+    slug("Mesures FL-1 gonflées par l'attente des tests"),
+    'mesures-fl-1-gonflees-par-attente',
+  );
+  assert.equal(slug('a'.repeat(50)), 'a'.repeat(40));
+  assert.equal(slug('!!!'), 'ticket');
+});
+
 test('journal : ouverture de la section, des sous-sections, lignes et fichiers', () => {
   let j = journalOpen(base, { ...o, phase: 'Spec' });
   assert.match(

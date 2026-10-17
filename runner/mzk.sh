@@ -391,7 +391,7 @@ cmd_merge() {
 
   local head; head="$(g rev-parse --short HEAD)"
   g switch -q main
-  g merge -q --no-ff --no-commit "$b" >/dev/null || die "merge impossible (inattendu après rebase)"
+  local out; out="$(g merge -q --no-ff --no-commit "$b" 2>&1)" || die "merge impossible (inattendu après rebase) : $out"
   lib journal-validate --file "$WS/$JOURNAL" --ticket "$T" --phases "Dev,Review,Merge" >/dev/null
   {
     echo "### Merge : $TODAY"; echo
@@ -428,8 +428,11 @@ cmd_run() {
   if [ -n "$holder" ] || ! lib port-free --port "$PORT"; then
     die "le port $PORT est déjà utilisé${holder:+ (conteneur : $holder)} : relance avec --port <n>, ou arrête l'occupant"
   fi
+  # Image propre au ticket : le docker-compose.yml du produit la nomme mozaik:local pour tous les lancements
+  local override="/tmp/mozaik-$T.compose.override.yml"
+  printf 'services:\n  app:\n    image: mozaik:%s\n' "$(echo "$T" | tr 'A-Z' 'a-z')" > "$override"
   info "application de la branche $(branch) sur http://localhost:$PORT (arrêt : docker compose -p $project down)"
-  (cd "$dir" && MOZAIK_PORT="$PORT" docker compose -p "$project" up --build)
+  (cd "$dir" && MOZAIK_PORT="$PORT" docker compose -f docker-compose.yml -f "$override" -p "$project" up --build)
 }
 
 cmd_clean() {

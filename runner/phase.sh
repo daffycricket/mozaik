@@ -122,7 +122,11 @@ Session de continuation : la session précédente s'est arrêtée avant la fin d
       if [ "$PHASE" = dev ]; then
         prog=$(node /runner/checks.mjs progress --ticket "$T" --base "$MZK_BASE")
         steps=$(echo "$prog" | jq -r '.planSteps'); last=$(echo "$prog" | jq -r '.lastStep')
-        log "   avancement : étape $last / $steps du plan"
+        if [ "$last" -gt "$steps" ]; then
+          log "   avancement : étape $last, plan de $steps étape(s) et $((last - steps)) ajoutée(s) par l'agent"
+        else
+          log "   avancement : étape $last / $steps du plan"
+        fi
         [ "$VERIFY_OK" = true ] && [ "$last" -ge "$steps" ] && COMPLETE=true
       else
         [ "$VERIFY_OK" = true ] && COMPLETE=true

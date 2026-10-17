@@ -84,7 +84,7 @@ const BASH_RULES = [
     'Reste sur la branche du ticket.',
   ],
   [
-    /\bgit\s+merge\b/,
+    /\bgit\s+merge(?![\w-])/,
     'Interdit de merger (AGENTS.md §6).',
     'Le merge est fait par le script après la recette.',
   ],

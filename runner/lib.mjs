@@ -38,20 +38,28 @@ const read = (f) => (existsSync(f) ? readFileSync(f, 'utf8') : '');
 
 // ---------- Texte ----------
 
+// Mots vides retirés en fin de slug, pour qu'il ne se termine pas sur « le », « par »...
+const SLUG_TRAILING_STOPWORDS = new Set(
+  'a au aux de des du en et la le les par pour sur un une'.split(' '),
+);
+
+// Slug de branche : mots entiers jusqu'à 40 caractères, élisions (l', d') retirées
 export function slug(title) {
-  return (
-    title
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .split('-')
-      .slice(0, 6)
-      .join('-')
-      .slice(0, 40)
-      .replace(/-+$/, '') || 'ticket'
-  );
+  const words = title
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\b[a-z]['’]/g, '')
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+  const kept = [];
+  for (const word of words) {
+    if ([...kept, word].join('-').length > 40) break;
+    kept.push(word);
+  }
+  if (!kept.length && words.length) kept.push(words[0].slice(0, 40));
+  while (kept.length > 1 && SLUG_TRAILING_STOPWORDS.has(kept.at(-1))) kept.pop();
+  return kept.join('-') || 'ticket';
 }
 
 // ---------- Journal ----------
