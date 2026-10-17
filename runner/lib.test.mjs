@@ -14,6 +14,7 @@ import {
   rapportRunner,
   retoursAppend,
   slug,
+  trelloMarkdown,
 } from './lib.mjs';
 
 const base = '# Journal\n\n## v1 : run\n\n| a | b |\n';
@@ -142,4 +143,37 @@ test('versions de l’image : écarts avec le projet', () => {
     'PNPM_VERSION vaut 12.8.1 dans runner/Dockerfile, le projet utilise 12.9.0',
   ]);
   assert.deepEqual(imageVersionDrift(dockerfile, ''), []);
+});
+
+test('trello : tableau du journal en liste, reste du texte inchangé', () => {
+  const md = [
+    '[mozaik] Phase Spec terminée.',
+    '',
+    '### Spec : 2026-10-17',
+    '',
+    '| Type | Éléments concernés | Décision et raison | Origine | À revoir |',
+    '|---|---|---|---|---|',
+    '| critère | F02-S4-AC5 | Ajouté : un clic recadre | humain | non |',
+    '| ui | UI-BOARD-13 | Ajoutée | agent | oui |',
+    '',
+    'Fichiers modifiés : a.md',
+  ].join('\n');
+  assert.equal(
+    trelloMarkdown(md),
+    [
+      '[mozaik] Phase Spec terminée.',
+      '',
+      '### Spec : 2026-10-17',
+      '',
+      '- **critère** F02-S4-AC5 : Ajouté : un clic recadre (humain)',
+      '- **ui** UI-BOARD-13 : Ajoutée (agent, à revoir)',
+      '',
+      'Fichiers modifiés : a.md',
+    ].join('\n'),
+  );
+});
+
+test('trello : autre tableau en liste, cellules vides ignorées', () => {
+  const md = '| Étape | Commit | Résumé |\n|---|---|---|\n| 1 | MZK-3#5 | Bouton |\n| 2 | — | |';
+  assert.equal(trelloMarkdown(md), '- **1** ; Commit : MZK-3#5 ; Résumé : Bouton\n- **2**');
 });

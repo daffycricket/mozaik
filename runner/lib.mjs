@@ -261,6 +261,47 @@ function trelloEnv() {
     throw new Error('TRELLO_KEY, TRELLO_TOKEN ou TRELLO_BOARD absent');
   return { key: TRELLO_KEY, token: TRELLO_TOKEN, board: TRELLO_BOARD };
 }
+
+// Trello n'affiche pas les tableaux Markdown : chaque tableau devient une liste à puces.
+// Tableau du journal : « - **type** éléments : décision (origine, à revoir) ».
+// Autre tableau : « - **col1** ; en-tête 2 : col2 ; ... ».
+const cellsOf = (line) =>
+  line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/\|$/, '')
+    .split('|')
+    .map((c) => c.trim());
+export function trelloMarkdown(text) {
+  const lines = String(text).split('\n');
+  const out = [];
+  for (let i = 0; i < lines.length; i++) {
+    const isTable = lines[i].trim().startsWith('|') && /^\s*\|?\s*:?-{3,}/.test(lines[i + 1] || '');
+    if (!isTable) {
+      out.push(lines[i]);
+      continue;
+    }
+    const head = cellsOf(lines[i]);
+    const journal = head[0] === 'Type' && head[2]?.startsWith('Décision');
+    i += 2;
+    for (; i < lines.length && lines[i].trim().startsWith('|'); i++) {
+      const c = cellsOf(lines[i]);
+      if (journal) {
+        const tags = [c[3], c[4] === 'oui' ? 'à revoir' : ''].filter(Boolean).join(', ');
+        out.push(`- **${c[0]}** ${c[1]} : ${c[2]}${tags ? ` (${tags})` : ''}`);
+      } else {
+        const rest = c
+          .slice(1)
+          .map((v, k) => (v && v !== '—' ? `${head[k + 1] || ''} : ${v}` : ''))
+          .filter(Boolean);
+        out.push(`- **${c[0]}**${rest.length ? ` ; ${rest.join(' ; ')}` : ''}`);
+      }
+    }
+    i--;
+  }
+  return out.join('\n');
+}
+
 async function trello(method, path, params = {}) {
   const { key, token } = trelloEnv();
   const url = new URL(`https://api.trello.com/1${path}`);
@@ -296,7 +337,7 @@ export async function trelloMove(ticket, listName) {
 export async function trelloComment(ticket, text) {
   const card = await trello('GET', `/boards/${trelloEnv().board}/cards/${shortOf(ticket)}`);
   await trello('POST', `/cards/${card.id}/actions/comments`, {
-    text: text.startsWith(MARK) ? text : `${MARK} ${text}`,
+    text: trelloMarkdown(text.startsWith(MARK) ? text : `${MARK} ${text}`),
   });
 }
 // Commentaires humains postérieurs au dernier commentaire du script, du plus ancien au plus récent
@@ -321,7 +362,7 @@ export async function trelloCreate(listName, name, desc) {
   const card = await trello('POST', '/cards', {
     idList: lists.get(listName),
     name,
-    desc: `${MARK} ${desc}`.slice(0, 16000),
+    desc: trelloMarkdown(`${MARK} ${desc}`).slice(0, 16000),
   });
   return { idShort: card.idShort, url: card.shortUrl };
 }
