@@ -514,3 +514,5 @@ Fichiers modifiés : docs/architecture.md, docs/tickets/MZK-3/plan.md, docs/tick
 | test | e2e/board-fit.spec.ts | Ajout de 4 tests `[F02-S4-AC5]` sur le bouton (contenu plus petit, plus grand, board vide, zoom borné), miroirs des scénarios clavier de F02-S4-AC1/AC2/AC3 | agent | non |
 | test | e2e/layout/board-zoom.spec.ts | `[UI-BOARD-5]` étendu à `zoom-fit` (ordre et infobulle mentionnant `Shift+1`) aux deux viewports ; `[UI-BOARD-6]` inchangé | agent | non |
 | fichier | docs/architecture.md | Déjà à jour depuis le design (recadrage à deux déclencheurs, fonction partagée `fitViewportToContent`) ; aucune modification en dev | agent | non |
+
+Fichiers modifiés : apps/web/src/canvas/fit-content.ts, apps/web/src/components/board/zoom-controls.test.tsx, apps/web/src/components/board/zoom-controls.tsx, apps/web/src/components/ui/tooltip.tsx, apps/web/src/tools/shortcuts.ts, docs/tickets/MZK-3/rapport.md, docs/tickets/MZK-3/synthese.md, e2e/board-fit.spec.ts, e2e/layout/board-zoom.spec.ts

@@ -89,3 +89,19 @@ Le bouton de recadrage des contrôles de zoom (icône `maximize`, infobulle « R
 ### Points ouverts
 
 Aucun.
+
+## Métriques du runner
+
+| Phase | Session | Modèle | Durée (s) | Tokens entrée / sortie / raisonnement / cache lu | Coût estimé | Vérification | Couverture vérifiée |
+|---|---|---|---|---|---|---|---|
+| spec | 001 | umans/umans-deepseek-v4.1-flash | 180 | 81351 / 4843 / 11390 / 1580394 | 0.0662 | — | — |
+| spec-review | 001 | umans/umans-deepseek-v4.1-flash | 61 | 33006 / 2630 / 2617 / 306136 | 0.0167 | — | — |
+| design | 001 | umans/umans-deepseek-v4.1-flash | 210 | 126136 / 7158 / 14190 / 1549532 | 0.0751 | — | — |
+| dev | 001 | umans/umans-deepseek-v4.1-flash | 510 | 248354 / 16814 / 12847 / 5399612 | 0.2062 | verte | 90.29 / 83.26 |
+
+## Contrôles du runner
+
+| Phase | Session | Contrôle | À revoir |
+|---|---|---|---|
+| dev | 001 | Test hérité apps/web/src/components/board/zoom-controls.test.tsx : 1 test(s) disparu(s), assertions 10 -> 17, justifié (critères UI-BOARD-5, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/layout/board-zoom.spec.ts : 0 test(s) disparu(s), assertions 2 -> 4, non justifié (critères UI-BOARD-5, UI-BOARD-6, critère non modifié par la spec du ticket). | oui |
