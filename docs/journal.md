@@ -498,8 +498,13 @@ Fichiers modifiés : docs/design/ecrans.md, docs/tickets/MZK-3/retours.md, docs/
 |---|---|---|---|---|
 | décision | apps/web/src/canvas/fit-content.ts | Logique « recadrer sur tout le contenu » extraite de `useFitShortcut` en `fitViewportToContent(doc, canvas)`, appelée par le raccourci et par le bouton : une seule source de vérité garantit que F02-S4-AC5 fait exactement comme `Shift+1` | agent | non |
 | décision | zoom-controls.tsx | Le bouton lit le document par le contexte (`useBoardDoc()`), comme `ContextBar`, plutôt qu'une prop traversante ; hors board (`doc` nul) il est sans effet | agent | non |
-| question | H2, UI-BOARD-5 | Le composant `Tooltip` de shadcn/ui n'existe pas encore dans le projet et les boutons icône actuels utilisent l'attribut natif `title`. Hypothèse retenue : suivre `charte.md` et `composants.md` et ajouter le composant Tooltip ; repli sur `title` si l'ajout est impossible | agent | oui |
+| question | H2, UI-BOARD-5 | Le composant `Tooltip` de shadcn/ui n'existe pas encore dans le projet et les boutons icône actuels utilisent l'attribut natif `title`. Hypothèse retenue : suivre `charte.md` et `composants.md` et ajouter le composant Tooltip ; repli sur `title` si l'ajout est impossible | agent | revu |
 | fichier | docs/architecture.md | Le paragraphe « Recadrage » et la carte du module `tools/` citent le bouton et la fonction partagée `fitViewportToContent`, conséquence de F02-S4-AC5 | agent | non |
 | adr | — | Aucun ADR : décision d'implémentation locale, sans impact sur l'architecture ni le modèle de données | agent | non |
 
 Fichiers modifiés : docs/architecture.md, docs/tickets/MZK-3/plan.md, docs/tickets/MZK-3/synthese.md
+
+### Dev : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
