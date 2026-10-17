@@ -43,6 +43,10 @@ Options : `--model provider/model` (défaut : `MOZAIK_MODEL`, sinon `umans/umans
 
 Spec à revoir en profondeur après la recette : `spec-review`, puis `design`, puis `dev`. Approche technique à revoir : `tech-review`, puis `dev`. Abandon : fermer la PR, passer la carte en Rejeté, `clean --force`.
 
+### Commentaires de la carte
+
+En fin de phase, le script commente la carte avec la synthèse rédigée de l'agent (`docs/tickets/<id>/synthese.md` : ce qu'il a compris, ce qui change, ce que tu dois trancher), la liste des points à valider (hypothèses, questions et décisions « À revoir » du journal) et les liens vers la branche et le diff. Le détail du journal reste sur GitHub. Trello n'affichant pas les tableaux Markdown, `lib.mjs` les convertit en listes.
+
 ### Sans Trello
 
 Tant que `TRELLO_*` n'est pas renseigné (ou avec `MZK_NO_TRELLO=1`), le script affiche les déplacements de carte et les commentaires qu'il aurait publiés :

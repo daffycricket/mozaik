@@ -8,6 +8,7 @@ Chaque gabarit montre la structure attendue avec un **exemple complet**, celui d
 | [journal.md](journal.md) | section du ticket dans `docs/journal.md` | toutes |
 | [plan.md](plan.md) | `docs/tickets/<id>/plan.md` | design |
 | [retours.md](retours.md) | `docs/tickets/<id>/retours.md` | spec review, tech review, review |
+| [synthese.md](synthese.md) | `docs/tickets/<id>/synthese.md` | toutes, sauf merge |
 | [rapport.md](rapport.md) | `docs/tickets/<id>/rapport.md` | dev |
 | [../../features/_template.md](../../features/_template.md) | nouvelle feature `docs/features/FNN-<nom>.md` | spec |
 | [../../adr/template.md](../../adr/template.md) | nouvel ADR `docs/adr/NNNN-<titre>.md` | design ou dev |

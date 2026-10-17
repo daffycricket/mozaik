@@ -36,7 +36,10 @@ usage_of() {
 }
 
 base_prompt() {
+  local title
+  case "$PHASE" in spec) title="Spec" ;; spec-review) title="Spec review" ;; design) title="Design" ;; tech-review) title="Tech review" ;; dev) title="Dev" ;; review) title="Review" ;; *) title="" ;; esac
   local common="Ticket $T, branche $(git branch --show-current). Lis AGENTS.md en entier avant toute action. Tu es autonome : ne pose aucune question à l'humain, n'attends aucune réponse."
+  [ -z "$title" ] || common="$common Avant la fin, ajoute ta synthèse de phase « ## $title : $(date -u +%F) » à docs/tickets/$T/synthese.md (AGENTS.md §6, gabarit docs/process/gabarits/synthese.md)."
   case "$PHASE" in
     spec) echo "$common Phase SPEC : applique AGENTS.md §7 à la demande de docs/tickets/$T/ticket.md. La sous-section « Spec » de la section $T de docs/journal.md est ouverte : remplis son tableau (hypothèses, questions, éléments de spec ajoutés, modifiés ou supprimés). Ne commite pas." ;;
     spec-review) echo "$common Phase SPEC REVIEW : applique AGENTS.md §10 aux remarques de la dernière section de docs/tickets/$T/retours.md, en mettant à jour la spec du ticket. La sous-section « Spec review » de la section $T du journal est ouverte : remplis son tableau. Ne commite pas." ;;

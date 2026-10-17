@@ -10,6 +10,7 @@ import {
   journalRow,
   journalSubsection,
   journalValidate,
+  phaseComment,
   portFree,
   rapportRunner,
   retoursAppend,
@@ -176,4 +177,51 @@ test('trello : tableau du journal en liste, reste du texte inchangé', () => {
 test('trello : autre tableau en liste, cellules vides ignorées', () => {
   const md = '| Étape | Commit | Résumé |\n|---|---|---|\n| 1 | MZK-3#5 | Bouton |\n| 2 | — | |';
   assert.equal(trelloMarkdown(md), '- **1** ; Commit : MZK-3#5 ; Résumé : Bouton\n- **2**');
+});
+
+test('commentaire de phase : synthèse rédigée puis points à valider', () => {
+  const synthese = [
+    '# Synthèse : MZK-3 Bouton',
+    '',
+    '## Spec : 2026-10-16',
+    '',
+    'ancienne',
+    '',
+    '## Spec : 2026-10-17',
+    '',
+    '### Ce que j’ai compris',
+    '',
+    'Le recadrage est caché.',
+    '',
+    '## Design : 2026-10-18',
+    '',
+    'plus tard',
+  ].join('\n');
+  const journal = [
+    '# Journal',
+    '',
+    '## MZK-3 : Bouton',
+    '',
+    '### Spec : 2026-10-17',
+    '',
+    '| Type | Éléments concernés | Décision et raison | Origine | À revoir |',
+    '|---|---|---|---|---|',
+    '| critère | F02-S4-AC5 | Ajouté | humain | non |',
+    '| hypothèse | H1, UI-BOARD-13 | Après « + » | agent | oui |',
+    '| fichier | docs/design/ecrans.md | Maquette | agent | oui |',
+    '| décision | F02-S4-AC4 | Pas de fluidité | agent | non |',
+  ].join('\n');
+  assert.equal(
+    phaseComment(synthese, journal, 'MZK-3', 'Spec'),
+    [
+      '### Ce que j’ai compris',
+      '',
+      'Le recadrage est caché.',
+      '',
+      '### Points à valider',
+      '',
+      '- **hypothèse** H1, UI-BOARD-13 : Après « + »',
+    ].join('\n'),
+  );
+  assert.match(phaseComment('', journal, 'MZK-3', 'Spec'), /^### Spec : 2026-10-17/);
 });
