@@ -389,3 +389,19 @@ Fichiers modifiés : apps/web/src/canvas/board-canvas.tsx, apps/web/src/state/vi
 ### Merge : 2026-10-17
 
 Tête de branche intégrée : `3832c34` (ticket/MZK-1-recadrer-la-vue-sur-tout-le). Rebase sans conflit, vérification : verte.
+
+## MZK-2 : Mesures FL-1 gonflées par l'attente des tests
+
+Carte : (aucune) · Type : bug · Branche : `ticket/MZK-2-mesures-fl-1-gonflees-par-l`
+
+### Spec : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| critère | B-004-AC1 | Ajouté : `measureActionToEffect` date l'effet à la première image où il devient visible, quel que soit le test ; les mesures FL-1 ne comptent plus le palier de sondage d'un `expect.poll`. Seuils de F00, 3 exécutions et médiane inchangés, aucun test affaibli, désactivé ou supprimé | humain | non |
+| décision | B-004, docs/exigences-techniques.md | Le biais est propre à l'utilitaire de mesure : nouveau groupe bug `B-004` (même motif que B-001/B-002, instabilité de mesure FL) plutôt qu'un nouveau critère de `T-004` ; la méthode générale est précisée dans F00 | agent | oui |
+| fichier | docs/features/F00-fluidite.md | « Méthode de mesure » précisée : chaque mesure chiffrée date l'effet à la première image où il devient visible, indépendamment de la méthode d'attente du test ; le délai mesuré est celui de l'application, pas de l'attente du test | agent | oui |
+| hypothèse | H1, B-004-AC1 | Le correctif porte sur l'utilitaire partagé, donc les mesures FL-4 (déplacement distant, curseur) et FL-7 (ouverture) qui l'utilisent bénéficient aussi de la datation à l'image ; la carte ne cite que FL-1. Les seuils de ces exigences restent inchangés | agent | oui |
+| question | Q1, B-004-AC1 | La datation à l'image près porte-t-elle aussi sur le début de la mesure (l'action) ? Hypothèse retenue : non, le début reste l'instant qui précède immédiatement l'action ; seule la fin (l'effet) est datée à la première image où il devient visible | agent | oui |
+
+Fichiers modifiés : docs/exigences-techniques.md, docs/features/F00-fluidite.md, docs/tickets/MZK-2/ticket.md
