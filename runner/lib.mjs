@@ -2,6 +2,8 @@
 // Node 18+ sans dépendance. Usage : node lib.mjs <commande> [options]
 // Les secrets Trello (TRELLO_KEY, TRELLO_TOKEN, TRELLO_BOARD) sont lus dans l'environnement,
 // jamais transmis à l'agent.
+
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 
@@ -195,7 +197,7 @@ export function journalToDecide(text, ticket, phase) {
         .split('|')
         .map((c) => c.trim()),
     )
-    .filter((c) => ['hypothèse', 'question', 'décision'].includes(c[0]) && c[4] === 'oui')
+    .filter((c) => ['hypothèse', 'question', 'décision', 'retour'].includes(c[0]) && c[4] === 'oui')
     .map((c) => `- **${c[0]}** ${c[1]} : ${c[2]}`);
 }
 
@@ -206,6 +208,18 @@ export function phaseComment(synthese, journal, ticket, phase) {
   if (!prose) return journalSubsection(journal, ticket, phase);
   const decide = journalToDecide(journal, ticket, phase);
   return [prose, ...(decide.length ? ['', '### Points à valider', '', ...decide] : [])].join('\n');
+}
+
+// Fichiers modifiés par le ticket : lien vers le fichier sur la branche, et vers son diff
+// (ancre GitHub de la page de comparaison : sha256 du chemin)
+export function fileLinks(repo, branch, files) {
+  return files
+    .filter(Boolean)
+    .map((f) => {
+      const anchor = createHash('sha256').update(f).digest('hex');
+      return `- [${f}](https://github.com/${repo}/blob/${branch}/${f}) ([diff](https://github.com/${repo}/compare/main...${branch}#diff-${anchor}))`;
+    })
+    .join('\n');
 }
 
 // ---------- Rapport ----------
@@ -529,6 +543,11 @@ async function main() {
         phaseComment(read(need('synthese')), read(file), need('ticket'), need('phase')),
       );
       break;
+    case 'file-links':
+      process.stdout.write(
+        fileLinks(need('repo'), need('branch'), (opt('files', '') || '').split('\n')),
+      );
+      break;
     case 'port-free':
       process.exit((await portFree(need('port'))) ? 0 : 1);
       break;
@@ -570,7 +589,7 @@ async function main() {
       break;
     default:
       process.stderr.write(
-        'usage: node lib.mjs <slug|journal-open|journal-row|journal-append|rapport-section|journal-files|journal-validate|journal-subsection|rapport-runner|bugs|phase-comment|port-free|image-drift|retours-append|trello-card|trello-move|trello-comment|trello-comments|trello-create> [options]\n',
+        'usage: node lib.mjs <slug|journal-open|journal-row|journal-append|rapport-section|journal-files|journal-validate|journal-subsection|rapport-runner|bugs|phase-comment|file-links|port-free|image-drift|retours-append|trello-card|trello-move|trello-comment|trello-comments|trello-create> [options]\n',
       );
       process.exit(2);
   }

@@ -4,6 +4,7 @@ import { createServer } from 'node:net';
 import { test } from 'node:test';
 import {
   bugsOf,
+  fileLinks,
   imageVersionDrift,
   journalFiles,
   journalOpen,
@@ -224,4 +225,11 @@ test('commentaire de phase : synthèse rédigée puis points à valider', () => 
     ].join('\n'),
   );
   assert.match(phaseComment('', journal, 'MZK-3', 'Spec'), /^### Spec : 2026-10-17/);
+});
+
+test('liens des fichiers : fichier sur la branche et ancre du diff', () => {
+  assert.equal(
+    fileLinks('o/r', 'ticket/MZK-3-x', ['docs/a.md', '']),
+    '- [docs/a.md](https://github.com/o/r/blob/ticket/MZK-3-x/docs/a.md) ([diff](https://github.com/o/r/compare/main...ticket/MZK-3-x#diff-5231f8a11b65145a1b0727cb8d209819e95360a5f1e17e4f757b61dbda1af3cc))',
+  );
 });
