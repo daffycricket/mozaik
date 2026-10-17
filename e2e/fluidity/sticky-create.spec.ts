@@ -42,12 +42,9 @@ test('[F03-S1-AC4] creates a sticky note within the local feedback target', asyn
       await measureActionToEffect(
         page,
         () => page.mouse.click(point.x, point.y),
-        async () => {
-          await page.waitForFunction((count) => {
-            const api = (globalThis as { __board?: BoardApi }).__board;
-            return (api?.getElements().length ?? 0) === count;
-          }, expected);
-        },
+        (count: number) =>
+          ((globalThis as { __board?: BoardApi }).__board?.getElements().length ?? 0) === count,
+        expected,
       ),
     );
   }

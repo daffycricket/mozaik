@@ -74,10 +74,18 @@ async function runGesture(
   const delayMs = await measureActionToEffect(
     observer,
     () => actor.mouse.move(final.x, final.y),
-    () =>
-      expect
-        .poll(() => lastCursor(observer, 'Nico L'))
-        .toEqual({ x: final.x - box.x, y: final.y - box.y }),
+    (expected: { x: number; y: number }) => {
+      const api = (globalThis as { __board?: BoardApi }).__board;
+      const peer = api?.getPeers().find((candidate) => candidate.user?.name === 'Nico L');
+      const cursor = peer?.cursor;
+      return (
+        cursor !== null &&
+        cursor !== undefined &&
+        cursor.x === expected.x &&
+        cursor.y === expected.y
+      );
+    },
+    { x: final.x - box.x, y: final.y - box.y },
   );
 
   return { distinct: countIntermediatePositions(samples), delayMs };

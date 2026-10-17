@@ -124,13 +124,12 @@ test('[F07-S2-AC5] shows a remote drag continuously without disturbing the obser
   const delayMs = await measureActionToEffect(
     bob.page,
     () => alice.page.mouse.move(finalScreen.x, finalScreen.y),
-    () =>
-      expect
-        .poll(async () => {
-          const position = await elementById(bob.page, moved.id);
-          return { x: position.x, y: position.y };
-        })
-        .toEqual(expected),
+    (target: { id: string; x: number; y: number }) => {
+      const api = (globalThis as { __board?: BoardApi }).__board;
+      const element = api?.getElements().find((candidate) => candidate.id === target.id);
+      return element !== undefined && element.x === target.x && element.y === target.y;
+    },
+    { id: moved.id, x: expected.x, y: expected.y },
   );
   await alice.page.mouse.up();
 

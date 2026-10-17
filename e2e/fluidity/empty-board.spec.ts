@@ -14,7 +14,25 @@ test('[T-004-AC6] opens an empty board within the fluidity target', async ({ pag
       await measureActionToEffect(
         page,
         () => page.getByTestId('board-create').click(),
-        () => expect(page.getByTestId('board-canvas').locator('canvas')).toBeVisible(),
+        () => {
+          const browser = globalThis as unknown as {
+            document: {
+              querySelector: (selector: string) => {
+                getBoundingClientRect: () => { width: number; height: number };
+              } | null;
+            };
+            getComputedStyle: (element: unknown) => { visibility: string };
+          };
+          const canvas = browser.document.querySelector('[data-testid="board-canvas"] canvas');
+          if (canvas === null) {
+            return false;
+          }
+          const rect = canvas.getBoundingClientRect();
+          if (rect.width === 0 || rect.height === 0) {
+            return false;
+          }
+          return browser.getComputedStyle(canvas).visibility !== 'hidden';
+        },
       ),
     );
   }

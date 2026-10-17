@@ -72,9 +72,9 @@ test('[F04-S1-AC5] draws a shape following the pointer within the fluidity targe
       await measureActionToEffect(
         page,
         () => page.mouse.move(target.x, target.y),
-        async () => {
-          await expect.poll(() => draftWidth(page)).toBeGreaterThan(previousWidth);
-        },
+        (minWidth: number) =>
+          ((globalThis as { __board?: BoardApi }).__board?.getDraftShape()?.width ?? 0) > minWidth,
+        previousWidth,
       ),
     );
     previousWidth = await draftWidth(page);

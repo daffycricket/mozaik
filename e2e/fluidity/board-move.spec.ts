@@ -100,10 +100,12 @@ test('[F07-S2-AC4] keeps dragging on a 300-element board within the fluidity tar
           await page.mouse.down();
           await page.mouse.move(from.x + 40, from.y + 20, { steps: 2 });
         },
-        () =>
-          expect
-            .poll(async () => (await elementById(page, target.id)).x)
-            .toBeGreaterThan(before.x + 5),
+        (moved: { id: string; minX: number }) => {
+          const api = (globalThis as { __board?: BoardApi }).__board;
+          const element = api?.getElements().find((candidate) => candidate.id === moved.id);
+          return (element?.x ?? 0) > moved.minX;
+        },
+        { id: target.id, minX: before.x + 5 },
       ),
     );
     await page.mouse.up();

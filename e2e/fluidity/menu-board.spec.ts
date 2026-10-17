@@ -28,7 +28,25 @@ test('[F01-S2-AC6] keeps the menu to board transitions free of long tasks', asyn
       await measureActionToEffect(
         page,
         () => row.getByRole('link').click(),
-        () => expect(page.getByTestId('board-canvas').locator('canvas')).toBeVisible(),
+        () => {
+          const browser = globalThis as unknown as {
+            document: {
+              querySelector: (selector: string) => {
+                getBoundingClientRect: () => { width: number; height: number };
+              } | null;
+            };
+            getComputedStyle: (element: unknown) => { visibility: string };
+          };
+          const canvas = browser.document.querySelector('[data-testid="board-canvas"] canvas');
+          if (canvas === null) {
+            return false;
+          }
+          const rect = canvas.getBoundingClientRect();
+          if (rect.width === 0 || rect.height === 0) {
+            return false;
+          }
+          return browser.getComputedStyle(canvas).visibility !== 'hidden';
+        },
       ),
     );
     longTasks.push(...(await readLongTasks(page)));

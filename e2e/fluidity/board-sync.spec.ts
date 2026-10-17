@@ -84,7 +84,9 @@ test('[F09-S1-AC4] keeps creation immediate locally and lossless remotely under 
       await measureActionToEffect(
         pageA,
         () => pageA.mouse.click(point.x, point.y),
-        () => expect.poll(() => elementCount(pageA)).toBe(expected),
+        (count: number) =>
+          ((globalThis as { __board?: BoardApi }).__board?.getElements().length ?? 0) === count,
+        expected,
       ),
     );
   }
