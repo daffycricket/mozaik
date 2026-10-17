@@ -4,7 +4,8 @@
 //   node checks.mjs check --phase <p> --ticket <id> --base <sha> --before <sha> --session <n> --exit <code> --guard-offset <k>
 //       -> une ligne JSON par événement {phase, session, summary, review}
 //   node checks.mjs verify --ticket <id> --since <sha> --session <n>
-//       -> {ok, failures, passed, coverage}
+//       -> {ok, failures, passed, coverage} ; chaque échec nomme les tests ou erreurs en cause
+//          (verify-failures.mjs), le détail est dans /run-logs/verify-<phase>-<n>.log
 //   node checks.mjs progress --ticket <id> --base <sha>
 //       -> {planSteps, lastStep}
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -20,6 +21,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { failureMessage } from './verify-failures.mjs';
 
 const GUARD_LOG = process.env.GUARD_LOG || '/run-logs/guard.jsonl';
 const LOGS = process.env.RUN_LOGS || '/run-logs';
@@ -406,10 +408,11 @@ function verify() {
       maxBuffer: 64 * 1024 * 1024,
       env,
     });
-    logLine(`${r.stdout || ''}${r.stderr || ''}`.split('\n').slice(-200).join('\n'));
+    const output = `${r.stdout || ''}${r.stderr || ''}`;
+    logLine(output.split('\n').slice(-400).join('\n'));
     if (r.error)
       return `${name} : ${r.error.code === 'ETIMEDOUT' ? 'délai dépassé' : r.error.message}`;
-    return r.status === 0 ? null : `${name} : échec (code ${r.status})`;
+    return r.status === 0 ? null : failureMessage(name, r.status, output);
   };
   try {
     if (!ok('worktree', 'add', '--detach', dir, 'HEAD')) {

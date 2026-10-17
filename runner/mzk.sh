@@ -137,6 +137,8 @@ fix_perms() { mkdir -p "$TD/logs" "$TD/opencode-data"; chmod -R a+rwX "$TD"; }
 
 run_container() { # run_container <phase> [verify_failures]
   fix_perms
+  local drift; drift="$(lib image-drift --dockerfile "$HERE/Dockerfile" --package "$WS/package.json")"
+  [ -z "$drift" ] || info "versions de l'image à mettre à jour (runner/README.md, « Versions de l'image ») : $(echo "$drift" | tr '\n' ';')"
   docker volume create mozaik-agent-pw-browsers >/dev/null
   docker volume create mozaik-agent-pnpm-store >/dev/null
   local project; project="mzk-$(echo "$T" | tr 'A-Z' 'a-z')"
@@ -419,6 +421,13 @@ cmd_run() {
   git -C "$dir" fetch -q origin
   git -C "$dir" checkout -q -B "$(branch)" "origin/$(branch)"
   [ "$RESET" = 0 ] || docker compose -f "$dir/docker-compose.yml" -p "$project" down -v
+  # Un conteneur de ce projet encore lancé libère son port en étant recréé ; tout autre occupant bloque
+  docker compose -f "$dir/docker-compose.yml" -p "$project" down >/dev/null 2>&1 || true
+  # Docker refuse un port publié par un autre conteneur, même si l'hôte le voit libre : les deux sont vérifiés
+  local holder; holder="$(docker ps --filter "publish=$PORT" --format '{{.Names}}' 2>/dev/null | tr '\n' ' ' | sed 's/ $//')"
+  if [ -n "$holder" ] || ! lib port-free --port "$PORT"; then
+    die "le port $PORT est déjà utilisé${holder:+ (conteneur : $holder)} : relance avec --port <n>, ou arrête l'occupant"
+  fi
   info "application de la branche $(branch) sur http://localhost:$PORT (arrêt : docker compose -p $project down)"
   (cd "$dir" && MOZAIK_PORT="$PORT" docker compose -p "$project" up --build)
 }

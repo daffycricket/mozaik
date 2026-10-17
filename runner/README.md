@@ -17,6 +17,7 @@ Règles suivies par l'agent : [AGENTS.md](../AGENTS.md) et [docs/process/](../do
 - Tu lances toujours `runner/mzk.sh` depuis ta copie sur `main`. Le script refuse si ta copie n'est pas sur `main`, si `runner/` y a des modifications non commitées, ou s'il est lancé depuis le clone d'un ticket. Il met ta copie à jour (`git pull --ff-only`) avant chaque phase.
 - L'image de l'agent est construite depuis ta copie ; le clone du ticket est monté dans le conteneur sous `/workspace`. Le `runner/` du clone n'est jamais exécuté.
 - Pour tester une évolution de l'outillage non mergée : `--allow-tooling-branch`.
+- Le merge est fait et poussé depuis le clone du ticket : ta copie ne le reçoit qu'au `git pull --ff-only` du lancement suivant de `mzk.sh` (ou par un `git pull` manuel). D'ici là, `git status` y affiche « up to date », car il compare avec la dernière version récupérée.
 
 ## Prérequis
 
@@ -33,7 +34,7 @@ Règles suivies par l'agent : [AGENTS.md](../AGENTS.md) et [docs/process/](../do
 | `runner/mzk.sh design MZK-42` | Spec review | Valide les entrées « À revoir » de la spec ; `plan.md` et ADR par l'agent | Tech review |
 | `runner/mzk.sh tech-review MZK-42` | Tech review | Retours appliqués au plan | Tech review |
 | `runner/mzk.sh dev MZK-42 [--restart]` | Tech review (ou Dev) | Valide le design ; l'agent exécute le plan (une étape = un commit) ; vérification indépendante, métriques, PR, bugs décrits créés en Inbox | Review si plan terminé et vérification verte (ou rouge à cause d'un bug secondaire), sinon Dev |
-| `runner/mzk.sh run MZK-42 [--reset]` | Review | Lance la branche en local pour la tester (`--reset` efface les données de test) | inchangée |
+| `runner/mzk.sh run MZK-42 [--port n] [--reset]` | Review | Lance la branche en local pour la tester, sur `http://localhost:8081` par défaut (`--reset` efface les données de test) ; refus si le port est déjà utilisé | inchangée |
 | `runner/mzk.sh review MZK-42` | Review | Retours de recette appliqués par l'agent sur la même branche | Review |
 | `runner/mzk.sh merge MZK-42` | Review | Refus si la branche modifie `runner/` ; rebase sur `main`, vérification ; si l'agent a dû intervenir, arrêt pour retest ; sinon merge commit, push de `main`, déploiement en recette | Done |
 | `runner/mzk.sh clean MZK-42` | Done | Supprime le clone et les journaux du ticket mergé | inchangée |
@@ -60,8 +61,22 @@ runner/mzk.sh spec-review MZK-1 --file retours.txt      # une remarque par ligne
 | `compose.yml`, `Dockerfile` | Image `mozaik-agent-runner` (Node 24, pnpm, OpenCode, Chromium) et conteneur d'une phase | hôte |
 | `phase.sh` | Sessions OpenCode de la phase, contrôles, vérification indépendante, avancement du plan | conteneur |
 | `checks.mjs` | Contrôles après session (outillage, format des commits, plan et spec intacts, journal, tests désactivés, tests hérités et rejeu) et vérification indépendante de la branche | conteneur |
+| `verify-failures.mjs` | Extraction des tests ou erreurs en échec dans la sortie de la vérification, transmis à l'agent avec le chemin du log ; tests : `node --test runner/verify-failures.test.mjs` | conteneur |
 | `opencode/opencode.json` | Fournisseurs et modèles | conteneur |
 | `opencode/plugins/guard.js` | Garde-fou : pas de push, de remote, de changement de branche, de merge, de réécriture, ni d'écriture dans `runner/` ; écritures limitées aux fichiers de la phase | conteneur |
+
+## Versions de l'image
+
+L'image de l'agent est figée par les arguments du [Dockerfile](Dockerfile) : elle ne change que par un commit de `runner/`, et reste en cache Docker entre les phases.
+
+| Argument | Valeur | À mettre à jour quand |
+|---|---|---|
+| `NODE_IMAGE` | `node:24-bookworm@sha256:...` | Pour prendre les correctifs de l'image Node : `docker pull node:24-bookworm`, puis reporter le digest affiché |
+| `PLAYWRIGHT_VERSION` | version de `@playwright/test` du projet | Un ticket change cette version dans `package.json` |
+| `PNPM_VERSION` | version de `packageManager` du projet | Un ticket change cette version dans `package.json` |
+| `OPENCODE_VERSION` | `runner/.env`, défaut du `Dockerfile` | Après validation d'une nouvelle version d'OpenCode (garde-fou, `opencode run`) |
+
+`mzk.sh` signale au lancement d'une phase tout écart entre `PLAYWRIGHT_VERSION` ou `PNPM_VERSION` et le `package.json` du ticket. Chaque mise à jour reconstruit l'image une fois (environ 1 minute).
 
 ## Faire évoluer l'outillage
 
@@ -75,7 +90,7 @@ Jamais par l'agent. Commits humains sans ticket, de scope `runner` (`chore(runne
 
 ## Limites connues
 
-- Non testé de bout en bout à la date de création : conteneur réel, sessions OpenCode, Trello, `gh` et rebase avec conflits n'ont été exercés qu'en lecture de code ou avec un faux Docker.
+- Exercé de bout en bout sur MZK-1 (spec, spec-review, design, dev avec correction d'une vérification rouge, run, merge sans conflit, clean). Pas encore exercés en réel : tech-review, review, rebase avec conflits, bug décrit par l'agent, `--accept-red`, `--restart`, Trello, `gh`, déploiement en recette.
 - Version d'OpenCode figée à 1.18.34 (`OPENCODE_VERSION`) : le garde-fou et `opencode run --auto --format json` n'ont pas été vérifiés sur une version plus récente.
 - Le garde-fou ne reconnaît pas toutes les écritures par le shell dans `runner/` : le contrôle de fin de session et le refus au merge les rattrapent.
 - Un seul ticket à la fois : le projet Compose et les ports ne sont pas isolés pour des tickets en parallèle.

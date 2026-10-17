@@ -3,6 +3,7 @@
 // Les secrets Trello (TRELLO_KEY, TRELLO_TOKEN, TRELLO_BOARD) sont lus dans l'environnement,
 // jamais transmis à l'agent.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
 
 const MARK = '[mozaik]';
 const TABLE_HEAD =
@@ -319,6 +320,39 @@ export async function trelloCreate(listName, name, desc) {
 
 // ---------- CLI ----------
 
+// Port TCP libre sur 127.0.0.1 (adresse publiée par le docker-compose.yml de l'application)
+export function portFree(port) {
+  return new Promise((resolve) => {
+    const server = createServer();
+    server.once('error', () => resolve(false));
+    server.listen(Number(port), '127.0.0.1', () => server.close(() => resolve(true)));
+  });
+}
+
+// Écarts entre les versions figées de l'image de l'agent (ARG du Dockerfile) et celles du projet
+export function imageVersionDrift(dockerfile, packageJson) {
+  const argOf = (name) => new RegExp(`^ARG ${name}=(\\S+)`, 'm').exec(dockerfile)?.[1];
+  let pkg = {};
+  try {
+    pkg = JSON.parse(packageJson || '{}');
+  } catch {
+    return [];
+  }
+  const wanted = {
+    PLAYWRIGHT_VERSION:
+      pkg.devDependencies?.['@playwright/test'] ?? pkg.dependencies?.['@playwright/test'],
+    PNPM_VERSION: /^pnpm@([^+]+)/.exec(pkg.packageManager || '')?.[1],
+  };
+  return Object.entries(wanted)
+    .filter(
+      ([name, version]) => version && argOf(name) && argOf(name) !== version.replace(/^[\^~]/, ''),
+    )
+    .map(
+      ([name, version]) =>
+        `${name} vaut ${argOf(name)} dans runner/Dockerfile, le projet utilise ${version}`,
+    );
+}
+
 async function main() {
   const cmd = process.argv[2];
   const file = opt('file');
@@ -397,6 +431,13 @@ async function main() {
     case 'bugs':
       process.stdout.write(JSON.stringify(bugsOf(read(file))));
       break;
+    case 'port-free':
+      process.exit((await portFree(need('port'))) ? 0 : 1);
+      break;
+    case 'image-drift':
+      for (const d of imageVersionDrift(read(need('dockerfile')), read(need('package'))))
+        process.stdout.write(`${d}\n`);
+      break;
     case 'retours-append': {
       const comments = JSON.parse(read(need('comments')) || '[]');
       writeFileSync(
@@ -431,7 +472,7 @@ async function main() {
       break;
     default:
       process.stderr.write(
-        'usage: node lib.mjs <slug|journal-open|journal-row|journal-append|rapport-section|journal-files|journal-validate|journal-subsection|rapport-runner|bugs|retours-append|trello-card|trello-move|trello-comment|trello-comments|trello-create> [options]\n',
+        'usage: node lib.mjs <slug|journal-open|journal-row|journal-append|rapport-section|journal-files|journal-validate|journal-subsection|rapport-runner|bugs|port-free|image-drift|retours-append|trello-card|trello-move|trello-comment|trello-comments|trello-create> [options]\n',
       );
       process.exit(2);
   }
