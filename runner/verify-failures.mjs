@@ -19,7 +19,13 @@ function playwrightFailures(lines) {
       inFailed = false;
       continue;
     }
-    if (line.includes('›')) out.push(line.trim().replace(/\s*›\s*/g, ' › '));
+    if (line.includes('›'))
+      out.push(
+        line
+          .replace(/[\s─━]+$/, '')
+          .trim()
+          .replace(/\s*›\s*/g, ' › '),
+      );
   }
   return out;
 }

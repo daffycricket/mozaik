@@ -28,9 +28,9 @@ test('playwright : tests du résumé « failed », pas les tests passés ni les 
   });
 });
 
-test('playwright : plusieurs échecs, flaky ignorés', () => {
+test('playwright : plusieurs échecs, filet final retiré, flaky ignorés', () => {
   const out = `  2 failed
-    [chromium] › e2e/a.spec.ts:3:1 › [F01-S1-AC1] a
+    [chromium] › e2e/a.spec.ts:3:1 › [F01-S1-AC1] a ──────────────────────────
     [chromium] › e2e/b.spec.ts:9:1 › [F01-S1-AC2] b
   1 flaky
     [chromium] › e2e/c.spec.ts:4:1 › c
