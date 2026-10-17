@@ -24,13 +24,6 @@ async function elementCount(page: Page): Promise<number> {
   );
 }
 
-async function waitForMissing(page: Page, id: string): Promise<void> {
-  await page.waitForFunction((target) => {
-    const api = (globalThis as { __board?: BoardApi }).__board;
-    return api?.getElements().every((element) => element.id !== target) ?? false;
-  }, id);
-}
-
 async function clickElement(page: Page, element: BoardElement): Promise<void> {
   const screen = await page.evaluate(
     (point) => {
@@ -80,7 +73,11 @@ test('[F08-S1-AC3] deletes an element within the local feedback target', async (
       await measureActionToEffect(
         page,
         () => page.keyboard.press('Delete'),
-        () => waitForMissing(page, target.id),
+        (id: string) =>
+          (globalThis as { __board?: BoardApi }).__board
+            ?.getElements()
+            .every((element) => element.id !== id) ?? false,
+        target.id,
       ),
     );
   }

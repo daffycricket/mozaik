@@ -50,6 +50,32 @@ test('[T-004-AC1] measures frame intervals and extracts the median and the maxim
   expect(stats.maxMs).toBeGreaterThanOrEqual(stats.medianMs);
 });
 
+test('[B-004-AC1] dates the effect at the first animation frame where it is visible', async ({
+  page,
+}) => {
+  await page.goto('/');
+
+  const delayMs = await measureActionToEffect(
+    page,
+    () =>
+      page.evaluate(() => {
+        const browser = globalThis as unknown as {
+          requestAnimationFrame: (callback: () => void) => number;
+          __effectVisible?: boolean;
+        };
+        browser.__effectVisible = false;
+        browser.requestAnimationFrame(() => {
+          browser.requestAnimationFrame(() => {
+            browser.__effectVisible = true;
+          });
+        });
+      }),
+    () => (globalThis as unknown as { __effectVisible?: boolean }).__effectVisible === true,
+  );
+
+  expect(delayMs).toBeLessThan(100);
+});
+
 test('[T-004-AC2] collects long tasks during a scenario', async ({ page }) => {
   await installProbe(page);
   await page.goto('/');
@@ -95,7 +121,25 @@ test('[T-004-AC4] measures action-to-effect delays locally and for a second user
   const localDelay = await measureActionToEffect(
     page,
     () => page.getByTestId('board-create').click(),
-    () => expect(page.getByTestId('board-canvas').locator('canvas')).toBeVisible(),
+    () => {
+      const browser = globalThis as unknown as {
+        document: {
+          querySelector: (selector: string) => {
+            getBoundingClientRect: () => { width: number; height: number };
+          } | null;
+        };
+        getComputedStyle: (element: unknown) => { visibility: string };
+      };
+      const canvas = browser.document.querySelector('[data-testid="board-canvas"] canvas');
+      if (canvas === null) {
+        return false;
+      }
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) {
+        return false;
+      }
+      return browser.getComputedStyle(canvas).visibility !== 'hidden';
+    },
   );
   expect(localDelay).toBeLessThan(3000);
 
@@ -127,10 +171,7 @@ test('[T-004-AC4] measures action-to-effect delays locally and for a second user
         }, 100);
       });
     },
-    () =>
-      expect
-        .poll(() => pageB.evaluate(() => Boolean((globalThis as unknown as RemoteWindow).__remote)))
-        .toBe(true),
+    () => Boolean((globalThis as unknown as RemoteWindow).__remote),
   );
   expect(remoteDelay).toBeGreaterThanOrEqual(100);
   expect(remoteDelay).toBeLessThan(2000);

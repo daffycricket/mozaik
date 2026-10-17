@@ -115,3 +115,13 @@ Cause : un geste de glisser écrit dans Yjs plusieurs fois (au plus toutes les 5
 Critères d'acceptance :
 
 - **B-003-AC1** : un geste de glisser (déplacement, redimensionnement, glisser d'extrémité de flèche) reste une seule entrée d'annulation même si le fil principal se bloque plus de 500 ms entre deux écritures intermédiaires ; `e2e/fluidity/board-resize.spec.ts` enchaîné plusieurs fois de suite ne fait plus échouer sa vérification d'annulation (ligne 142), sans abaisser les seuils de F00 ni marquer le test `skip`.
+
+## B-004 : Mesure FL-1 gonflée par l'attente des tests
+
+Contexte : `e2e/support/action-effect.ts`, `e2e/fluidity/*.spec.ts`, exigence FL-1 (F00).
+
+Cause : `measureActionToEffect` date la fin de la mesure au moment où le callback d'effet fourni par le test se résout. Quand ce callback attend avec `expect.poll`, la première vérification n'a lieu qu'au premier palier de sondage (100 ms par défaut) : un effet visible avant est daté jusqu'à environ 100 ms trop tard. La mesure relève alors le délai d'attente du test, pas la réaction de l'application.
+
+Critères d'acceptance :
+
+- **B-004-AC1** : `measureActionToEffect` date l'effet à la première image d'animation où il devient visible, indépendamment de la méthode d'attente du test, pour tous ses usages (FL-1, FL-4, FL-7) ; les mesures FL-1 des tests de fluidité ne comptent plus le palier de sondage d'un `expect.poll`. Les seuils de F00, les 3 exécutions et la médiane sont inchangés, aucun test n'est affaibli, désactivé (`skip`, `only`, `fixme`) ni supprimé.

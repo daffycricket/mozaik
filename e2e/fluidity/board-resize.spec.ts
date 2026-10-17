@@ -112,10 +112,12 @@ test('[F07-S3-AC4] keeps resizing on a 300-element board within the fluidity tar
           await page.mouse.down();
           await page.mouse.move(handle.x + 30, handle.y + 20, { steps: 2 });
         },
-        () =>
-          expect
-            .poll(async () => (await elementById(page, target.id)).width)
-            .toBeGreaterThan(before.width + 5),
+        (resized: { id: string; minWidth: number }) => {
+          const api = (globalThis as { __board?: BoardApi }).__board;
+          const element = api?.getElements().find((candidate) => candidate.id === resized.id);
+          return (element?.width ?? 0) > resized.minWidth;
+        },
+        { id: target.id, minWidth: before.width + 5 },
       ),
     );
     await page.mouse.up();

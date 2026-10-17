@@ -78,9 +78,14 @@ test('[F06-S1-AC4] draws an arrow following the pointer within the fluidity targ
       await measureActionToEffect(
         page,
         () => page.mouse.move(target.x, target.y),
-        async () => {
-          await expect.poll(() => draftLength(page)).toBeGreaterThan(previousLength);
+        (minLength: number) => {
+          const draft = (globalThis as { __board?: BoardApi }).__board?.getDraftShape();
+          if (draft === null || draft === undefined || draft.type !== 'arrow') {
+            return false;
+          }
+          return Math.hypot(draft.x2 - draft.x1, draft.y2 - draft.y1) > minLength;
         },
+        previousLength,
       ),
     );
     previousLength = await draftLength(page);

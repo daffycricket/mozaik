@@ -51,7 +51,17 @@ test('[F02-S4-AC4] fits a 300-element board within the fluidity targets', async 
       await measureActionToEffect(
         page,
         () => page.keyboard.press('Shift+Digit1'),
-        () => expect.poll(async () => await viewport(page)).not.toEqual(before),
+        (previous: Viewport) => {
+          const api = (globalThis as { __board?: BoardApi }).__board;
+          if (api === undefined) {
+            return false;
+          }
+          const current = api.getViewport();
+          return (
+            current.x !== previous.x || current.y !== previous.y || current.zoom !== previous.zoom
+          );
+        },
+        before,
       ),
     );
     longTaskRuns.push(await readLongTasks(page));

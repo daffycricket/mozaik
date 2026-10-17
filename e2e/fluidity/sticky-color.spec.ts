@@ -84,7 +84,11 @@ test('[F03-S3-AC3] recolours a sticky note within the local feedback target', as
       await measureActionToEffect(
         page,
         () => page.getByTestId(`color-${color}`).click(),
-        () => waitForColor(page, sticky.id, color),
+        (target: { id: string; color: string }) =>
+          (globalThis as { __board?: BoardApi }).__board
+            ?.getElements()
+            .find((element) => element.id === target.id)?.color === target.color,
+        { id: sticky.id, color },
       ),
     );
   }

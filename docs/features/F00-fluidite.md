@@ -27,6 +27,7 @@ Seuils volontairement tolérants : ils visent à détecter une expérience qui r
 ## Méthode de mesure
 
 - Chaque mesure chiffrée (FL-1 à FL-4, FL-7) est prise sur 3 exécutions du scénario ; on retient la **médiane** des 3. Cela absorbe le bruit de la machine sans retry.
+- Chaque mesure chiffrée date l'effet **à l'image près** : le délai est relevé jusqu'à la première image d'animation où l'effet devient visible, indépendamment de la méthode d'attente du test (palier de sondage d'un `expect.poll`, etc.). Le délai mesuré est celui de la réaction de l'application, pas celui de l'attente du test.
 - FL-5 et FL-6 sont binaires : aucune tolérance.
 
 ## Calibrage autonome par l'agent

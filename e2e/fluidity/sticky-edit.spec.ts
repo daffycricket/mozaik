@@ -102,9 +102,14 @@ test('[F03-S2-AC5] keeps typing immediate and lossless on a board of 300 element
       await measureActionToEffect(
         page,
         () => page.keyboard.type('x', { delay: 0 }),
-        async () => {
-          await expect.poll(() => editor.inputValue()).toHaveLength(expectedLength);
+        (length: number) => {
+          const browser = globalThis as unknown as {
+            document: { querySelector: (selector: string) => { value: string } | null };
+          };
+          const target = browser.document.querySelector('[data-testid="text-editor"]');
+          return target !== null && target.value.length === length;
         },
+        expectedLength,
       ),
     );
   }
