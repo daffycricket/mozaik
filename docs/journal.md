@@ -373,3 +373,8 @@ Fichiers modifiés : docs/features/F02-canvas-infini.md, docs/features/README.md
 | test | packages/model/src/viewport-fit.test.ts, apps/web/src/state/viewport-store-fit.test.ts, apps/web/src/tools/fit-shortcut.test.tsx, e2e/board-fit.spec.ts, e2e/fluidity/board-fit.spec.ts | Tests prévus pour F02-S4-AC1 à AC4 ; aucun test hérité modifié ni supprimé | agent | non |
 
 Fichiers modifiés : docs/tickets/MZK-1/plan.md
+
+### Dev : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
