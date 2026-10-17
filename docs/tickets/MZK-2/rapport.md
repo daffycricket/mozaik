@@ -119,3 +119,36 @@ Aucun test supprimé ni désactivé. Assertions fonctionnelles, seuils de F00, 3
 ### Points ouverts
 
 Aucun.
+
+## Métriques du runner
+
+| Phase | Session | Modèle | Durée (s) | Tokens entrée / sortie / raisonnement / cache lu | Coût estimé | Vérification | Couverture vérifiée |
+|---|---|---|---|---|---|---|---|
+| spec | 001 | umans/umans-deepseek-v4.1-flash | 211 | 137745 / 3690 / 12861 / 934616 | 0.0568 | — | — |
+| design | 001 | umans/umans-deepseek-v4.1-flash | 1527 | 242948 / 8461 / 46929 / 2986472 | 0.1533 | — | — |
+| tech-review | 001 | umans/umans-deepseek-v4.1-flash | 60 | 24001 / 1334 / 912 / 147860 | 0.0091 | — | — |
+| dev | 001 | umans/umans-deepseek-v4.1-flash | 780 | 253744 / 17474 / 30645 / 7086892 | 0.2654 | verte | 90.25 / 83.09 |
+
+## Contrôles du runner
+
+| Phase | Session | Contrôle | À revoir |
+|---|---|---|---|
+| dev | 001 | Garde-fou, bloqué (bash) : cd /workspace && echo "count main..HEAD: $(git log --oneline main..HEAD / wc -l)" && git log --oneline main..HEAD && echo "---base is main?---" && git rev-parse main && git merge-base main HEAD. Interdit de merger (AGENTS.md §6). | oui |
+| dev | 001 | Test hérité e2e/fluidity/arrow-create.spec.ts : 0 test(s) disparu(s), assertions 9 -> 8, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/arrow-edit.spec.ts : 0 test(s) disparu(s), assertions 9 -> 9, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/board-fit.spec.ts : 0 test(s) disparu(s), assertions 5 -> 4, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/board-move-remote.spec.ts : 0 test(s) disparu(s), assertions 8 -> 8, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/board-move.spec.ts : 0 test(s) disparu(s), assertions 9 -> 9, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/board-open.spec.ts : 0 test(s) disparu(s), assertions 7 -> 5, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/board-resize.spec.ts : 0 test(s) disparu(s), assertions 10 -> 10, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/board-sync.spec.ts : 0 test(s) disparu(s), assertions 8 -> 7, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/delete.spec.ts : 0 test(s) disparu(s), assertions 5 -> 5, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/empty-board.spec.ts : 0 test(s) disparu(s), assertions 3 -> 2, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/menu-board.spec.ts : 0 test(s) disparu(s), assertions 6 -> 5, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/presence.spec.ts : 0 test(s) disparu(s), assertions 4 -> 4, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/shape-create.spec.ts : 0 test(s) disparu(s), assertions 9 -> 8, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/sticky-color.spec.ts : 0 test(s) disparu(s), assertions 5 -> 5, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/sticky-create.spec.ts : 0 test(s) disparu(s), assertions 4 -> 4, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/sticky-edit.spec.ts : 0 test(s) disparu(s), assertions 12 -> 11, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/text-create.spec.ts : 0 test(s) disparu(s), assertions 12 -> 11, justifié (ticket bug, entrée test au journal). | non |
+| dev | 001 | Test hérité e2e/fluidity/utilities.spec.ts : 0 test(s) disparu(s), assertions 12 -> 12, justifié (ticket bug, entrée test au journal). | non |
