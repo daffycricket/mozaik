@@ -13,10 +13,10 @@ import {
   pasteElements,
   sendBackward,
   sortByZIndex,
-  unionBounds,
   ZOOM_STEP,
 } from '@mozaik/model';
 import { useEffect, useState } from 'react';
+import { fitViewportToContent } from '@/canvas/fit-content';
 import { loadStoredIdentity } from '@/identity/identity';
 import { readClipboard, writeClipboard } from '@/lib/clipboard';
 import { useCanvasSizeStore } from '@/state/canvas-size-store';
@@ -115,7 +115,6 @@ export function useZoomShortcuts(): void {
  * has focus or an element is being edited.
  */
 export function useFitShortcut(doc: BoardDoc | null): void {
-  const fitToContent = useViewportStore((state) => state.fitToContent);
   const size = useCanvasSizeStore((state) => state.size);
 
   useEffect(() => {
@@ -133,19 +132,11 @@ export function useFitShortcut(doc: BoardDoc | null): void {
         return;
       }
       event.preventDefault();
-      const bounds = unionBounds(
-        getElements(doc).map((element) => ({
-          x: element.x,
-          y: element.y,
-          width: element.width,
-          height: element.height,
-        })),
-      );
-      fitToContent(bounds, size);
+      fitViewportToContent(doc, size);
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [doc, fitToContent, size]);
+  }, [doc, size]);
 }
 
 /**

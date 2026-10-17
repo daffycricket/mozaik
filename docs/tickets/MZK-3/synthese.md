@@ -27,3 +27,17 @@ Le plan tient en une étape. J'ajoute un bouton `zoom-fit` après les boutons + 
 ### Ce que tu dois trancher
 
 Un seul point : l'infobulle. La charte et la fiche composants demandent le composant Tooltip de shadcn/ui, mais il n'existe pas encore dans le projet et tous les boutons icône actuels utilisent l'infobulle native du navigateur. J'ai prévu de suivre la spec et d'ajouter le composant Tooltip, avec un repli sur l'infobulle native si son ajout s'avère impossible en dev. Dis-moi si tu préfères qu'on s'en tienne à l'infobulle native partout.
+
+## Dev : 2026-10-17
+
+### Ce que j'ai compris
+
+Le ticket ajoute un quatrième bouton au groupe de zoom, en bas à droite, qui doit faire exactement ce que fait déjà le raccourci `Shift+1` : recadrer la vue sur tout le contenu. Le plan tenait en une seule étape et j'ai pu le suivre tel quel. Le point qui demandait le plus d'attention était de garantir que le bouton et le clavier ne puissent jamais diverger, et de fournir une vraie infobulle alors que le projet n'avait jusque-là que l'infobulle native du navigateur.
+
+### Ce qui change
+
+La logique de recadrage est maintenant extraite dans une fonction partagée, appelée à la fois par le raccourci `Shift+1` et par le nouveau bouton : les deux déclencheurs calculent donc rigoureusement le même cadrage, avec la même marge, le même dézoom, le même retour au viewport par défaut sur un board vide et les mêmes bornes de zoom. Le bouton utilise l'icône « maximize » et une infobulle qui rappelle `Shift+1`. J'ai ajouté le composant Tooltip de shadcn/ui, comme le prévoyaient la charte et la fiche composants ; le CLI l'a généré avec une dépendance `cn` redondante que j'ai retirée au profit de l'utilitaire déjà présent dans le projet. Les tests existants de la règle des contrôles de zoom ont été étendus au nouveau bouton, et j'ai ajouté des tests qui cliquent dessus dans les mêmes scénarios que le raccourci (contenu plus petit, plus grand, board vide, zoom borné). Tout est vert.
+
+### Ce que tu dois trancher
+
+Rien à trancher. Le composant Tooltip a pu être ajouté (le repli sur l'infobulle native n'a pas été nécessaire), et la vérification complète passe : lint, typage, tests unitaires et d'intégration, couverture au-dessus des seuils, end-to-end et contrôle des critères. Seule réserve habituelle de l'environnement : l'image Docker n'a pas pu être vérifiée ici.
