@@ -118,6 +118,12 @@ links() {
   echo "Branche : https://github.com/$REPO_PATH/tree/$(branch)"
   echo "Diff : https://github.com/$REPO_PATH/compare/main...$(branch)"
 }
+file_links() { # fichiers modifiés par le ticket depuis main, avec liens sur la branche
+  local files; files="$(g diff --name-only origin/main...HEAD)"
+  [ -n "$files" ] || return 0
+  echo "### Fichiers modifiés par le ticket"; echo
+  lib file-links --repo "$REPO_PATH" --branch "$(branch)" --files "$files"; echo
+}
 
 # ---------- Espace de travail ----------
 prepare_ws() {
@@ -169,7 +175,7 @@ finish_doc_phase() { # finish_doc_phase <scope> <titre de phase> <description an
   g push -q -u origin "$(branch)"
   info "publié : $(branch) @ $(g rev-parse --short HEAD)"
   { echo "[mozaik] Phase $phase terminée."; echo; links; echo;
-    lib phase-comment --file "$WS/$JOURNAL" --synthese "$WS/docs/tickets/$T/synthese.md" --ticket "$T" --phase "$phase"; } > "$TD/logs/comment.md"
+    lib phase-comment --file "$WS/$JOURNAL" --synthese "$WS/docs/tickets/$T/synthese.md" --ticket "$T" --phase "$phase"; echo; echo; file_links; } > "$TD/logs/comment.md"
   comment "$TD/logs/comment.md"
   [ -z "$next" ] || move "$next"
 }
@@ -242,7 +248,7 @@ finish_code_phase() { # finish_code_phase <titre de phase> <sha de départ>
     [ -z "$pr" ] || echo "Pull request : $pr"; echo;
     if [ -n "$(lib phase-comment --file /dev/null --synthese "$WS/docs/tickets/$T/synthese.md" --ticket "$T" --phase "$phase")" ]; then
       lib phase-comment --file "$WS/$JOURNAL" --synthese "$WS/docs/tickets/$T/synthese.md" --ticket "$T" --phase "$phase"
-    else lib rapport-section --file "$WS/docs/tickets/$T/rapport.md" --title "Synthèse de l'agent"; fi; } > "$TD/logs/comment.md"
+    else lib rapport-section --file "$WS/docs/tickets/$T/rapport.md" --title "Synthèse de l'agent"; fi; echo; echo; file_links; } > "$TD/logs/comment.md"
   comment "$TD/logs/comment.md"
   if [ "$complete" = true ] && [ "$ok" = ok ]; then move Review
   elif [ "$complete" = true ] && [ "$blocking" = 0 ] && [ "$n" -gt 0 ]; then move Review; info "vérification rouge due à un bug secondaire : carte en Review"
