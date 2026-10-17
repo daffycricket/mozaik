@@ -420,3 +420,12 @@ Fichiers modifiés : docs/exigences-techniques.md, docs/features/F00-fluidite.md
 | fichier | docs/glossary.md, docs/design/ | Aucun changement : pas de terme du domaine ni d'interface nouvelle | agent | non |
 
 Fichiers modifiés : docs/adr/0015-datation-a-l-image-des-mesures-action-effet.md, docs/adr/README.md, docs/tickets/MZK-2/plan.md
+
+### Tech review : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| retour | Risque « Seuils », plan.md | [impl] Ne jamais modifier un seuil de F00 dans ce ticket, même dans les planchers de calibrage : B-004-AC1 exige des seuils inchangés ; un dépassement après correctif devient un bug du rapport (secondaire s'il préexiste), pas un ajustement de seuil | humain | non |
+| décision | Risque « Seuils », plan.md | Risque reformulé : la règle de calibrage de F00 (assouplissement jusqu'au plancher) est écartée pour ce ticket ; en cas de dépassement, décrire un bug dans le rapport (secondaire si préexistant) | agent | non |
+
+Fichiers modifiés : docs/tickets/MZK-2/plan.md, docs/tickets/MZK-2/retours.md
