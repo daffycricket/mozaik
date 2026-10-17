@@ -1,13 +1,16 @@
-// Tests des outils côté hôte du mode produit : node --test runner/produit/lib.test.mjs
+// Tests des outils côté hôte du mode produit : node --test runner/lib.test.mjs
 import assert from 'node:assert/strict';
+import { createServer } from 'node:net';
 import { test } from 'node:test';
 import {
   bugsOf,
+  imageVersionDrift,
   journalFiles,
   journalOpen,
   journalRow,
   journalSubsection,
   journalValidate,
+  portFree,
   rapportRunner,
   retoursAppend,
   slug,
@@ -101,4 +104,32 @@ test('retours : section ajoutée avec une remarque par ligne', () => {
     r,
     '# Retours MZK-42 : Confirmer\n\n## Spec review : 2026-10-14\n\n- [spec] Q1 : oui\n- [impl] focus\n',
   );
+});
+
+test('port libre puis occupé', async () => {
+  const server = createServer();
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const { port } = server.address();
+  assert.equal(await portFree(port), false);
+  await new Promise((r) => server.close(r));
+  assert.equal(await portFree(port), true);
+});
+
+test('versions de l’image : écarts avec le projet', () => {
+  const dockerfile =
+    'ARG NODE_IMAGE=node:24\nARG PLAYWRIGHT_VERSION=1.63.0\nARG PNPM_VERSION=12.8.1\n';
+  const same = JSON.stringify({
+    packageManager: 'pnpm@12.8.1',
+    devDependencies: { '@playwright/test': '1.63.0' },
+  });
+  assert.deepEqual(imageVersionDrift(dockerfile, same), []);
+  const bumped = JSON.stringify({
+    packageManager: 'pnpm@12.9.0+sha512.abc',
+    devDependencies: { '@playwright/test': '^1.64.0' },
+  });
+  assert.deepEqual(imageVersionDrift(dockerfile, bumped), [
+    'PLAYWRIGHT_VERSION vaut 1.63.0 dans runner/Dockerfile, le projet utilise ^1.64.0',
+    'PNPM_VERSION vaut 12.8.1 dans runner/Dockerfile, le projet utilise 12.9.0',
+  ]);
+  assert.deepEqual(imageVersionDrift(dockerfile, ''), []);
 });

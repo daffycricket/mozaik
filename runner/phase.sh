@@ -82,7 +82,7 @@ for s in $(seq 1 "$MAX_SESSIONS"); do
   prompt="$PROMPT"
   [ -z "$VERIFY_FAILURES" ] || prompt="$PROMPT
 
-ATTENTION : la vérification indépendante de la branche a échoué : $VERIFY_FAILURES. Applique AGENTS.md §9, point 5 : corrige d'abord cet échec."
+ATTENTION : la vérification indépendante de la branche a échoué : $VERIFY_FAILURES. Le détail (sortie de chaque commande) est dans le plus récent des fichiers /run-logs/verify-*.log. Applique AGENTS.md §9, point 5 : corrige d'abord cet échec."
   [ "$s" -eq 1 ] || [ -n "$VERIFY_FAILURES" ] || prompt="$PROMPT
 
 Session de continuation : la session précédente s'est arrêtée avant la fin du plan."
