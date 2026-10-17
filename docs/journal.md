@@ -480,3 +480,14 @@ Carte : https://trello.com/c/gcFw6sHS · Type : feat · Branche : `ticket/MZK-3-
 | décision | F02-S4-AC4 | Aucun nouveau critère de fluidité : le bouton déclenche la même action que `Shift+1`, déjà couverte par FL-1/FL-3 (F02-S4-AC4) | agent | non |
 
 Fichiers modifiés : docs/design/composants.md, docs/design/ecrans.md, docs/features/F02-canvas-infini.md, docs/tickets/MZK-3/ticket.md
+
+### Spec review : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| retour | UI-BOARD-13 | [spec] Ne pas créer UI-BOARD-13 ; faire évoluer UI-BOARD-5, qui fixe la composition et l'ordre du groupe de zoom, pour qu'une seule règle le décrive | humain | non |
+| ui | UI-BOARD-5 | Modifiée : l'ordre devient −, pourcentage, +, puis le bouton de recadrage (icône explicite, infobulle mentionnant `Shift+1`) ; la règle couvre désormais F02-S2 et F02-S4 | agent | non |
+| ui | UI-BOARD-13 | Supprimée : son contenu est fusionné dans UI-BOARD-5 ; l'identifiant n'est pas réutilisé | agent | non |
+| fichier | docs/design/ecrans.md | UI-BOARD-5 étendue au bouton de recadrage, UI-BOARD-13 retirée ; maquette inchangée (bouton `⤢` déjà présent) | agent | non |
+
+Fichiers modifiés : docs/design/ecrans.md, docs/tickets/MZK-3/retours.md, docs/tickets/MZK-3/synthese.md
