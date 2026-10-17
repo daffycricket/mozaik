@@ -378,3 +378,7 @@ Fichiers modifiés : docs/tickets/MZK-1/plan.md
 
 | Type | Éléments concernés | Décision et raison | Origine | À revoir |
 |---|---|---|---|---|
+| décision | packages/model/src/viewport.ts | `fitViewport` calcule un viewport centré et entièrement visible : zoom = plus petit rapport disponible/contenu (marge `FIT_PADDING` de chaque côté), borné par `clampZoom` ; un axe de dimension nulle n'est pas contraignant, un canvas non mesuré ou une boîte nulle replient sur `DEFAULT_VIEWPORT` | agent | non |
+| décision | apps/web/src/tools/shortcuts.ts | Le raccourci `useFitShortcut` lit `event.code === 'Digit1'` avec `Shift` (touche physique, disposition indifférente), calcule `unionBounds(getElements(doc))` et appelle `fitToContent` ; inactif pendant l'édition d'un texte | agent | non |
+| fichier | docs/architecture.md | `viewport.ts`, `viewport-store.ts` et `shortcuts.ts` mis à jour ; flux « Recadrage » ajouté | agent | non |
+

@@ -14,6 +14,7 @@ import { useViewportStore } from '@/state/viewport-store';
 import {
   useClipboardShortcuts,
   useDeleteShortcut,
+  useFitShortcut,
   useHistoryShortcuts,
   useMoveShortcuts,
   useOrderShortcuts,
@@ -55,6 +56,7 @@ export function BoardCanvas() {
   useDrawShape(containerRef, doc);
   useDrawArrow(containerRef, doc);
   useStartEditingShortcut(doc);
+  useFitShortcut(doc);
   useMoveShortcuts(doc);
   useOrderShortcuts(doc);
   useDeleteShortcut(doc);

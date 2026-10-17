@@ -13,6 +13,7 @@ import {
   pasteElements,
   sendBackward,
   sortByZIndex,
+  unionBounds,
   ZOOM_STEP,
 } from '@mozaik/model';
 import { useEffect, useState } from 'react';
@@ -103,6 +104,48 @@ export function useZoomShortcuts(): void {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [zoomBy, zoomTo, size]);
+}
+
+/**
+ * Fits the viewport on the whole content with `Shift+1` (F02-S4-AC1): the
+ * bounding box of every element is centered and fully visible, zoomed out when
+ * it is larger than the viewport. An empty board returns to the default
+ * viewport (F02-S4-AC2). The physical key 1 is matched through `event.code`, so
+ * the shortcut works on any keyboard layout; it is inactive while a text field
+ * has focus or an element is being edited.
+ */
+export function useFitShortcut(doc: BoardDoc | null): void {
+  const fitToContent = useViewportStore((state) => state.fitToContent);
+  const size = useCanvasSizeStore((state) => state.size);
+
+  useEffect(() => {
+    if (doc === null) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (!event.shiftKey || event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+      if (event.code !== 'Digit1') {
+        return;
+      }
+      if (isTextEditingTarget(event.target) || useEditingStore.getState().editingId !== null) {
+        return;
+      }
+      event.preventDefault();
+      const bounds = unionBounds(
+        getElements(doc).map((element) => ({
+          x: element.x,
+          y: element.y,
+          width: element.width,
+          height: element.height,
+        })),
+      );
+      fitToContent(bounds, size);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [doc, fitToContent, size]);
 }
 
 /**
