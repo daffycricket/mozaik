@@ -414,7 +414,7 @@ Fichiers modifiés : docs/exigences-techniques.md, docs/features/F00-fluidite.md
 | décision | docs/adr/0015-datation-a-l-image-des-mesures-action-effet.md | Décision structurante : contrat de mesure action → effet pour tous les tests de fluidité. Consignée en ADR-0015 (index mis à jour) | agent | non |
 | décision | e2e/fluidity/*.spec.ts | Les 19 appels à `measureActionToEffect` (18 fichiers) expriment leur effet comme prédicat in-page ; assertions, seuils, 3 exécutions et médiane inchangés, aucun test supprimé ni désactivé | agent | non |
 | décision | plan.md | Une seule étape : le changement de signature de l'utilitaire et la migration de tous ses appels sont indissociables (compilation), donc un commit unique | agent | non |
-| hypothèse | H2, B-004-AC1 | Les prédicats de test sont autonomes (aucune fermeture sur une variable Node, aucun import) pour que `effect.toString()` produise une fonction exécutable dans la page. Vérifié par le test `[B-004-AC1]` et la migration ; repli prévu dans les risques du plan (registre de prédicats nommés) | agent | oui |
+| hypothèse | H2, B-004-AC1 | Les prédicats de test sont autonomes (aucune fermeture sur une variable Node, aucun import) pour que `effect.toString()` produise une fonction exécutable dans la page. Vérifié par le test `[B-004-AC1]` et la migration ; repli prévu dans les risques du plan (registre de prédicats nommés) | agent | revu |
 | test | e2e/fluidity/utilities.spec.ts | `[T-004-AC4]` adapté à la nouvelle API (mêmes bornes `localDelay < 3000`, `remoteDelay ≥ 100` et `< 2000`) ; `[B-004-AC1]` ajouté : un effet visible à la 2e image est daté sous 100 ms, là où un `expect.poll` mesurerait au moins 100 ms | agent | non |
 | fichier | docs/architecture.md | Aucun changement : les utilitaires de `e2e/support/` n'y figurent pas (seule l'entrée `e2e/ Tests Playwright`) | agent | non |
 | fichier | docs/glossary.md, docs/design/ | Aucun changement : pas de terme du domaine ni d'interface nouvelle | agent | non |
@@ -429,3 +429,8 @@ Fichiers modifiés : docs/adr/0015-datation-a-l-image-des-mesures-action-effet.m
 | décision | Risque « Seuils », plan.md | Risque reformulé : la règle de calibrage de F00 (assouplissement jusqu'au plancher) est écartée pour ce ticket ; en cas de dépassement, décrire un bug dans le rapport (secondaire si préexistant) | agent | non |
 
 Fichiers modifiés : docs/tickets/MZK-2/plan.md, docs/tickets/MZK-2/retours.md
+
+### Dev : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
