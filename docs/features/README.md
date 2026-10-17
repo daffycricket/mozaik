@@ -31,7 +31,7 @@ Un critère d'acceptance est couvert par au moins un test dont le titre commence
 
 Maquettes, navigation et composants : [../design/](../design/README.md).
 
-- Outils de la barre d'outils et raccourcis : Sélection `V`, Main `H`, Post-it `N`, Rectangle `R`, Ellipse `O`, Texte `T`, Flèche `A`. `Échap` revient à l'outil Sélection et quitte l'édition en cours.
+- Outils de la barre d'outils et raccourcis : Sélection `V`, Main `H`, Post-it `N`, Rectangle `R`, Ellipse `O`, Texte `T`, Flèche `A`. `Échap` revient à l'outil Sélection et quitte l'édition en cours. `Shift+1` (touche physique 1, quelle que soit la disposition du clavier) recadre la vue sur tout le contenu.
 - Après la création d'un élément, l'outil actif revient à Sélection et l'élément créé est sélectionné.
 - Les raccourcis clavier sont inactifs pendant l'édition d'un texte et pendant la saisie du nom.
 - Chaque bouton de la barre d'outils a `data-testid="tool-<nom>"` et un `aria-label`.

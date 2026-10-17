@@ -322,3 +322,70 @@ Fichiers modifiés : commits `78f0bf4`, `bdfee0c`, `056abf5` de la branche `setu
 | fichier | .dockerignore, .gitignore | `runner/` exclu de l'image de l'application ; `runner/.env` ignoré par Git. | agent | oui |
 
 Fichiers modifiés : voir la branche `setup/mode-produit`.
+
+## MZK-1 : Recadrer la vue sur tout le contenu
+
+Carte : (aucune) · Type : feat · Branche : `ticket/MZK-1-recadrer-la-vue-sur-tout-le`
+
+### Spec : 2026-10-11
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| story | F02-S4 | Ajoutée : recadrer la vue sur tout le contenu au raccourci clavier, demandé par la carte | humain | non |
+| critère | F02-S4-AC1 | Ajouté : recadrage au raccourci `Shift+1`, contenu centré et entièrement visible avec une marge `FIT_PADDING` | agent | revu |
+| critère | F02-S4-AC2 | Ajouté : board vide, le recadrage revient au viewport par défaut | agent | revu |
+| critère | F02-S4-AC3 | Ajouté : zoom de recadrage borné à 10 %–400 %, contenu recentré | agent | revu |
+| critère | F02-S4-AC4 | Ajouté : fluidité FL-1 et FL-3 sur un board de 300 éléments | agent | revu |
+| décision | F02 (hors périmètre) | Supprimé : « Ajuster le zoom à l'ensemble du contenu » n'est plus hors périmètre, couvert par F02-S4 | humain | non |
+| hypothèse | H1, F02-S4 | Le recadrage est instantané, sans animation ; la carte demande « d'un coup » | agent | revu |
+| hypothèse | H2, F02-S4-AC2 | Un board vide revient aux valeurs par défaut (100 %, origine), comme `Ctrl+0` | agent | revu |
+| hypothèse | H3, F02-S4-AC3 | Le zoom de recadrage est borné par `MIN_ZOOM`/`MAX_ZOOM`, comme tout zoom | agent | revu |
+| question | Q1, F02-S4-AC1 | La carte ne précise pas le raccourci. Hypothèse retenue : `Shift+1` (convention « zoom to fit », inactif en édition) | agent | revu |
+| fichier | docs/features/F02-canvas-infini.md | Règle métier de recadrage et story F02-S4 ajoutées ; hors périmètre réduit | agent | revu |
+
+Fichiers modifiés : docs/features/F02-canvas-infini.md, docs/tickets/MZK-1/ticket.md
+
+### Spec review : 2026-10-11
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| retour | retours.md (Spec review) | Q1 résolu : le raccourci de recadrage est `Shift+1`. | humain | non |
+| retour | retours.md (Spec review) | Le raccourci est la touche physique 1 avec Shift, quelle que soit la disposition du clavier (AZERTY comme QWERTY). | humain | non |
+| retour | retours.md (Spec review) | `FIT_PADDING` vaut 48 px. | humain | non |
+| retour | retours.md (Spec review) | AC1 couvre aussi un contenu plus grand que le viewport : le recadrage dézoome pour tout afficher. | humain | non |
+| question | Q1, F02-S4-AC1 | Résolue : `Shift+1` ; le raccourci est précisé comme la touche physique 1 avec Shift, indépendant de la disposition du clavier. | humain | non |
+| règle | F02 (règles métier) | Recadrage : raccourci `Shift+1` (touche physique 1), marge `FIT_PADDING = 48 px`, dézoom si le contenu dépasse le viewport. | humain | non |
+| critère | F02-S4-AC1 | Étendu : contenu plus petit ou plus grand que le viewport (dézoom), raccourci précisé (touche physique 1, disposition indifférente), marge `FIT_PADDING` fixée à 48 px. | humain | non |
+| fichier | docs/features/F02-canvas-infini.md | Règle métier et F02-S4-AC1 mises à jour selon les retours. | agent | non |
+| fichier | docs/features/README.md | `Shift+1` ajouté à la liste des raccourcis transverses. | agent | non |
+
+Fichiers modifiés : docs/features/F02-canvas-infini.md, docs/features/README.md, docs/tickets/MZK-1/retours.md
+
+### Design : 2026-10-11
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| décision | packages/model/src/viewport.ts | Le calcul du recadrage est une fonction pure `fitViewport(bounds, canvas)` et la marge une constante `FIT_PADDING = 48`, dans `viewport.ts` à côté du pan et du zoom ; testable sans DOM | agent | non |
+| décision | apps/web/src/state/viewport-store.ts | L'écriture du viewport de recadrage passe par une action `fitToContent` du store, comme `panByScreen`/`zoomTo`/`zoomBy`/`resetViewport` : le store reste le seul endroit qui modifie le viewport | agent | non |
+| décision | apps/web/src/tools/shortcuts.ts | Le raccourci est le hook `useFitShortcut(doc)`, reconnu par `event.code === 'Digit1'` + `Shift` (touche physique, disposition indifférente), inactif pendant l'édition d'un texte ; monté dans `board-canvas.tsx` | agent | non |
+| décision | plan.md | Aucun ADR : décision locale (fonction pure, action de store, hook), sans impact sur l'architecture ni le modèle | agent | non |
+| décision | docs/design/ | Aucun changement de design : pas de composant ni de règle `UI-*` nouvelle ; `UI-BOARD-5` ne liste que −, pourcentage, + (pas de bouton de recadrage) | agent | non |
+| test | packages/model/src/viewport-fit.test.ts, apps/web/src/state/viewport-store-fit.test.ts, apps/web/src/tools/fit-shortcut.test.tsx, e2e/board-fit.spec.ts, e2e/fluidity/board-fit.spec.ts | Tests prévus pour F02-S4-AC1 à AC4 ; aucun test hérité modifié ni supprimé | agent | non |
+
+Fichiers modifiés : docs/tickets/MZK-1/plan.md
+
+### Dev : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| décision | packages/model/src/viewport.ts | `fitViewport` calcule un viewport centré et entièrement visible : zoom = plus petit rapport disponible/contenu (marge `FIT_PADDING` de chaque côté), borné par `clampZoom` ; un axe de dimension nulle n'est pas contraignant, un canvas non mesuré ou une boîte nulle replient sur `DEFAULT_VIEWPORT` | agent | non |
+| décision | apps/web/src/tools/shortcuts.ts | Le raccourci `useFitShortcut` lit `event.code === 'Digit1'` avec `Shift` (touche physique, disposition indifférente), calcule `unionBounds(getElements(doc))` et appelle `fitToContent` ; inactif pendant l'édition d'un texte | agent | non |
+| fichier | docs/architecture.md | `viewport.ts`, `viewport-store.ts` et `shortcuts.ts` mis à jour ; flux « Recadrage » ajouté | agent | non |
+| décision | Plan-Step 2/2 | Échec de la vérification indépendante (`test:e2e`, `[F06-S2-AC3]` mesuré 160,1 ms > 150 ms) : la mesure FL-1 du glisser d'extrémité de flèche est rendue fiable sur la branche ; assertions et seuils inchangés | agent | revu |
+| test | e2e/fluidity/arrow-edit.spec.ts | Test hérité modifié (flaky, F06-S2-AC3) : l'attente d'effet FL-1 passe de `expect.poll` (premier palier de sondage à 100 ms, qui gonflait la mesure) à `page.waitForFunction` (sondage `requestAnimationFrame`, ~16 ms), qui date l'effet réel ; aucune assertion ni seuil affaibli, les 3 exécutions et la médiane de F00 sont conservées | agent | revu |
+
+Fichiers modifiés : apps/web/src/canvas/board-canvas.tsx, apps/web/src/state/viewport-store-fit.test.ts, apps/web/src/state/viewport-store.ts, apps/web/src/tools/fit-shortcut.test.tsx, apps/web/src/tools/shortcuts.ts, docs/architecture.md, docs/tickets/MZK-1/rapport.md, e2e/board-fit.spec.ts, e2e/fluidity/arrow-edit.spec.ts, e2e/fluidity/board-fit.spec.ts, packages/model/src/viewport-fit.test.ts, packages/model/src/viewport.ts
+
+### Merge : 2026-10-17
+
+Tête de branche intégrée : `3832c34` (ticket/MZK-1-recadrer-la-vue-sur-tout-le). Rebase sans conflit, vérification : verte.

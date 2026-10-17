@@ -106,10 +106,16 @@ test('[F06-S2-AC3] drags an arrow endpoint on a 300-element board within the flu
           await page.mouse.down();
           await page.mouse.move(handle.x + 30, handle.y + 20, { steps: 2 });
         },
-        () =>
-          expect
-            .poll(async () => (await elementById(page, arrow.id)).x2 ?? 0)
-            .toBeGreaterThan(before.x2 ?? 0),
+        async () => {
+          await page.waitForFunction(
+            ({ id, x2 }) => {
+              const api = (globalThis as { __board?: BoardApi }).__board;
+              const element = api?.getElements().find((candidate) => candidate.id === id);
+              return (element?.x2 ?? 0) > x2;
+            },
+            { id: arrow.id, x2: before.x2 ?? 0 },
+          );
+        },
       ),
     );
     await page.mouse.up();

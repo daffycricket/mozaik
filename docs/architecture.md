@@ -32,14 +32,14 @@ apps/
     src/
       app/        Routage client minimal (`routes.ts`, `router.tsx`), pages (BoardListPage = menu `/`, BoardPage = `/b/:id`)
       canvas/     Stage Konva (`board-canvas.tsx`, grille de points), rendu des éléments (`board-elements.tsx`, `use-elements.ts`), sélection, déplacement et redimensionnement au pointeur (`use-select.ts`, cadre et poignées dans `selection-overlay.tsx`, positions dans `selection-handles.ts`), création et édition de post-its et de textes libres (`use-create.ts`), tracé de formes (`use-draw-shape.ts`) et de flèches (`use-draw-arrow.ts`), pan (`use-pan.ts`), zoom à la molette (`use-zoom.ts`)
-      tools/      Raccourcis clavier (`shortcuts.ts` : outils, zoom, déplacement aux flèches, `Ctrl+Z` / `Ctrl+Shift+Z`) ; les outils eux-mêmes arrivent avec leurs stories
+      tools/      Raccourcis clavier (`shortcuts.ts` : outils, zoom, recadrage sur le contenu (`Shift+1`), déplacement aux flèches, `Ctrl+Z` / `Ctrl+Shift+Z`) ; les outils eux-mêmes arrivent avec leurs stories
       identity/   Identité locale (`identity.ts`, `localStorage`) et dialogue de nom
       components/
         ui/       Composants shadcn/ui copiés dans le dépôt (ADR-0011) : `button`, `dialog`, `input`, `label`, `separator`, `toggle-group`
         board/    Composants du projet : `toolbar.tsx` (outils puis Annuler/Rétablir), `zoom-controls.tsx`, `text-editor.tsx`, `context-bar.tsx` ; autres dialogues à venir
       lib/        `utils.ts` (`cn` de shadcn/ui), `theme-tokens.ts` (jetons de la charte exposés au canvas), client REST (`boards-api.ts`)
       index.css   Thème : import Tailwind, variables shadcn/ui `neutral`, jetons du projet
-      state/      Stores Zustand (UI locale uniquement) : `viewport-store.ts` (viewport, pan et zoom), `tool-store.ts` (outil actif), `canvas-size-store.ts` (taille du canvas, ancre du zoom), `selection-store.ts` (sélection, ajout/retrait avec `toggle`), `editing-store.ts` (élément en édition), `draft-store.ts` (aperçu de la forme ou de la flèche en cours de tracé)
+      state/      Stores Zustand (UI locale uniquement) : `viewport-store.ts` (viewport, pan, zoom et recadrage), `tool-store.ts` (outil actif), `canvas-size-store.ts` (taille du canvas, ancre du zoom), `selection-store.ts` (sélection, ajout/retrait avec `toggle`), `editing-store.ts` (élément en édition), `draft-store.ts` (aperçu de la forme ou de la flèche en cours de tracé)
       collab/     Connexion Hocuspocus, awareness (curseurs), contexte du document (`board-doc-context.ts`), historique d'annulation (`history-context.ts`, état d'activation dans `use-history-state.ts`)
       testing/    Exposition de window.__board en mode VITE_E2E, dont `getOverlayBoxes()` et `getDraftShape()`
   server/         Fastify + Hocuspocus
@@ -60,7 +60,7 @@ packages/
       resize.ts       Redimensionnement : `MIN_ELEMENT_SIZE`, `RESIZE_HANDLE_ORDER`, `isResizable`, `resizeHandlePoint`, `resizeHandleAtPoint`, `resizeBox`
       text-fit.ts     Taille de police d'un post-it qui fait tenir son texte (`fitStickyFontSize`) et boîte d'un texte libre selon son contenu (`measureTextBox`, `TEXT_LINE_HEIGHT`)
       geometry.ts     Boîte englobante (`unionBounds`), rectangle de sélection (`boxFromPoints`), boîte d'une forme tracée (`shapeBoxFromDrag`) ou créée au clic (`defaultShapeBox`), extrémités d'une flèche (`arrowFromDrag`, `distanceToSegment`, `arrowEndpointAtPoint`, `arrowWithEndpointMoved`)
-      viewport.ts     Conversions coordonnées monde ↔ écran
+      viewport.ts     Conversions coordonnées monde ↔ écran, recadrage sur le contenu (`fitViewport`, `FIT_PADDING`)
   config/         Configs partagées (tsconfig, biome)
 tooling/          Outillage du dépôt (validateur de message de commit, orchestration Docker)
 e2e/              Tests Playwright
@@ -127,6 +127,8 @@ L'identité est locale : nom saisi juste avant l'entrée dans le premier board, 
 ## Flux principaux
 
 **Modification locale** : événement pointeur → outil actif → fonction de `packages/model/ops` dans `doc.transact(fn, LOCAL_ORIGIN)` → Yjs émet la mise à jour → (a) le rendu Konva se met à jour via l'observation du document, sans attendre le serveur (FL-1), (b) le provider envoie la mise à jour au serveur. Pendant un glisser, les positions intermédiaires sont écrites au plus toutes les 50 ms (FL-4).
+
+**Recadrage** (F02-S4) : `Shift+1` recadre la vue sur tout le contenu via `useFitShortcut`. La boîte englobante des éléments (`unionBounds`) est passée à `fitViewport`, qui calcule un viewport centré et entièrement visible, avec une marge `FIT_PADDING` (48 px) et un dézoom si le contenu dépasse le viewport ; le zoom reste borné par `MIN_ZOOM`/`MAX_ZOOM` (F02-S4-AC3). Un board vide revient au viewport par défaut (F02-S4-AC2). Le raccourci lit `event.code === 'Digit1'` (touche physique, disposition indifférente) et est inactif pendant l'édition d'un texte. Le calcul est local et n'écrit jamais dans le document Yjs (FL-1).
 
 **Sélection** (F07-S1) : la sélection est un état local (Zustand), jamais écrite dans le document Yjs. Avec l'outil Sélection, un clic sélectionne l'élément sous le pointeur (le plus haut), Shift+clic l'ajoute ou le retire, un glisser depuis une zone vide trace un rectangle qui sélectionne les éléments entièrement contenus (`elementsInBox`), `Ctrl+A` sélectionne tout et Échap ou un clic dans le vide désélectionne. Le cadre et ses huit poignées (`selectionHandles`, tailles divisées par le zoom) sont dessinés par `selection-overlay.tsx` ; une flèche seule sélectionnée affiche à la place deux poignées rondes à ses extrémités, sans cadre (`ArrowSelectionOverlay`, UI-BOARD-10).
 
