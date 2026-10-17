@@ -161,3 +161,19 @@ Fluidité :
 | FL-5 | Édition d’un texte libre pendant qu’un autre utilisateur modifie le board | — | binaire : contenu et curseur conservés | test-results/fluidity-text-create--F05--ad69c-ther-user-changes-the-board-fluidity/video.webm |
 
 Remarques : —
+
+## Métriques du runner
+
+| Phase | Session | Modèle | Durée (s) | Tokens entrée / sortie / raisonnement / cache lu | Coût estimé | Vérification | Couverture vérifiée |
+|---|---|---|---|---|---|---|---|
+| spec | 001 | umans/umans-deepseek-v4.1-flash | 120 | 51093 / 3250 / 6495 / 540368 | 0.0286 | — | — |
+| spec-review | 001 | umans/umans-deepseek-v4.1-flash | 60 | 28607 / 2377 / 2240 / 236276 | 0.0137 | — | — |
+| design | 001 | umans/umans-deepseek-v4.1-flash | 180 | 88198 / 6184 / 11453 / 1274916 | 0.0595 | — | — |
+| dev | 001 | umans/umans-deepseek-v4.1-flash | 1927 | 322746 / 17405 / 21742 / 7236890 | 0.2745 | échec | 90.25 / 83.09 |
+| dev | 002 | umans/umans-deepseek-v4.1-flash | 1140 | 144958 / 8529 / 24606 / 4853652 | 0.1775 | verte | 90.25 / 83.09 |
+
+## Contrôles du runner
+
+| Phase | Session | Contrôle | À revoir |
+|---|---|---|---|
+| dev | 002 | Test hérité e2e/fluidity/arrow-edit.spec.ts : 0 test(s) disparu(s), assertions 9 -> 9, non justifié (critères F06-S2-AC3, critère non modifié par la spec du ticket). | oui |
