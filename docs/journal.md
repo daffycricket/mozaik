@@ -399,9 +399,24 @@ Carte : (aucune) · Type : bug · Branche : `ticket/MZK-2-mesures-fl-1-gonflees-
 | Type | Éléments concernés | Décision et raison | Origine | À revoir |
 |---|---|---|---|---|
 | critère | B-004-AC1 | Ajouté : `measureActionToEffect` date l'effet à la première image où il devient visible, quel que soit le test ; les mesures FL-1 ne comptent plus le palier de sondage d'un `expect.poll`. Seuils de F00, 3 exécutions et médiane inchangés, aucun test affaibli, désactivé ou supprimé | humain | non |
-| décision | B-004, docs/exigences-techniques.md | Le biais est propre à l'utilitaire de mesure : nouveau groupe bug `B-004` (même motif que B-001/B-002, instabilité de mesure FL) plutôt qu'un nouveau critère de `T-004` ; la méthode générale est précisée dans F00 | agent | oui |
-| fichier | docs/features/F00-fluidite.md | « Méthode de mesure » précisée : chaque mesure chiffrée date l'effet à la première image où il devient visible, indépendamment de la méthode d'attente du test ; le délai mesuré est celui de l'application, pas de l'attente du test | agent | oui |
-| hypothèse | H1, B-004-AC1 | Le correctif porte sur l'utilitaire partagé, donc les mesures FL-4 (déplacement distant, curseur) et FL-7 (ouverture) qui l'utilisent bénéficient aussi de la datation à l'image ; la carte ne cite que FL-1. Les seuils de ces exigences restent inchangés | agent | oui |
-| question | Q1, B-004-AC1 | La datation à l'image près porte-t-elle aussi sur le début de la mesure (l'action) ? Hypothèse retenue : non, le début reste l'instant qui précède immédiatement l'action ; seule la fin (l'effet) est datée à la première image où il devient visible | agent | oui |
+| décision | B-004, docs/exigences-techniques.md | Le biais est propre à l'utilitaire de mesure : nouveau groupe bug `B-004` (même motif que B-001/B-002, instabilité de mesure FL) plutôt qu'un nouveau critère de `T-004` ; la méthode générale est précisée dans F00 | agent | revu |
+| fichier | docs/features/F00-fluidite.md | « Méthode de mesure » précisée : chaque mesure chiffrée date l'effet à la première image où il devient visible, indépendamment de la méthode d'attente du test ; le délai mesuré est celui de l'application, pas de l'attente du test | agent | revu |
+| hypothèse | H1, B-004-AC1 | Le correctif porte sur l'utilitaire partagé, donc les mesures FL-4 (déplacement distant, curseur) et FL-7 (ouverture) qui l'utilisent bénéficient aussi de la datation à l'image ; la carte ne cite que FL-1. Les seuils de ces exigences restent inchangés | agent | revu |
+| question | Q1, B-004-AC1 | La datation à l'image près porte-t-elle aussi sur le début de la mesure (l'action) ? Hypothèse retenue : non, le début reste l'instant qui précède immédiatement l'action ; seule la fin (l'effet) est datée à la première image où il devient visible | agent | revu |
 
 Fichiers modifiés : docs/exigences-techniques.md, docs/features/F00-fluidite.md, docs/tickets/MZK-2/ticket.md
+
+### Design : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| décision | e2e/support/action-effect.ts | `measureActionToEffect` reçoit l'effet comme un prédicat navigateur autonome `(arg) => boolean` + argument sérialisable ; l'utilitaire le matérialise dans la page et l'évalue à chaque image (`page.waitForFunction`, sondage `requestAnimationFrame`), l'effet étant daté par le `performance.now()` de la première image où il est vrai. `start` reste l'instant qui précède immédiatement l'action. La datation est centralisée dans l'utilitaire, donc indépendante de la méthode d'attente du test | agent | non |
+| décision | docs/adr/0015-datation-a-l-image-des-mesures-action-effet.md | Décision structurante : contrat de mesure action → effet pour tous les tests de fluidité. Consignée en ADR-0015 (index mis à jour) | agent | non |
+| décision | e2e/fluidity/*.spec.ts | Les 19 appels à `measureActionToEffect` (18 fichiers) expriment leur effet comme prédicat in-page ; assertions, seuils, 3 exécutions et médiane inchangés, aucun test supprimé ni désactivé | agent | non |
+| décision | plan.md | Une seule étape : le changement de signature de l'utilitaire et la migration de tous ses appels sont indissociables (compilation), donc un commit unique | agent | non |
+| hypothèse | H2, B-004-AC1 | Les prédicats de test sont autonomes (aucune fermeture sur une variable Node, aucun import) pour que `effect.toString()` produise une fonction exécutable dans la page. Vérifié par le test `[B-004-AC1]` et la migration ; repli prévu dans les risques du plan (registre de prédicats nommés) | agent | oui |
+| test | e2e/fluidity/utilities.spec.ts | `[T-004-AC4]` adapté à la nouvelle API (mêmes bornes `localDelay < 3000`, `remoteDelay ≥ 100` et `< 2000`) ; `[B-004-AC1]` ajouté : un effet visible à la 2e image est daté sous 100 ms, là où un `expect.poll` mesurerait au moins 100 ms | agent | non |
+| fichier | docs/architecture.md | Aucun changement : les utilitaires de `e2e/support/` n'y figurent pas (seule l'entrée `e2e/ Tests Playwright`) | agent | non |
+| fichier | docs/glossary.md, docs/design/ | Aucun changement : pas de terme du domaine ni d'interface nouvelle | agent | non |
+
+Fichiers modifiés : docs/adr/0015-datation-a-l-image-des-mesures-action-effet.md, docs/adr/README.md, docs/tickets/MZK-2/plan.md
