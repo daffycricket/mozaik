@@ -19,6 +19,7 @@ const SPEC_PATHS = [
 ];
 const DESIGN_PATHS = [
   `docs/tickets/${TICKET}/plan.md`,
+  `docs/tickets/${TICKET}/synthese.md`,
   'docs/adr/',
   'docs/architecture.md',
   'docs/glossary.md',

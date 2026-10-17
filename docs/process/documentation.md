@@ -17,7 +17,7 @@ docs/
   adr/                      Une décision par fichier, numérotée, immuable une fois acceptée
   features/                 Une fonctionnalité par fichier : stories et critères d'acceptance
   design/                   Navigation, maquettes ASCII et règles UI-*, composants, charte
-  tickets/                  Un dossier par ticket : ticket.md, plan.md, retours.md, rapport.md
+  tickets/                  Un dossier par ticket : ticket.md, plan.md, synthese.md, retours.md, rapport.md
   process/                  Règles de travail : code, git, tests, documentation, gabarits
 ```
 

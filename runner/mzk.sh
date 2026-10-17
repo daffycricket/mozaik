@@ -169,7 +169,7 @@ finish_doc_phase() { # finish_doc_phase <scope> <titre de phase> <description an
   g push -q -u origin "$(branch)"
   info "publié : $(branch) @ $(g rev-parse --short HEAD)"
   { echo "[mozaik] Phase $phase terminée."; echo; links; echo;
-    lib journal-subsection --file "$WS/$JOURNAL" --ticket "$T" --phase "$phase"; } > "$TD/logs/comment.md"
+    lib phase-comment --file "$WS/$JOURNAL" --synthese "$WS/docs/tickets/$T/synthese.md" --ticket "$T" --phase "$phase"; } > "$TD/logs/comment.md"
   comment "$TD/logs/comment.md"
   [ -z "$next" ] || move "$next"
 }
@@ -240,7 +240,9 @@ finish_code_phase() { # finish_code_phase <titre de phase> <sha de départ>
 
   { echo "[mozaik] Phase $phase terminée : vérification $ok, plan terminé : $complete."; echo; links;
     [ -z "$pr" ] || echo "Pull request : $pr"; echo;
-    lib rapport-section --file "$WS/docs/tickets/$T/rapport.md" --title "Synthèse de l'agent"; } > "$TD/logs/comment.md"
+    if [ -n "$(lib phase-comment --file /dev/null --synthese "$WS/docs/tickets/$T/synthese.md" --ticket "$T" --phase "$phase")" ]; then
+      lib phase-comment --file "$WS/$JOURNAL" --synthese "$WS/docs/tickets/$T/synthese.md" --ticket "$T" --phase "$phase"
+    else lib rapport-section --file "$WS/docs/tickets/$T/rapport.md" --title "Synthèse de l'agent"; fi; } > "$TD/logs/comment.md"
   comment "$TD/logs/comment.md"
   if [ "$complete" = true ] && [ "$ok" = ok ]; then move Review
   elif [ "$complete" = true ] && [ "$blocking" = 0 ] && [ "$n" -gt 0 ]; then move Review; info "vérification rouge due à un bug secondaire : carte en Review"

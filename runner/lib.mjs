@@ -164,6 +164,50 @@ export function journalSubsection(text, ticket, phase) {
   return lines.slice(start, end).join('\n').trim();
 }
 
+// ---------- Synthèse de phase ----------
+
+// Dernière section « ## <phase> : <date> » de synthese.md, sans son titre
+export function syntheseSection(text, phase) {
+  const lines = String(text || '').split('\n');
+  let start = -1;
+  for (let i = 0; i < lines.length; i++) if (lines[i].startsWith(`## ${phase} : `)) start = i;
+  if (start < 0) return '';
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i++)
+    if (lines[i].startsWith('## ')) {
+      end = i;
+      break;
+    }
+  return lines
+    .slice(start + 1, end)
+    .join('\n')
+    .trim();
+}
+
+// Entrées « À revoir : oui » de la sous-section de la phase : hypothèses, questions, décisions
+export function journalToDecide(text, ticket, phase) {
+  return journalSubsection(text, ticket, phase)
+    .split('\n')
+    .filter((l) => l.startsWith('|'))
+    .map((l) =>
+      l
+        .slice(1, -1)
+        .split('|')
+        .map((c) => c.trim()),
+    )
+    .filter((c) => ['hypothèse', 'question', 'décision'].includes(c[0]) && c[4] === 'oui')
+    .map((c) => `- **${c[0]}** ${c[1]} : ${c[2]}`);
+}
+
+// Corps du commentaire de fin de phase : synthèse rédigée et points à trancher ;
+// à défaut de synthèse, la sous-section du journal
+export function phaseComment(synthese, journal, ticket, phase) {
+  const prose = syntheseSection(synthese, phase);
+  if (!prose) return journalSubsection(journal, ticket, phase);
+  const decide = journalToDecide(journal, ticket, phase);
+  return [prose, ...(decide.length ? ['', '### Points à valider', '', ...decide] : [])].join('\n');
+}
+
 // ---------- Rapport ----------
 
 function upsertH2(text, title, body) {
@@ -480,6 +524,11 @@ async function main() {
     case 'bugs':
       process.stdout.write(JSON.stringify(bugsOf(read(file))));
       break;
+    case 'phase-comment':
+      process.stdout.write(
+        phaseComment(read(need('synthese')), read(file), need('ticket'), need('phase')),
+      );
+      break;
     case 'port-free':
       process.exit((await portFree(need('port'))) ? 0 : 1);
       break;
@@ -521,7 +570,7 @@ async function main() {
       break;
     default:
       process.stderr.write(
-        'usage: node lib.mjs <slug|journal-open|journal-row|journal-append|rapport-section|journal-files|journal-validate|journal-subsection|rapport-runner|bugs|port-free|image-drift|retours-append|trello-card|trello-move|trello-comment|trello-comments|trello-create> [options]\n',
+        'usage: node lib.mjs <slug|journal-open|journal-row|journal-append|rapport-section|journal-files|journal-validate|journal-subsection|rapport-runner|bugs|phase-comment|port-free|image-drift|retours-append|trello-card|trello-move|trello-comment|trello-comments|trello-create> [options]\n',
       );
       process.exit(2);
   }
