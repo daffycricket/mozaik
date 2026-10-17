@@ -11,7 +11,7 @@ L'utilisateur se déplace librement sur une surface sans limite et zoome pour vo
 
 - Zoom entre 10 % et 400 %. Zoom par défaut à l'ouverture : 100 %, centré sur l'origine (0, 0).
 - Le zoom à la molette (avec Ctrl/Cmd) ou au pincement du pavé tactile est centré sur le pointeur.
-- Recadrer la vue, au raccourci `Shift+1` (touche physique 1, quelle que soit la disposition du clavier), ajuste le zoom et le décalage pour afficher tout le contenu, centré, avec une marge constante `FIT_PADDING = 48 px` (en pixels écran) entre la boîte englobante du contenu et les bords du canvas ; si le contenu est plus grand que le viewport, le recadrage dézoome pour tout afficher. Sur un board vide, le viewport revient aux valeurs par défaut.
+- Recadrer la vue, au raccourci `Shift+1` (touche physique 1, quelle que soit la disposition du clavier) ou au bouton des contrôles de zoom, ajuste le zoom et le décalage pour afficher tout le contenu, centré, avec une marge constante `FIT_PADDING = 48 px` (en pixels écran) entre la boîte englobante du contenu et les bords du canvas ; si le contenu est plus grand que le viewport, le recadrage dézoome pour tout afficher. Sur un board vide, le viewport revient aux valeurs par défaut.
 - Le viewport est local à chaque utilisateur, non partagé, non persisté.
 - Fond : grille de points qui suit le pan et le zoom.
 - Volume cible : 300 éléments par board. Aucune exigence au-delà dans un premier temps.
@@ -79,6 +79,10 @@ L'utilisateur se déplace librement sur une surface sans limite et zoome pour vo
   - Alors le zoom reste entre 10 % et 400 % et le centre du contenu reste au centre du viewport
 - **F02-S4-AC4** : fluidité
   - Le recadrage respecte FL-1 et FL-3 (F00) sur un board de 300 éléments
+- **F02-S4-AC5** : recadrage au bouton des contrôles de zoom
+  - Étant donné un board avec du contenu, plus petit ou plus grand que le viewport
+  - Quand je clique sur le bouton de recadrage des contrôles de zoom (icône explicite, infobulle mentionnant `Shift+1`)
+  - Alors le recadrage est identique à `Shift+1` (mêmes règles de marge `FIT_PADDING`, de dézoom, de board vide et de bornes de zoom), et les contrôles de zoom ne chevauchent aucun autre élément flottant aux deux viewports de référence
 
 ## Hors périmètre
 

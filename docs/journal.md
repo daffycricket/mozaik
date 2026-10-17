@@ -461,3 +461,22 @@ Fichiers modifiés : docs/tickets/MZK-2/rapport.md, e2e/fluidity/arrow-create.sp
 ### Merge : 2026-10-17
 
 Tête de branche intégrée : `a3d3cd6` (ticket/MZK-2-mesures-fl-1-gonflees-par-l). Rebase sans conflit, vérification : verte.
+
+## MZK-3 : Bouton pour recadrer la vue sur tout le contenu
+
+Carte : https://trello.com/c/gcFw6sHS · Type : feat · Branche : `ticket/MZK-3-bouton-pour-recadrer-la-vue-sur-tout`
+
+### Spec : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| critère | F02-S4-AC5 | Ajouté : un clic sur le bouton de recadrage des contrôles de zoom fait exactement comme `Shift+1` (mêmes règles de marge `FIT_PADDING`, de dézoom, de board vide et de bornes de zoom), icône explicite et infobulle mentionnant le raccourci ; les contrôles agrandis ne chevauchent toujours aucun élément flottant (UI-BOARD-6). Demandé par la carte | humain | non |
+| story | F02-S4 | Modifiée : la règle métier du recadrage cite le bouton comme second déclencheur, à côté du raccourci ; pas de nouvelle story, l'objectif est le même et seul le déclencheur s'ajoute | agent | oui |
+| ui | UI-BOARD-13 | Ajoutée : le bouton de recadrage est dans les contrôles de zoom, à côté de −, pourcentage, +, avec une icône explicite et une infobulle mentionnant `Shift+1` (`charte.md` impose déjà `aria-label` et infobulle sur chaque bouton icône) | agent | oui |
+| fichier | docs/design/ecrans.md | Maquette du board mise à jour (bouton `⤢` ajouté au groupe de zoom) et règle UI-BOARD-13 ajoutée, conséquence de F02-S4-AC5 | agent | oui |
+| fichier | docs/design/composants.md | Contrôles de zoom : ajout de `zoom-fit` (icône `maximize`, infobulle, raccourci `Shift+1`) | agent | oui |
+| hypothèse | H1, UI-BOARD-13 | Le bouton est placé après « + », à droite du groupe ; la carte ne précise pas le côté | agent | oui |
+| hypothèse | H2, UI-BOARD-13 | L'infobulle est le composant shadcn/ui `tooltip` et l'icône est `maximize` (lucide) ; la carte demande une « icône explicite » sans la nommer | agent | oui |
+| décision | F02-S4-AC4 | Aucun nouveau critère de fluidité : le bouton déclenche la même action que `Shift+1`, déjà couverte par FL-1/FL-3 (F02-S4-AC4) | agent | non |
+
+Fichiers modifiés : docs/design/composants.md, docs/design/ecrans.md, docs/features/F02-canvas-infini.md, docs/tickets/MZK-3/ticket.md
