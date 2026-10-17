@@ -508,3 +508,9 @@ Fichiers modifiés : docs/architecture.md, docs/tickets/MZK-3/plan.md, docs/tick
 
 | Type | Éléments concernés | Décision et raison | Origine | À revoir |
 |---|---|---|---|---|
+| décision | apps/web/src/components/ui/tooltip.tsx | Composant `tooltip` ajouté par `pnpm dlx shadcn@latest add tooltip` (style `base-nova`, Base UI) ; l'import `cn` du CLI remplacé par `@/lib/utils` et la dépendance `cn` ajoutée par le CLI retirée, pour respecter les conventions du projet et éviter une dépendance redondante | agent | non |
+| décision | apps/web/src/canvas/fit-content.ts | `fitViewportToContent(doc, canvas)` implémenté comme décidé au design et appelé par `useFitShortcut` et `zoom-controls.tsx` ; `Shift+1` inchangé | agent | non |
+| test | apps/web/src/components/board/zoom-controls.test.tsx | `[UI-BOARD-5]` étendu à `zoom-fit` (ordre et nom accessible) et ajout de `[F02-S4-AC5]` (contenu, board vide, clic hors board) ; règle des contrôles de zoom modifiée par le ticket | agent | non |
+| test | e2e/board-fit.spec.ts | Ajout de 4 tests `[F02-S4-AC5]` sur le bouton (contenu plus petit, plus grand, board vide, zoom borné), miroirs des scénarios clavier de F02-S4-AC1/AC2/AC3 | agent | non |
+| test | e2e/layout/board-zoom.spec.ts | `[UI-BOARD-5]` étendu à `zoom-fit` (ordre et infobulle mentionnant `Shift+1`) aux deux viewports ; `[UI-BOARD-6]` inchangé | agent | non |
+| fichier | docs/architecture.md | Déjà à jour depuis le design (recadrage à deux déclencheurs, fonction partagée `fitViewportToContent`) ; aucune modification en dev | agent | non |

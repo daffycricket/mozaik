@@ -32,9 +32,19 @@ for (const viewport of viewports) {
       await expectDistanceToEdge(controls, 'right', 12);
       await expectDistanceToEdge(controls, 'bottom', 12);
       await expectOrder(
-        [page.getByTestId('zoom-out'), page.getByTestId('zoom-level'), page.getByTestId('zoom-in')],
+        [
+          page.getByTestId('zoom-out'),
+          page.getByTestId('zoom-level'),
+          page.getByTestId('zoom-in'),
+          page.getByTestId('zoom-fit'),
+        ],
         'horizontal',
       );
+
+      const fit = page.getByTestId('zoom-fit');
+      await expect(fit).toHaveAttribute('aria-label', /Shift\+1/);
+      await fit.hover();
+      await expect(page.getByText('Recadrer sur tout le contenu (Shift+1)')).toBeVisible();
     });
 
     test('[UI-BOARD-6] keeps the floating elements from overlapping', async ({ page, request }) => {
