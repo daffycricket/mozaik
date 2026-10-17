@@ -69,7 +69,7 @@ Dialogue de suppression :
 │ │ ↷  │                     └───────────────┘                               │
 │ └────┘                                         ↖ Lama Flamboyant           │  curseur distant
 │ barre d'outils flottante                                  ┌──────────────┐ │
-│ à gauche, centrée verticalement                           │ −  100 %  +  │ │  zoom, en bas à droite
+│ à gauche, centrée verticalement                           │ −  100 %  +  ⤢ │ │  zoom, en bas à droite
 │                                                           └──────────────┘ │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -97,6 +97,7 @@ Dialogue de suppression :
 | UI-BOARD-10 | Un élément sélectionné est entouré d'un cadre `--selection` de 1 px avec 8 poignées carrées (coins et milieux des côtés) ; une flèche sélectionnée montre 2 poignées rondes à ses extrémités, sans cadre. | F07-S1 |
 | UI-BOARD-11 | Le nom du board dans l'en-tête devient un champ éditable au clic, à la même position. | F01-S3 |
 | UI-BOARD-12 | Un curseur distant est une flèche à la couleur de l'utilisateur, avec une étiquette de même couleur portant son nom, décalée en bas à droite de la pointe. | F10-S2 |
+| UI-BOARD-13 | Le bouton de recadrage sur tout le contenu est placé dans les contrôles de zoom, à côté de −, pourcentage, + ; son icône est explicite et son infobulle mentionne le raccourci `Shift+1`. | F02-S4 |
 
 ## Dialogue de nom
 
