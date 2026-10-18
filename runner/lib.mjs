@@ -362,9 +362,17 @@ export function trelloMarkdown(text) {
 
 async function trello(method, path, params = {}) {
   const { key, token } = trelloEnv();
+  // Clé et jeton dans l'URL ; les données dans le corps pour POST et PUT (un commentaire long
+  // dépasserait la longueur maximale d'une URL : 414)
   const url = new URL(`https://api.trello.com/1${path}`);
-  for (const [k, v] of Object.entries({ ...params, key, token })) url.searchParams.set(k, v);
-  const res = await fetch(url, { method, headers: { Accept: 'application/json' } });
+  const inQuery = method === 'GET' ? { ...params, key, token } : { key, token };
+  for (const [k, v] of Object.entries(inQuery)) url.searchParams.set(k, v);
+  const init = { method, headers: { Accept: 'application/json' } };
+  if (method !== 'GET') {
+    init.headers['Content-Type'] = 'application/json';
+    init.body = JSON.stringify(params);
+  }
+  const res = await fetch(url, init);
   if (!res.ok) throw new Error(`Trello ${method} ${path} : ${res.status} ${await res.text()}`);
   return res.json();
 }
