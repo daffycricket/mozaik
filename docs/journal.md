@@ -461,3 +461,62 @@ Fichiers modifiés : docs/tickets/MZK-2/rapport.md, e2e/fluidity/arrow-create.sp
 ### Merge : 2026-10-17
 
 Tête de branche intégrée : `a3d3cd6` (ticket/MZK-2-mesures-fl-1-gonflees-par-l). Rebase sans conflit, vérification : verte.
+
+## MZK-3 : Bouton pour recadrer la vue sur tout le contenu
+
+Carte : https://trello.com/c/gcFw6sHS · Type : feat · Branche : `ticket/MZK-3-bouton-pour-recadrer-la-vue-sur-tout`
+
+### Spec : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| critère | F02-S4-AC5 | Ajouté : un clic sur le bouton de recadrage des contrôles de zoom fait exactement comme `Shift+1` (mêmes règles de marge `FIT_PADDING`, de dézoom, de board vide et de bornes de zoom), icône explicite et infobulle mentionnant le raccourci ; les contrôles agrandis ne chevauchent toujours aucun élément flottant (UI-BOARD-6). Demandé par la carte | humain | non |
+| story | F02-S4 | Modifiée : la règle métier du recadrage cite le bouton comme second déclencheur, à côté du raccourci ; pas de nouvelle story, l'objectif est le même et seul le déclencheur s'ajoute | agent | revu |
+| ui | UI-BOARD-13 | Ajoutée : le bouton de recadrage est dans les contrôles de zoom, à côté de −, pourcentage, +, avec une icône explicite et une infobulle mentionnant `Shift+1` (`charte.md` impose déjà `aria-label` et infobulle sur chaque bouton icône) | agent | revu |
+| fichier | docs/design/ecrans.md | Maquette du board mise à jour (bouton `⤢` ajouté au groupe de zoom) et règle UI-BOARD-13 ajoutée, conséquence de F02-S4-AC5 | agent | revu |
+| fichier | docs/design/composants.md | Contrôles de zoom : ajout de `zoom-fit` (icône `maximize`, infobulle, raccourci `Shift+1`) | agent | revu |
+| hypothèse | H1, UI-BOARD-13 | Le bouton est placé après « + », à droite du groupe ; la carte ne précise pas le côté | agent | revu |
+| hypothèse | H2, UI-BOARD-13 | L'infobulle est le composant shadcn/ui `tooltip` et l'icône est `maximize` (lucide) ; la carte demande une « icône explicite » sans la nommer | agent | revu |
+| décision | F02-S4-AC4 | Aucun nouveau critère de fluidité : le bouton déclenche la même action que `Shift+1`, déjà couverte par FL-1/FL-3 (F02-S4-AC4) | agent | non |
+
+Fichiers modifiés : docs/design/composants.md, docs/design/ecrans.md, docs/features/F02-canvas-infini.md, docs/tickets/MZK-3/ticket.md
+
+### Spec review : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| retour | UI-BOARD-13 | [spec] Ne pas créer UI-BOARD-13 ; faire évoluer UI-BOARD-5, qui fixe la composition et l'ordre du groupe de zoom, pour qu'une seule règle le décrive | humain | non |
+| ui | UI-BOARD-5 | Modifiée : l'ordre devient −, pourcentage, +, puis le bouton de recadrage (icône explicite, infobulle mentionnant `Shift+1`) ; la règle couvre désormais F02-S2 et F02-S4 | agent | non |
+| ui | UI-BOARD-13 | Supprimée : son contenu est fusionné dans UI-BOARD-5 ; l'identifiant n'est pas réutilisé | agent | non |
+| fichier | docs/design/ecrans.md | UI-BOARD-5 étendue au bouton de recadrage, UI-BOARD-13 retirée ; maquette inchangée (bouton `⤢` déjà présent) | agent | non |
+
+Fichiers modifiés : docs/design/ecrans.md, docs/tickets/MZK-3/retours.md, docs/tickets/MZK-3/synthese.md
+
+### Design : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| décision | apps/web/src/canvas/fit-content.ts | Logique « recadrer sur tout le contenu » extraite de `useFitShortcut` en `fitViewportToContent(doc, canvas)`, appelée par le raccourci et par le bouton : une seule source de vérité garantit que F02-S4-AC5 fait exactement comme `Shift+1` | agent | non |
+| décision | zoom-controls.tsx | Le bouton lit le document par le contexte (`useBoardDoc()`), comme `ContextBar`, plutôt qu'une prop traversante ; hors board (`doc` nul) il est sans effet | agent | non |
+| question | H2, UI-BOARD-5 | Le composant `Tooltip` de shadcn/ui n'existe pas encore dans le projet et les boutons icône actuels utilisent l'attribut natif `title`. Hypothèse retenue : suivre `charte.md` et `composants.md` et ajouter le composant Tooltip ; repli sur `title` si l'ajout est impossible | agent | revu |
+| fichier | docs/architecture.md | Le paragraphe « Recadrage » et la carte du module `tools/` citent le bouton et la fonction partagée `fitViewportToContent`, conséquence de F02-S4-AC5 | agent | non |
+| adr | — | Aucun ADR : décision d'implémentation locale, sans impact sur l'architecture ni le modèle de données | agent | non |
+
+Fichiers modifiés : docs/architecture.md, docs/tickets/MZK-3/plan.md, docs/tickets/MZK-3/synthese.md
+
+### Dev : 2026-10-17
+
+| Type | Éléments concernés | Décision et raison | Origine | À revoir |
+|---|---|---|---|---|
+| décision | apps/web/src/components/ui/tooltip.tsx | Composant `tooltip` ajouté par `pnpm dlx shadcn@latest add tooltip` (style `base-nova`, Base UI) ; l'import `cn` du CLI remplacé par `@/lib/utils` et la dépendance `cn` ajoutée par le CLI retirée, pour respecter les conventions du projet et éviter une dépendance redondante | agent | non |
+| décision | apps/web/src/canvas/fit-content.ts | `fitViewportToContent(doc, canvas)` implémenté comme décidé au design et appelé par `useFitShortcut` et `zoom-controls.tsx` ; `Shift+1` inchangé | agent | non |
+| test | apps/web/src/components/board/zoom-controls.test.tsx | `[UI-BOARD-5]` étendu à `zoom-fit` (ordre et nom accessible) et ajout de `[F02-S4-AC5]` (contenu, board vide, clic hors board) ; règle des contrôles de zoom modifiée par le ticket | agent | non |
+| test | e2e/board-fit.spec.ts | Ajout de 4 tests `[F02-S4-AC5]` sur le bouton (contenu plus petit, plus grand, board vide, zoom borné), miroirs des scénarios clavier de F02-S4-AC1/AC2/AC3 | agent | non |
+| test | e2e/layout/board-zoom.spec.ts | `[UI-BOARD-5]` étendu à `zoom-fit` (ordre et infobulle mentionnant `Shift+1`) aux deux viewports ; `[UI-BOARD-6]` inchangé | agent | non |
+| fichier | docs/architecture.md | Déjà à jour depuis le design (recadrage à deux déclencheurs, fonction partagée `fitViewportToContent`) ; aucune modification en dev | agent | non |
+
+Fichiers modifiés : apps/web/src/canvas/fit-content.ts, apps/web/src/components/board/zoom-controls.test.tsx, apps/web/src/components/board/zoom-controls.tsx, apps/web/src/components/ui/tooltip.tsx, apps/web/src/tools/shortcuts.ts, docs/tickets/MZK-3/rapport.md, docs/tickets/MZK-3/synthese.md, e2e/board-fit.spec.ts, e2e/layout/board-zoom.spec.ts
+
+### Merge : 2026-10-18
+
+Tête de branche intégrée : `cdb3541` (ticket/MZK-3-bouton-pour-recadrer-la-vue-sur-tout). Rebase sans conflit, vérification : verte.

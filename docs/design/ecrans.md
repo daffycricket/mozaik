@@ -69,7 +69,7 @@ Dialogue de suppression :
 │ │ ↷  │                     └───────────────┘                               │
 │ └────┘                                         ↖ Lama Flamboyant           │  curseur distant
 │ barre d'outils flottante                                  ┌──────────────┐ │
-│ à gauche, centrée verticalement                           │ −  100 %  +  │ │  zoom, en bas à droite
+│ à gauche, centrée verticalement                           │ −  100 %  +  ⤢ │ │  zoom, en bas à droite
 │                                                           └──────────────┘ │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -89,7 +89,7 @@ Dialogue de suppression :
 | UI-BOARD-2 | Le canvas occupe tout l'espace sous l'en-tête ; la page n'a aucune barre de défilement. | F02-S1 |
 | UI-BOARD-3 | La barre d'outils flotte à gauche (12 px du bord), centrée verticalement dans la zone du canvas. Les outils présents apparaissent dans l'ordre Sélection, Main, Post-it, Rectangle, Ellipse, Texte, Flèche, puis un séparateur, puis Annuler et Rétablir. | F02-S1 |
 | UI-BOARD-4 | L'outil actif est mis en évidence (état actif du composant Toggle de shadcn/ui) et porte `aria-pressed="true"`. | F02-S1 |
-| UI-BOARD-5 | Les contrôles de zoom flottent en bas à droite (12 px des bords), dans l'ordre −, pourcentage, +. | F02-S2 |
+| UI-BOARD-5 | Les contrôles de zoom flottent en bas à droite (12 px des bords), dans l'ordre −, pourcentage, +, puis le bouton de recadrage sur tout le contenu ; son icône est explicite et son infobulle mentionne le raccourci `Shift+1`. | F02-S2, F02-S4 |
 | UI-BOARD-6 | Aucun élément flottant (barre d'outils, zoom, barre contextuelle) n'en chevauche un autre, aux deux viewports de référence. | F02-S2 |
 | UI-BOARD-7 | La barre contextuelle apparaît centrée horizontalement au-dessus du cadre de sélection, à 8 px ; s'il n'y a pas la place au-dessus, elle passe en dessous. Elle ne recouvre jamais la sélection. | F03-S3 |
 | UI-BOARD-8 | La barre contextuelle montre les pastilles de couleur seulement si la sélection contient un post-it ou un texte, puis les boutons Avancer et Reculer. | F07-S4 |
